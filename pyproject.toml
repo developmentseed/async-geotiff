@@ -1,0 +1,18 @@
+[project]
+name = "async-geotiff"
+version = "0.1.0"
+description = "Async GeoTIFF reader for Python"
+readme = "README.md"
+authors = [{ name = "Kyle Barron", email = "kyle@developmentseed.org" }]
+requires-python = ">=3.11"
+dependencies = ["async-tiff>=0.4.0-beta.1"]
+
+[project.optional-dependencies]
+morecantile = ["morecantile>=7.0,<8.0"]
+
+[dependency-groups]
+dev = ["ipykernel>=7.1.0"]
+
+[build-system]
+requires = ["uv_build>=0.8.8,<0.9.0"]
+build-backend = "uv_build"
