@@ -1,18 +1,23 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, Self
 
-from async_geotiff.enums import Compression, Interleaving, PhotometricInterp
 from async_tiff import TIFF, ImageFileDirectory, ObspecInput
 from async_tiff.store import ObjectStore
+
+from async_geotiff.enums import Compression, Interleaving, PhotometricInterp
 
 if TYPE_CHECKING:
     import pyproj
     from affine import Affine
 
 
-class GeoTIFF(TIFF):
+class GeoTIFF:
+    """A class representing a GeoTIFF dataset."""
+
     _tiff: TIFF
+    """The underlying async-tiff TIFF instance that we wrap.
+    """
 
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""
@@ -21,7 +26,6 @@ class GeoTIFF(TIFF):
             raise ValueError("TIFF does not contain GeoTIFF keys")
 
         self._tiff = tiff
-        # We don't call super().__init__ because TIFF doesn't have a constructor
 
     @classmethod
     async def open(
@@ -31,7 +35,7 @@ class GeoTIFF(TIFF):
         store: ObjectStore | ObspecInput,
         prefetch: int = 32768,
         multiplier: int | float = 2.0,
-    ) -> TIFF:
+    ) -> Self:
         """Open a new TIFF.
 
         Args:
