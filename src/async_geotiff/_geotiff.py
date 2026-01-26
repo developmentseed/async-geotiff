@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal, Self
 
 from async_tiff import TIFF, ImageFileDirectory, ObspecInput
-from async_tiff.store import ObjectStore
 
 from async_geotiff.enums import Compression, Interleaving, PhotometricInterp
 
 if TYPE_CHECKING:
     import pyproj
     from affine import Affine
+    from async_tiff.store import ObjectStore
 
 
 class GeoTIFF:
@@ -19,13 +19,23 @@ class GeoTIFF:
     """The underlying async-tiff TIFF instance that we wrap.
     """
 
+    _primary_ifd: ImageFileDirectory
+    """The primary (first) IFD of the GeoTIFF.
+
+    Some tags, like most geo tags, only exist on the primary IFD.
+    """
+
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""
         # Validate that this is indeed a GeoTIFF
         if not has_geokeys(tiff.ifds[0]):
             raise ValueError("TIFF does not contain GeoTIFF keys")
 
+        if len(tiff.ifds) == 0:
+            raise ValueError("TIFF does not contain any IFDs")
+
         self._tiff = tiff
+        self._primary_ifd = tiff.ifds[0]
 
     @classmethod
     async def open(
@@ -126,7 +136,7 @@ class GeoTIFF:
 
     @property
     def crs(self) -> pyproj.CRS:
-        """The dataset’s coordinate reference system."""
+        """The dataset's coordinate reference system."""
         raise NotImplementedError()
 
     @property

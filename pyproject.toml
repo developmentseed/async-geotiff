@@ -16,7 +16,13 @@ dependencies = [
 morecantile = ["morecantile>=7.0,<8.0"]
 
 [dependency-groups]
-dev = ["ipykernel>=7.1.0", "rasterio>=1.4.4"]
+dev = [
+    "ipykernel>=7.1.0",
+    "obstore>=0.8.2",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "rasterio>=1.4.4",
+]
 
 [build-system]
 requires = ["uv_build>=0.8.8,<0.9.0"]
