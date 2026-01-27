@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from async_geotiff import GeoTIFF
 
 
-@dataclass(frozen=True, kw_only=True, eq=False, repr=False)
+@dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
 class Overview:
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 
@@ -35,6 +35,25 @@ class Overview:
 
     (positional index of the IFD in the TIFF file, IFD object)
     """
+
+    @classmethod
+    def _create(
+        cls,
+        *,
+        geotiff: GeoTIFF,
+        gkd: GeoKeyDirectory,
+        ifd: tuple[int, ImageFileDirectory],
+        mask_ifd: tuple[int, ImageFileDirectory] | None,
+    ) -> Overview:
+        instance = cls.__new__(cls)
+
+        # We use object.__setattr__ because the dataclass is frozen
+        object.__setattr__(instance, "_geotiff", geotiff)
+        object.__setattr__(instance, "_gkd", gkd)
+        object.__setattr__(instance, "_ifd", ifd)
+        object.__setattr__(instance, "_mask_ifd", mask_ifd)
+
+        return instance
 
     @cached_property
     def transform(self) -> Affine:

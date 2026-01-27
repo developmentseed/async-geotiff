@@ -80,7 +80,12 @@ class GeoTIFF:
                     mask_ifd = (ifd_idx, next_ifd)
                     ifd_idx += 1
 
-            ovr = Overview(_geotiff=self, _gkd=gkd, _ifd=data_ifd, _mask_ifd=mask_ifd)
+            ovr = Overview._create(
+                geotiff=self,
+                gkd=gkd,
+                ifd=data_ifd,
+                mask_ifd=mask_ifd,
+            )
             overviews.append(ovr)
 
         object.__setattr__(self, "_overviews", overviews)
