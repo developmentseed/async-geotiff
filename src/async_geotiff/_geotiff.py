@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Literal, Self
 from affine import Affine
 from async_tiff import TIFF
 
+from async_geotiff._overview import Overview
 from async_geotiff.enums import Compression, Interleaving, PhotometricInterp
 
 if TYPE_CHECKING:
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class GeoTIFF:
-    """A class representing a GeoTIFF dataset."""
+    """A class representing a GeoTIFF image."""
 
     _tiff: TIFF
     """The underlying async-tiff TIFF instance that we wrap.
@@ -29,6 +30,10 @@ class GeoTIFF:
 
     _gkd: GeoKeyDirectory
     """The GeoKeyDirectory of the primary IFD.
+    """
+
+    _overviews: list[Overview]
+    """A list of overviews for the GeoTIFF.
     """
 
     def __init__(self, tiff: TIFF) -> None:
@@ -47,6 +52,9 @@ class GeoTIFF:
         self._tiff = tiff
         self._primary_ifd = first_ifd
         self._gkd = gkd
+
+        # TODO: populate overviews
+        self._overviews = []
 
     @classmethod
     async def open(
@@ -213,6 +221,11 @@ class GeoTIFF:
             return None
 
         return float(nodata)
+
+    @property
+    def overviews(self) -> list[Overview]:
+        """A list of overview levels for the dataset."""
+        return self._overviews
 
     @property
     def photometric(self) -> PhotometricInterp | None:
