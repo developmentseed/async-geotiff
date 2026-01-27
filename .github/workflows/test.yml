@@ -1,0 +1,48 @@
+name: Test Python
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint-python:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+
+      # # Ensure docs build without warnings
+      # - name: Check docs
+      #   if: "${{ matrix.python-version == 3.11 }}"
+      #   run: uv run --group docs mkdocs build --strict
+
+      # Use ruff-action so we get annotations in the Github UI
+      - uses: astral-sh/ruff-action@v3
+
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Install a specific version of uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+
+      - name: Run pytest
+        run: uv run pytest
