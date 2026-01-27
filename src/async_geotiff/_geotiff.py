@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TYPE_CHECKING, Literal, Self
 
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
     from async_tiff.store import ObjectStore
 
 
+@dataclass(frozen=True, init=False, kw_only=True, slots=True, repr=False)
 class GeoTIFF:
     """A class representing a GeoTIFF image."""
 
@@ -22,17 +24,17 @@ class GeoTIFF:
     """The underlying async-tiff TIFF instance that we wrap.
     """
 
-    _primary_ifd: ImageFileDirectory
+    _primary_ifd: ImageFileDirectory = field(init=False)
     """The primary (first) IFD of the GeoTIFF.
 
     Some tags, like most geo tags, only exist on the primary IFD.
     """
 
-    _gkd: GeoKeyDirectory
+    _gkd: GeoKeyDirectory = field(init=False)
     """The GeoKeyDirectory of the primary IFD.
     """
 
-    _overviews: list[Overview]
+    _overviews: list[Overview] = field(init=False)
     """A list of overviews for the GeoTIFF.
     """
 
@@ -49,12 +51,39 @@ class GeoTIFF:
         if len(tiff.ifds) == 0:
             raise ValueError("TIFF does not contain any IFDs")
 
-        self._tiff = tiff
-        self._primary_ifd = first_ifd
-        self._gkd = gkd
+        # We use object.__setattr__ because the dataclass is frozen
+        object.__setattr__(self, "_tiff", tiff)
+        object.__setattr__(self, "_primary_ifd", first_ifd)
+        object.__setattr__(self, "_gkd", gkd)
 
-        # TODO: populate overviews
-        self._overviews = []
+        # Skip the first IFD, since it's the primary image
+        ifd_idx = 1
+        overviews: list[Overview] = []
+        while True:
+            try:
+                data_ifd = (ifd_idx, tiff.ifds[ifd_idx])
+            except IndexError:
+                # No more IFDs
+                break
+
+            ifd_idx += 1
+
+            mask_ifd = None
+            next_ifd = None
+            try:
+                next_ifd = tiff.ifds[ifd_idx]
+            except IndexError:
+                # No more IFDs
+                pass
+            finally:
+                if next_ifd is not None and is_mask_ifd(next_ifd):
+                    mask_ifd = (ifd_idx, next_ifd)
+                    ifd_idx += 1
+
+            ovr = Overview(_geotiff=self, _gkd=gkd, _ifd=data_ifd, _mask_ifd=mask_ifd)
+            overviews.append(ovr)
+
+        object.__setattr__(self, "_overviews", overviews)
 
     @classmethod
     async def open(
@@ -343,3 +372,15 @@ def has_geokeys(ifd: ImageFileDirectory) -> bool:
 
     """
     return ifd.geo_key_directory is not None
+
+
+def is_mask_ifd(ifd: ImageFileDirectory) -> bool:
+    """Check if an IFD is a mask IFD."""
+    if (
+        ifd.compression == Compression.deflate
+        and ifd.new_subfile_type
+        and ifd.photometric_interpretation == 4
+    ):
+        return True
+
+    return False

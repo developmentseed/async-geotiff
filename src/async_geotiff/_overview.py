@@ -1,12 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from functools import cached_property
-from typing import TYPE_CHECKING, Literal, Self
+from typing import TYPE_CHECKING
 
 from affine import Affine
-from async_tiff import TIFF
-
-from async_geotiff.enums import Compression, Interleaving, PhotometricInterp
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory
@@ -14,6 +12,7 @@ if TYPE_CHECKING:
     from async_geotiff import GeoTIFF
 
 
+@dataclass(frozen=True, kw_only=True, slots=True, eq=False)
 class Overview:
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 
@@ -25,31 +24,17 @@ class Overview:
     """The GeoKeyDirectory of the primary IFD.
     """
 
-    _ifd: ImageFileDirectory
+    _ifd: tuple[int, ImageFileDirectory]
     """The IFD for this overview level.
+
+    (positional index of the IFD in the TIFF file, IFD object)
     """
 
-    _mask_ifd: ImageFileDirectory | None
+    _mask_ifd: tuple[int, ImageFileDirectory] | None
     """The IFD for the mask associated with this overview level, if any.
-    """
 
-    _overview_idx: int
-    """The overview level (0 is the full resolution image, 1 is the first overview, etc).
+    (positional index of the IFD in the TIFF file, IFD object)
     """
-
-    def __init__(
-        self,
-        geotiff: GeoTIFF,
-        gkd: GeoKeyDirectory,
-        ifd: ImageFileDirectory,
-        mask_ifd: ImageFileDirectory | None,
-        overview_idx: int,
-    ) -> None:
-        self._geotiff = geotiff
-        self._gkd = gkd
-        self._ifd = ifd
-        self._mask_ifd = mask_ifd
-        self._overview_idx = overview_idx
 
     @cached_property
     def transform(self) -> Affine:
@@ -60,9 +45,9 @@ class Overview:
         """
         full_transform = self._geotiff.transform
 
-        overview_width = self._ifd.image_width
+        overview_width = self._ifd[1].image_width
         full_width = self._geotiff.width
-        overview_height = self._ifd.image_height
+        overview_height = self._ifd[1].image_height
         full_height = self._geotiff.height
 
         scale_x = full_width / overview_width
