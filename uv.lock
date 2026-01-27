@@ -8,11 +8,14 @@ resolution-markers = [
 
 [[package]]
 name = "affine"
-version = "2.4.0"
+version = "3.0rc1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/69/98/d2f0bb06385069e799fc7d2870d9e078cfa0fa396dc8a2b81227d0da08b9/affine-2.4.0.tar.gz", hash = "sha256:a24d818d6a836c131976d22f8c27b8d3ca32d0af64c1d8d29deb7bafa4da1eea", size = 17132, upload-time = "2023-01-19T23:44:30.696Z" }
+dependencies = [
+    { name = "attrs" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0f/fb/f339d7d6e0e5b0b42e5a5ffccf50e0d189c7ba8aefa027309112321bce6f/affine-3.0rc1.tar.gz", hash = "sha256:0334ebdc5aa9c2cf4fcb800a7a15993c93b18831061026fc16dc770b31d0c5ca", size = 73862, upload-time = "2026-01-27T00:23:32.058Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/f7/85273299ab57117850cc0a936c64151171fac4da49bc6fba0dad984a7c5f/affine-2.4.0-py3-none-any.whl", hash = "sha256:8a3df80e2b2378aef598a83c1392efd47967afec4242021a0b06b4c7cbc61a92", size = 15662, upload-time = "2023-01-19T23:44:28.833Z" },
+    { url = "https://files.pythonhosted.org/packages/51/c1/6615f1fc3bd4189d378b74b39c3d88e839c99ddcdc83f6e5f2dbafd44522/affine-3.0rc1-py3-none-any.whl", hash = "sha256:2337f9816e2f6339502a71a280a033db74c56659f130bb05f7b294f06849004e", size = 10450, upload-time = "2026-01-27T00:23:30.733Z" },
 ]
 
 [[package]]
@@ -60,6 +63,7 @@ morecantile = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "affine" },
     { name = "ipykernel" },
     { name = "obstore" },
     { name = "pytest" },
@@ -80,6 +84,7 @@ provides-extras = ["morecantile"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "affine", specifier = ">=3.0rc1" },
     { name = "ipykernel", specifier = ">=7.1.0" },
     { name = "obstore", specifier = ">=0.8.2" },
     { name = "pytest", specifier = ">=9.0.2" },

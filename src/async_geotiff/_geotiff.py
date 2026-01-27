@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import cached_property
 from typing import TYPE_CHECKING, Literal, Self
 
 from affine import Affine
@@ -95,14 +96,18 @@ class GeoTIFF:
         """
         raise NotImplementedError()
 
-    @property
+    @cached_property
     def bounds(self) -> tuple[float, float, float, float]:
         """Returns the bounds of the dataset in the units of its coordinate reference system.
 
         Returns:
             (lower left x, lower left y, upper right x, upper right y)
         """
-        raise NotImplementedError()
+        transform = self.transform
+        (left, top) = transform * (0, 0)
+        (right, bottom) = transform * (self.width, self.height)
+
+        return (left, bottom, right, top)
 
     @property
     def colorinterp(self) -> list[str]:
@@ -201,9 +206,13 @@ class GeoTIFF:
         raise NotImplementedError()
 
     @property
-    def nodata(self) -> float | int | None:
+    def nodata(self) -> float | None:
         """The dataset's single nodata value."""
-        raise NotImplementedError()
+        nodata = self._primary_ifd.gdal_nodata
+        if nodata is None:
+            return None
+
+        return float(nodata)
 
     @property
     def photometric(self) -> PhotometricInterp | None:
@@ -212,17 +221,18 @@ class GeoTIFF:
         # https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.PhotometricInterp
         raise NotImplementedError()
 
-    @property
+    @cached_property
     def res(self) -> tuple[float, float]:
         """Returns the (width, height) of pixels in the units of its coordinate reference system."""
-        raise NotImplementedError()
+        transform = self.transform
+        return (transform.a, -transform.e)
 
     @property
     def shape(self) -> tuple[int, int]:
         """Get the shape (height, width) of the full image."""
-        raise NotImplementedError()
+        return (self.height, self.width)
 
-    @property
+    @cached_property
     def transform(self) -> Affine:
         """The dataset's georeferencing transformation matrix
 
@@ -275,12 +285,12 @@ class GeoTIFF:
         self,
         row: int,
         col: int,
-        offset: Literal["center", "ul", "ur", "ll", "lr"] = "center",
+        offset: Literal["center", "ul", "ur", "ll", "lr"] | str = "center",
     ) -> tuple[float, float]:
         """Get the coordinates x, y of a pixel at row, col.
 
         The pixel's center is returned by default, but a corner can be returned
-        by setting `offset` to one of `ul, ur, ll, lr`.
+        by setting `offset` to one of `"ul"`, `"ur"`, `"ll"`, `"lr"`.
 
         Parameters:
             row: Pixel row.
@@ -289,7 +299,27 @@ class GeoTIFF:
                 pixel or for a corner.
 
         """
-        raise NotImplementedError()
+        transform = self.transform
+
+        if offset == "center":
+            c = col + 0.5
+            r = row + 0.5
+        elif offset == "ul":
+            c = col
+            r = row
+        elif offset == "ur":
+            c = col + 1
+            r = row
+        elif offset == "ll":
+            c = col
+            r = row + 1
+        elif offset == "lr":
+            c = col + 1
+            r = row + 1
+        else:
+            raise ValueError(f"Invalid offset value: {offset}")
+
+        return transform * (c, r)
 
 
 def has_geokeys(ifd: ImageFileDirectory) -> bool:
