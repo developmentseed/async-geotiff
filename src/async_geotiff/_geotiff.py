@@ -6,9 +6,10 @@ from typing import TYPE_CHECKING, Literal, Self
 
 from affine import Affine
 from async_tiff import TIFF
+from async_tiff.enums import PhotometricInterpretation
 
 from async_geotiff._overview import Overview
-from async_geotiff.enums import Compression, Interleaving, PhotometricInterp
+from async_geotiff.enums import Compression, Interleaving
 
 if TYPE_CHECKING:
     import pyproj
@@ -383,8 +384,9 @@ def is_mask_ifd(ifd: ImageFileDirectory) -> bool:
     """Check if an IFD is a mask IFD."""
     if (
         ifd.compression == Compression.deflate
-        and ifd.new_subfile_type
-        and ifd.photometric_interpretation == 4
+        and ifd.new_subfile_type is not None
+        and ifd.new_subfile_type & 4 != 0
+        and ifd.photometric_interpretation == PhotometricInterpretation.TransparencyMask
     ):
         return True
 
