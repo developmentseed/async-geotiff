@@ -23,6 +23,9 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
 
     Args:
         geotiff: The GeoTIFF file to generate the TMS from.
+
+    Keyword Args:
+        id: The ID to assign to the Tile Matrix Set.
     """
     bounds = geotiff.bounds
     crs = geotiff.crs
