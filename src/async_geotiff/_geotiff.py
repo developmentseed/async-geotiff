@@ -8,6 +8,7 @@ from affine import Affine
 from async_tiff import TIFF
 from async_tiff.enums import PhotometricInterpretation
 
+from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._overview import Overview
 from async_geotiff.enums import Compression, Interleaving
 
@@ -192,10 +193,10 @@ class GeoTIFF:
         """The number of raster bands in the full image."""
         raise NotImplementedError()
 
-    @property
+    @cached_property
     def crs(self) -> pyproj.CRS:
         """The dataset's coordinate reference system."""
-        raise NotImplementedError()
+        return crs_from_geo_keys(self._gkd)
 
     @property
     def dtypes(self) -> list[str]:
