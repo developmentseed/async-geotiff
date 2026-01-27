@@ -55,6 +55,11 @@ class Overview:
 
         return instance
 
+    @property
+    def height(self) -> int:
+        """The height of the overview in pixels."""
+        return self._ifd[1].image_height
+
     @cached_property
     def transform(self) -> Affine:
         """The affine transform mapping pixel coordinates to geographic coordinates.
@@ -73,3 +78,8 @@ class Overview:
         scale_y = full_height / overview_height
 
         return full_transform * Affine.scale(scale_x, scale_y)
+
+    @property
+    def width(self) -> int:
+        """The width of the overview in pixels."""
+        return self._ifd[1].image_width
