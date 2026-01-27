@@ -20,7 +20,7 @@ async def test_tms(load_geotiff: LoadGeoTIFF) -> None:
     tms_dict = tms.model_dump(exclude_none=True)
 
     assert tms_dict["crs"] == {
-        "uri": AnyUrl("http://www.opengis.net/def/crs/EPSG/0/4326")
+        "uri": AnyUrl("http://www.opengis.net/def/crs/EPSG/0/4326"),
     }
     assert tms_dict["boundingBox"] == {
         "lowerLeft": (0.0, -1.28),

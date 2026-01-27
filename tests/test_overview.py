@@ -11,7 +11,8 @@ if TYPE_CHECKING:
 
 @pytest.mark.asyncio
 async def test_overview_transform(
-    load_geotiff: LoadGeoTIFF, load_rasterio: LoadRasterio
+    load_geotiff: LoadGeoTIFF,
+    load_rasterio: LoadRasterio,
 ) -> None:
     name = "uint8_rgb_deflate_block64_cog"
 

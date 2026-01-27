@@ -19,7 +19,8 @@ async def test_bounds(load_geotiff: LoadGeoTIFF, load_rasterio: LoadRasterio) ->
 
 @pytest.mark.asyncio
 async def test_transform(
-    load_geotiff: LoadGeoTIFF, load_rasterio: LoadRasterio
+    load_geotiff: LoadGeoTIFF,
+    load_rasterio: LoadRasterio,
 ) -> None:
     name = "uint8_rgb_deflate_block64_cog"
 
