@@ -14,7 +14,7 @@ from async_geotiff import GeoTIFF
 if TYPE_CHECKING:
     from rasterio.io import DatasetReader
 
-Variant = Literal["rasterio", "nlcd"]
+Variant = Literal["rasterio", "nlcd", "vantor"]
 
 
 class LoadGeoTIFF(Protocol):
@@ -54,6 +54,8 @@ def load_geotiff(fixture_store):
             path += "rasterio_generated/fixtures/"
         elif variant == "nlcd":
             path += "real_data/nlcd/"
+        elif variant == "vantor":
+            path += "real_data/vantor/"
         else:
             raise ValueError(f"Unknown variant: {variant}")
 
@@ -74,6 +76,8 @@ def load_rasterio(root_dir):
             path += "rasterio_generated/fixtures/"
         elif variant == "nlcd":
             path += "real_data/nlcd/"
+        elif variant == "vantor":
+            path += "real_data/vantor/"
         else:
             raise ValueError(f"Unknown variant: {variant}")
 
