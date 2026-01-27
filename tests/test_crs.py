@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import pytest
@@ -16,23 +17,22 @@ if TYPE_CHECKING:
 @pytest.fixture(scope="session")
 def projjson_schema() -> dict:
     """Load the PROJJSON schema bundled with pyproj."""
-    data_dir = get_data_dir()
-
-    with open(f"{data_dir}/projjson.schema.json") as f:
+    data_dir = Path(get_data_dir())
+    with (data_dir / "projjson.schema.json").open() as f:
         return json.load(f)
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ["file_name", "variant"],
-    (
-        ["float32_1band_lerc_block32", "rasterio"],
-        ["uint16_1band_lzw_block128_predictor2", "rasterio"],
-        ["uint8_rgb_deflate_block64_cog", "rasterio"],
-        ["uint8_1band_deflate_block128_unaligned", "rasterio"],
-        ["maxar_opendata_yellowstone_visual", "vantor"],
-        ["nlcd_landcover", "nlcd"],
-    ),
+    ("file_name", "variant"),
+    [
+        ("float32_1band_lerc_block32", "rasterio"),
+        ("uint16_1band_lzw_block128_predictor2", "rasterio"),
+        ("uint8_rgb_deflate_block64_cog", "rasterio"),
+        ("uint8_1band_deflate_block128_unaligned", "rasterio"),
+        ("maxar_opendata_yellowstone_visual", "vantor"),
+        ("nlcd_landcover", "nlcd"),
+    ],
 )
 async def test_crs(
     load_geotiff: LoadGeoTIFF,
@@ -47,8 +47,8 @@ async def test_crs(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ["file_name", "variant"],
-    (["nlcd_landcover", "nlcd"],),
+    ("file_name", "variant"),
+    [("nlcd_landcover", "nlcd")],
 )
 async def test_crs_custom_projjson_schema(
     load_geotiff: LoadGeoTIFF,

@@ -36,5 +36,31 @@ build-backend = "uv_build"
 [tool.ruff]
 extend-exclude = ["fixtures"]
 
+[[tool.mypy.overrides]]
+module = [
+    # Should be fixed in affine 3.0
+    # https://github.com/rasterio/affine/issues/135
+    "affine.*",
+    "async_tiff.store.*",
+]
+ignore_missing_imports = true
+
 [tool.ruff.lint]
-select = ["I"]
+select = ["ALL"]
+ignore = [
+    "EM101",  # raw string in exception
+    "EM102",  # f-string in exception
+    "FIX002", # todo statements
+    "PYI051", # literal strings redundant with str in type union
+    "TD002",  # todo without author name
+    "TRY003", # define exceptions in the exception class
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "ANN001", # annotation in function argument
+    "ANN201", # return type annotation
+    "S101",   # assert
+    "SLF001", # private member access
+    "D",      # docstring
+]
