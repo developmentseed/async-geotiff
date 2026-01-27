@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import json
-import os
 from typing import TYPE_CHECKING
 
 import pytest
 from jsonschema import validate
+from pyproj.datadir import get_data_dir
 
 from async_geotiff._crs import projjson_from_geo_keys
 
@@ -16,16 +16,9 @@ if TYPE_CHECKING:
 @pytest.fixture(scope="session")
 def projjson_schema() -> dict:
     """Load the PROJJSON schema bundled with pyproj."""
-    import pyproj
+    data_dir = get_data_dir()
 
-    schema_path = os.path.join(
-        os.path.dirname(pyproj.__file__),
-        "proj_dir",
-        "share",
-        "proj",
-        "projjson.schema.json",
-    )
-    with open(schema_path) as f:
+    with open(f"{data_dir}/projjson.schema.json") as f:
         return json.load(f)
 
 
