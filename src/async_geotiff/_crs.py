@@ -19,6 +19,9 @@ USER_DEFINED_CRS = 32767
 """Sentinel value for user-defined CRS."""
 
 
+__all__ = ["crs_from_geo_keys", "projjson_from_geo_keys"]
+
+
 def crs_from_geo_keys(gkd: GeoKeyDirectory) -> CRS:
     """Parse a pyproj CRS from a GeoKeyDirectory.
 
@@ -120,25 +123,15 @@ def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
         pm_name = "User-defined"
 
     # Build datum
-    datum_json: dict = {}
+    datum_json: dict
     if (
         gkd.geog_geodetic_datum is not None
         and gkd.geog_geodetic_datum != USER_DEFINED_CRS
     ):
-        # Known datum by EPSG code — let pyproj resolve it
-        return CRS.from_json_dict(
-            {
-                "type": "GeographicCRS",
-                "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
-                "name": gkd.geog_citation or "User-defined",
-                "datum": {
-                    "type": "GeodeticReferenceFrame",
-                    "name": f"Unknown datum based upon EPSG {gkd.geog_geodetic_datum} ellipsoid",
-                },
-                "datum_ensemble": None,
-                "coordinate_system": _geographic_cs(gkd),
-            }
-        )
+        datum_json = {
+            "type": "GeodeticReferenceFrame",
+            "name": f"Unknown datum based upon EPSG {gkd.geog_geodetic_datum} ellipsoid",
+        }
     else:
         datum_json = {
             "type": "GeodeticReferenceFrame",
@@ -150,26 +143,27 @@ def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
             },
         }
 
-    return CRS.from_json_dict(
-        {
-            "type": "GeographicCRS",
-            "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
-            "name": gkd.geog_citation or "User-defined",
-            "datum": datum_json,
-            "coordinate_system": _geographic_cs(gkd),
-        }
-    )
+    return {
+        "type": "GeographicCRS",
+        "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
+        "name": gkd.geog_citation or "User-defined",
+        "datum": datum_json,
+        "coordinate_system": _geographic_cs(gkd),
+    }
 
 
-def _build_user_defined_projected_crs(gkd: GeoKeyDirectory) -> CRS:
-    """Build a user-defined projected CRS from individual geo key parameters.
+def _build_user_defined_projected_projjson(gkd: GeoKeyDirectory) -> dict:
+    """Build a user-defined projected CRS PROJJSON dict.
 
-    Constructs a CRS from the geographic base CRS and projection parameters
+    Constructs PROJJSON from the geographic base CRS and projection parameters
     stored in the GeoKeyDirectory.
     """
-    # Build the base geographic CRS
-    base_crs = _parse_geographic_crs(gkd)
-    base_crs_json = base_crs.to_json_dict()
+    # Build the base geographic CRS as PROJJSON
+    base_crs = _geographic_projection(gkd)
+    if isinstance(base_crs, int):
+        base_crs_json = CRS.from_epsg(base_crs).to_json_dict()
+    else:
+        base_crs_json = base_crs
 
     # Build the coordinate operation (projection)
     conversion = _build_conversion(gkd)
@@ -177,16 +171,14 @@ def _build_user_defined_projected_crs(gkd: GeoKeyDirectory) -> CRS:
     # Build the coordinate system for the projected CRS
     cs = _projected_cs(gkd)
 
-    return CRS.from_json_dict(
-        {
-            "type": "ProjectedCRS",
-            "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
-            "name": gkd.proj_citation or "User-defined",
-            "base_crs": base_crs_json,
-            "conversion": conversion,
-            "coordinate_system": cs,
-        }
-    )
+    return {
+        "type": "ProjectedCRS",
+        "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
+        "name": gkd.proj_citation or "User-defined",
+        "base_crs": base_crs_json,
+        "conversion": conversion,
+        "coordinate_system": cs,
+    }
 
 
 def _build_ellipsoid_params(gkd: GeoKeyDirectory) -> dict:
@@ -260,13 +252,25 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:
 
     # Helper to build a projection parameter with unit
     def _angular(name: str, value: float | None, default: float = 0.0) -> dict:
-        return {"name": name, "value": value if value is not None else default, "unit": "degree"}
+        return {
+            "name": name,
+            "value": value if value is not None else default,
+            "unit": "degree",
+        }
 
     def _linear(name: str, value: float | None, default: float = 0.0) -> dict:
-        return {"name": name, "value": value if value is not None else default, "unit": "metre"}
+        return {
+            "name": name,
+            "value": value if value is not None else default,
+            "unit": "metre",
+        }
 
     def _scale(name: str, value: float | None, default: float = 1.0) -> dict:
-        return {"name": name, "value": value if value is not None else default, "unit": "unity"}
+        return {
+            "name": name,
+            "value": value if value is not None else default,
+            "unit": "unity",
+        }
 
     name = "User-defined"
     method: dict
@@ -327,12 +331,24 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:
         name = "Lambert Conic Conformal (2SP)"
         method = {"name": "Lambert Conic Conformal (2SP)"}
         parameters = [
-            _angular("Latitude of false origin", gkd.proj_false_origin_lat or gkd.proj_nat_origin_lat),
-            _angular("Longitude of false origin", gkd.proj_false_origin_long or gkd.proj_nat_origin_long),
+            _angular(
+                "Latitude of false origin",
+                gkd.proj_false_origin_lat or gkd.proj_nat_origin_lat,
+            ),
+            _angular(
+                "Longitude of false origin",
+                gkd.proj_false_origin_long or gkd.proj_nat_origin_long,
+            ),
             _angular("Latitude of 1st standard parallel", gkd.proj_std_parallel1),
             _angular("Latitude of 2nd standard parallel", gkd.proj_std_parallel2),
-            _linear("Easting at false origin", gkd.proj_false_origin_easting or gkd.proj_false_easting),
-            _linear("Northing at false origin", gkd.proj_false_origin_northing or gkd.proj_false_northing),
+            _linear(
+                "Easting at false origin",
+                gkd.proj_false_origin_easting or gkd.proj_false_easting,
+            ),
+            _linear(
+                "Northing at false origin",
+                gkd.proj_false_origin_northing or gkd.proj_false_northing,
+            ),
         ]
 
     elif ct == _CT_LAMBERT_CONFORMAL_CONIC_1SP:
@@ -360,12 +376,24 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:
         name = "Albers Equal Area"
         method = {"name": "Albers Equal Area"}
         parameters = [
-            _angular("Latitude of false origin", gkd.proj_false_origin_lat or gkd.proj_nat_origin_lat),
-            _angular("Longitude of false origin", gkd.proj_false_origin_long or gkd.proj_nat_origin_long),
+            _angular(
+                "Latitude of false origin",
+                gkd.proj_false_origin_lat or gkd.proj_nat_origin_lat,
+            ),
+            _angular(
+                "Longitude of false origin",
+                gkd.proj_false_origin_long or gkd.proj_nat_origin_long,
+            ),
             _angular("Latitude of 1st standard parallel", gkd.proj_std_parallel1),
             _angular("Latitude of 2nd standard parallel", gkd.proj_std_parallel2),
-            _linear("Easting at false origin", gkd.proj_false_origin_easting or gkd.proj_false_easting),
-            _linear("Northing at false origin", gkd.proj_false_origin_northing or gkd.proj_false_northing),
+            _linear(
+                "Easting at false origin",
+                gkd.proj_false_origin_easting or gkd.proj_false_easting,
+            ),
+            _linear(
+                "Northing at false origin",
+                gkd.proj_false_origin_northing or gkd.proj_false_northing,
+            ),
         ]
 
     elif ct == _CT_AZIMUTHAL_EQUIDISTANT:
