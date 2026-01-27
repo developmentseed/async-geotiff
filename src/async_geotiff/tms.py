@@ -59,21 +59,9 @@ def generate_tms(
         "bottomLeft" if tr.e > 0 else "topLeft"
     )
 
-    tile_matrices: list[TileMatrix] = [
-        TileMatrix(
-            id="0",
-            scaleDenominator=tr.a * mpu / _SCREEN_PIXEL_SIZE,
-            cellSize=tr.a,
-            cornerOfOrigin=corner_of_origin,
-            pointOfOrigin=(tr.c, tr.f),
-            tileWidth=blockxsize,
-            tileHeight=blockysize,
-            matrixWidth=math.ceil(geotiff.width / blockxsize),
-            matrixHeight=math.ceil(geotiff.height / blockysize),
-        ),
-    ]
+    tile_matrices: list[TileMatrix] = []
 
-    for idx, overview in enumerate(geotiff.overviews):
+    for idx, overview in enumerate(reversed(geotiff.overviews)):
         overview_tr = overview.transform
         blockxsize = overview._ifd[1].tile_width  # noqa: SLF001
         blockysize = overview._ifd[1].tile_height  # noqa: SLF001
@@ -83,7 +71,7 @@ def generate_tms(
 
         tile_matrices.append(
             TileMatrix(
-                id=f"{idx + 1}",
+                id=str(idx),
                 scaleDenominator=overview_tr.a * mpu / _SCREEN_PIXEL_SIZE,
                 cellSize=overview_tr.a,
                 cornerOfOrigin=corner_of_origin,
@@ -94,6 +82,21 @@ def generate_tms(
                 matrixHeight=math.ceil(overview.height / blockysize),
             ),
         )
+
+    # Add the full-resolution level last
+    tile_matrices.append(
+        TileMatrix(
+            id=str(len(geotiff.overviews)),
+            scaleDenominator=tr.a * mpu / _SCREEN_PIXEL_SIZE,
+            cellSize=tr.a,
+            cornerOfOrigin=corner_of_origin,
+            pointOfOrigin=(tr.c, tr.f),
+            tileWidth=blockxsize,
+            tileHeight=blockysize,
+            matrixWidth=math.ceil(geotiff.width / blockxsize),
+            matrixHeight=math.ceil(geotiff.height / blockysize),
+        ),
+    )
 
     bbox = BoundingBox(*bounds)
     tms_crs = _parse_crs(crs)
