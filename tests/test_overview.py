@@ -24,6 +24,8 @@ async def test_overview_transform(
     ovr = geotiff.overviews[0]
 
     with load_rasterio(name) as rasterio_ds:
+        assert len(geotiff.overviews) == len(rasterio_ds.overviews(1))
+
         overviews = rasterio_ds.overviews(1)
         overview_level = overviews[0]
         decimated_transform = rasterio_ds.transform * Affine.scale(overview_level)
