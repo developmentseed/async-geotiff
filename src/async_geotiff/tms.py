@@ -30,9 +30,11 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
     bounds = geotiff.bounds
     crs = geotiff.crs
     tr = geotiff.transform
-    # TODO: use blocksize from geotiff
-    blockxsize = 256
-    blockysize = 256
+    blockxsize = geotiff._primary_ifd.tile_width
+    blockysize = geotiff._primary_ifd.tile_height
+
+    if blockxsize is None or blockysize is None:
+        raise ValueError("GeoTIFF must be tiled to generate a TMS.")
 
     mpu = meters_per_unit(crs)
 
@@ -59,8 +61,12 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
 
     for idx, overview in enumerate(geotiff.overviews):
         overview_tr = overview.transform
-        # TODO: get from overview IFD
-        blockxsize, blockysize = 256, 256
+        blockxsize = overview._ifd[1].tile_width
+        blockysize = overview._ifd[1].tile_height
+
+        if blockxsize is None or blockysize is None:
+            raise ValueError("GeoTIFF overviews must be tiled to generate a TMS.")
+
         tile_matrices.append(
             TileMatrix(
                 **{
