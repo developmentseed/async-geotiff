@@ -13,7 +13,9 @@ from morecantile.utils import meters_per_unit
 
 from async_geotiff import GeoTIFF
 
-SCREEN_PIXEL_SIZE = 0.28e-3
+_SCREEN_PIXEL_SIZE = 0.28e-3
+
+__all__ = ["generate_tms"]
 
 
 def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
@@ -40,7 +42,7 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
         TileMatrix(
             **{
                 "id": "0",
-                "scaleDenominator": tr.a * mpu / SCREEN_PIXEL_SIZE,
+                "scaleDenominator": tr.a * mpu / _SCREEN_PIXEL_SIZE,
                 "cellSize": tr.a,
                 "cornerOfOrigin": corner_of_origin,
                 "pointOfOrigin": [tr.c, tr.f],
@@ -60,7 +62,7 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
             TileMatrix(
                 **{
                     "id": f"{idx + 1}",
-                    "scaleDenominator": overview_tr.a * mpu / SCREEN_PIXEL_SIZE,
+                    "scaleDenominator": overview_tr.a * mpu / _SCREEN_PIXEL_SIZE,
                     "cellSize": overview_tr.a,
                     "cornerOfOrigin": corner_of_origin,
                     "pointOfOrigin": [overview_tr.c, overview_tr.f],
@@ -73,7 +75,7 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
         )
 
     bbox = BoundingBox(*bounds)
-    tms_crs = parse_crs(crs)
+    tms_crs = _parse_crs(crs)
 
     return TileMatrixSet(
         title="Generated TMS",
@@ -88,7 +90,9 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
     )
 
 
-def parse_crs(crs: pyproj.CRS) -> morecantile.models.CRSUri | morecantile.models.CRSWKT:
+def _parse_crs(
+    crs: pyproj.CRS,
+) -> morecantile.models.CRSUri | morecantile.models.CRSWKT:
     """Parse a pyproj CRS into a morecantile CRSUri or CRSWKT.
 
     Args:
