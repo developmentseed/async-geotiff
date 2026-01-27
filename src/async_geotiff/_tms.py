@@ -31,12 +31,18 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
 
     mpu = meters_per_unit(crs)
 
+    if tr.e > 0:
+        corner_of_origin = "bottomLeft"
+    else:
+        corner_of_origin = "topLeft"
+
     tile_matrices: list[TileMatrix] = [
         TileMatrix(
             **{
                 "id": "0",
                 "scaleDenominator": tr.a * mpu / SCREEN_PIXEL_SIZE,
                 "cellSize": tr.a,
+                "cornerOfOrigin": corner_of_origin,
                 "pointOfOrigin": [tr.c, tr.f],
                 "tileWidth": blockxsize,
                 "tileHeight": blockysize,
@@ -56,6 +62,7 @@ def generate_tms(geotiff: GeoTIFF, *, id: str = str(uuid4())) -> TileMatrixSet:
                     "id": f"{idx + 1}",
                     "scaleDenominator": overview_tr.a * mpu / SCREEN_PIXEL_SIZE,
                     "cellSize": overview_tr.a,
+                    "cornerOfOrigin": corner_of_origin,
                     "pointOfOrigin": [overview_tr.c, overview_tr.f],
                     "tileWidth": blockxsize,
                     "tileHeight": blockysize,
