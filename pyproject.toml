@@ -17,6 +17,7 @@ morecantile = ["morecantile>=7.0,<8.0"]
 
 [dependency-groups]
 dev = [
+    "affine>=3.0rc1",
     "ipykernel>=7.1.0",
     "obstore>=0.8.2",
     "pytest>=9.0.2",
