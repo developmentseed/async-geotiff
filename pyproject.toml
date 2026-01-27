@@ -19,6 +19,7 @@ morecantile = ["morecantile>=7.0,<8.0"]
 dev = [
     "affine>=3.0rc1",
     "ipykernel>=7.1.0",
+    "jsonschema>=4.26.0",
     "obstore>=0.8.2",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
