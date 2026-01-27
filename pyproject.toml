@@ -8,10 +8,12 @@ requires-python = ">=3.11"
 dependencies = [
     "affine>=2.4.0",
     "async-tiff>=0.4.0",
-    "morecantile>=7.0.2",
     "numpy>2",
     "pyproj>=3.7.2",
 ]
+
+[project.optional-dependencies]
+morecantile = ["morecantile>=7.0,<8.0"]
 
 [dependency-groups]
 dev = [
