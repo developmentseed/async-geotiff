@@ -69,7 +69,7 @@ def load_rasterio(root_dir):
     def _load(
         name: str, *, variant: Variant = "rasterio"
     ) -> Generator[DatasetReader, None, None]:
-        path = f"{root_dir}/fixtures/"
+        path = f"{root_dir}/fixtures/geotiff-test-data/"
         if variant == "rasterio":
             path += "rasterio_generated/fixtures/"
         elif variant == "nlcd":
