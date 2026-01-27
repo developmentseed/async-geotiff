@@ -141,7 +141,7 @@ def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
     ):
         datum_json = {
             "type": "GeodeticReferenceFrame",
-            "name": f"Unknown datum based upon EPSG {gkd.geog_geodetic_datum} ellipsoid",
+            "name": f"Unknown datum based upon EPSG {gkd.geog_geodetic_datum} ellipsoid",  # noqa: E501
         }
     else:
         datum_json = {
@@ -212,21 +212,21 @@ def _build_ellipsoid_params(gkd: GeoKeyDirectory) -> dict:
     if semi_major is None:
         raise ValueError("User-defined ellipsoid requires geog_semi_major_axis")
 
-    ellipsoid: dict = {
+    user_ellipsoid: dict = {
         "name": "User-defined",
         "semi_major_axis": semi_major,
     }
 
     if gkd.geog_inv_flattening is not None:
-        ellipsoid["inverse_flattening"] = gkd.geog_inv_flattening
+        user_ellipsoid["inverse_flattening"] = gkd.geog_inv_flattening
     elif gkd.geog_semi_minor_axis is not None:
-        ellipsoid["semi_minor_axis"] = gkd.geog_semi_minor_axis
+        user_ellipsoid["semi_minor_axis"] = gkd.geog_semi_minor_axis
     else:
         raise ValueError(
-            "User-defined ellipsoid requires geog_inv_flattening or geog_semi_minor_axis"
+            "User-defined ellipsoid requires geog_inv_flattening or geog_semi_minor_axis",  # noqa: E501
         )
 
-    return ellipsoid
+    return user_ellipsoid
 
 
 # GeoTIFF coordinate transformation type codes (GeoKey 3075)
@@ -255,7 +255,7 @@ CT_NEW_ZEALAND_MAP_GRID = 26
 CT_TRANSVERSE_MERCATOR_SOUTH_ORIENTED = 27
 
 
-def _build_conversion(gkd: GeoKeyDirectory) -> dict:
+def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR0915
     """Build a PROJ JSON conversion (coordinate operation) from geo keys."""
     ct = gkd.proj_coord_trans
     if ct is None:
@@ -538,16 +538,28 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:
     }
 
 
+ANGULAR_UNIT_RADIAN = 9101
+"""EPSG code for radian angular unit."""
+
+ANGULAR_UNIT_DEGREE = 9102
+"""EPSG code for degree angular unit."""
+
+ANGULAR_UNIT_GRAD = 9105
+"""EPSG code for grad angular unit."""
+
+ANGULAR_UNIT: dict[int | None, str] = {
+    ANGULAR_UNIT_DEGREE: "degree",
+    ANGULAR_UNIT_RADIAN: "radian",
+    ANGULAR_UNIT_GRAD: "grad",
+}
+
+
 def _geographic_cs(gkd: GeoKeyDirectory) -> dict:
     """Build a geographic coordinate system JSON dict from geo keys."""
-    angular_unit = "degree"
-    if gkd.geog_angular_units is not None:
-        # EPSG code 9102 = degree, 9101 = radian, 9105 = grad
-        if gkd.geog_angular_units == 9101:
-            angular_unit = "radian"
-        elif gkd.geog_angular_units == 9105:
-            angular_unit = "grad"
-        # Default to degree for 9102 and other common cases
+    angular_unit = ANGULAR_UNIT.get(
+        gkd.geog_angular_units,
+        "degree",
+    )
 
     return {
         "subtype": "ellipsoidal",
@@ -568,20 +580,27 @@ def _geographic_cs(gkd: GeoKeyDirectory) -> dict:
     }
 
 
+LINEAR_UNIT_METRE = 9001
+LINEAR_UNIT_FOOT = 9002
+LINEAR_UNIT_US_SURVEY_FOOT = 9003
+
+LINEAR_UNIT: dict[int | None, str | dict[str, str | float]] = {
+    LINEAR_UNIT_METRE: "metre",
+    LINEAR_UNIT_FOOT: "foot",
+    LINEAR_UNIT_US_SURVEY_FOOT: {
+        "type": "LinearUnit",
+        "name": "US survey foot",
+        "conversion_factor": 0.30480060960121924,
+    },
+}
+
+
 def _projected_cs(gkd: GeoKeyDirectory) -> dict:
     """Build a projected coordinate system JSON dict from geo keys."""
-    linear_unit: str | dict[str, str | float] = "metre"
-    if gkd.proj_linear_units is not None:
-        # EPSG code 9001 = metre, 9002 = foot, 9003 = US survey foot
-        if gkd.proj_linear_units == 9002:
-            linear_unit = "foot"
-        elif gkd.proj_linear_units == 9003:
-            linear_unit = {
-                "type": "LinearUnit",
-                "name": "US survey foot",
-                "conversion_factor": 0.30480060960121924,
-            }
-        # Default to metre for 9001 and other common cases
+    linear_unit: str | dict[str, str | float] = LINEAR_UNIT.get(
+        gkd.proj_linear_units,
+        "metre",
+    )
 
     return {
         "subtype": "Cartesian",
