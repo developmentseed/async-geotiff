@@ -24,6 +24,7 @@ dev = [
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
     "rasterio>=1.4.4",
+    "types-jsonschema>=4.26.0.20260109",
 ]
 
 [build-system]
