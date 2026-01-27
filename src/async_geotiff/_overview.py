@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from async_geotiff import GeoTIFF
 
 
-@dataclass(frozen=True, kw_only=True, slots=True, eq=False)
+@dataclass(frozen=True, kw_only=True, eq=False, repr=False)
 class Overview:
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 

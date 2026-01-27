@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from async_tiff.store import ObjectStore
 
 
-@dataclass(frozen=True, init=False, kw_only=True, slots=True, repr=False)
+@dataclass(frozen=True, init=False, kw_only=True, repr=False)
 class GeoTIFF:
     """A class representing a GeoTIFF image."""
 
