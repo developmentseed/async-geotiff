@@ -52,6 +52,7 @@ source = { editable = "." }
 dependencies = [
     { name = "affine" },
     { name = "async-tiff" },
+    { name = "morecantile" },
     { name = "numpy" },
     { name = "pyproj" },
 ]
@@ -78,6 +79,7 @@ dev = [
 requires-dist = [
     { name = "affine", specifier = ">=2.4.0" },
     { name = "async-tiff", specifier = ">=0.4.0" },
+    { name = "morecantile", specifier = ">=7.0.2" },
     { name = "morecantile", marker = "extra == 'morecantile'", specifier = ">=7.0,<8.0" },
     { name = "numpy", specifier = ">2" },
     { name = "pyproj", specifier = ">=3.7.2" },
