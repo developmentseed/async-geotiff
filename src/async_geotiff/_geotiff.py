@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
     import pyproj
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
-    from async_tiff.store import ObjectStore
+    from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
@@ -83,7 +83,7 @@ class GeoTIFF:
                     mask_ifd = (ifd_idx, next_ifd)
                     ifd_idx += 1
 
-            ovr = Overview._create(
+            ovr = Overview._create(  # noqa: SLF001
                 geotiff=self,
                 gkd=gkd,
                 ifd=data_ifd,
@@ -155,8 +155,10 @@ class GeoTIFF:
 
         """
         transform = self.transform
-        (left, top) = transform * (0, 0)
-        (right, bottom) = transform * (self.width, self.height)
+
+        # Hopefully types will be fixed with affine 3.0
+        (left, top) = transform * (0, 0)  # type: ignore # noqa: PGH003
+        (right, bottom) = transform * (self.width, self.height)  # type: ignore # noqa: PGH003
 
         return (left, bottom, right, top)
 
@@ -164,6 +166,7 @@ class GeoTIFF:
     def colorinterp(self) -> list[str]:
         """The color interpretation of each band in index order."""
         # TODO: we should return an enum here. The enum should match rasterio.
+        # https://github.com/developmentseed/async-geotiff/issues/12
         raise NotImplementedError
 
     def colormap(self, bidx: int) -> dict[int, tuple[int, int, int]]:
@@ -189,6 +192,7 @@ class GeoTIFF:
     def compression(self) -> Compression:
         """The compression algorithm used for the dataset."""
         # TODO: should return an enum. The enum should match rasterio.
+        # https://github.com/developmentseed/async-geotiff/issues/12
         # Also, is there ever a case where overviews have a different compression from
         # the base image?
         # Should we diverge from rasterio and not have this as a property returning a
@@ -210,6 +214,7 @@ class GeoTIFF:
         """The data types of each band in index order."""
         # TODO: not sure what the return type should be. Perhaps we should define a
         # `DataType` enum?
+        # https://github.com/developmentseed/async-geotiff/issues/20
         raise NotImplementedError
 
     @property
