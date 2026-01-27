@@ -1,4 +1,8 @@
+"""Enums used by async_geotiff."""
+
 from enum import Enum, IntEnum
+
+# ruff: noqa: D101
 
 
 # https://github.com/rasterio/rasterio/blob/2d79e5f3a00e919ecaa9573adba34a78274ce48c/rasterio/enums.py#L153-L174

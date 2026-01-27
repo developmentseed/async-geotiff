@@ -66,6 +66,7 @@ class Overview:
 
         Returns:
             Affine: The affine transform.
+
         """
         full_transform = self._geotiff.transform
 
