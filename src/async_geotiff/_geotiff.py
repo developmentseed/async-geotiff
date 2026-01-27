@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, Self
 
-from async_tiff import TIFF, ImageFileDirectory, ObspecInput
+from affine import Affine
+from async_tiff import TIFF
 
 from async_geotiff.enums import Compression, Interleaving, PhotometricInterp
 
 if TYPE_CHECKING:
     import pyproj
-    from affine import Affine
+    from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore
 
 
@@ -25,17 +26,26 @@ class GeoTIFF:
     Some tags, like most geo tags, only exist on the primary IFD.
     """
 
+    _gkd: GeoKeyDirectory
+    """The GeoKeyDirectory of the primary IFD.
+    """
+
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""
+
+        first_ifd = tiff.ifds[0]
+        gkd = first_ifd.geo_key_directory
+
         # Validate that this is indeed a GeoTIFF
-        if not has_geokeys(tiff.ifds[0]):
+        if gkd is None:
             raise ValueError("TIFF does not contain GeoTIFF keys")
 
         if len(tiff.ifds) == 0:
             raise ValueError("TIFF does not contain any IFDs")
 
         self._tiff = tiff
-        self._primary_ifd = tiff.ifds[0]
+        self._primary_ifd = first_ifd
+        self._gkd = gkd
 
     @classmethod
     async def open(
@@ -46,7 +56,7 @@ class GeoTIFF:
         prefetch: int = 32768,
         multiplier: int | float = 2.0,
     ) -> Self:
-        """Open a new TIFF.
+        """Open a new GeoTIFF.
 
         Args:
             path: The path within the store to read from.
@@ -131,7 +141,7 @@ class GeoTIFF:
 
     @property
     def count(self) -> int:
-        """The number of raster bands in the dataset."""
+        """The number of raster bands in the full image."""
         raise NotImplementedError()
 
     @property
@@ -148,8 +158,8 @@ class GeoTIFF:
 
     @property
     def height(self) -> int:
-        """The height (number of rows) of the dataset."""
-        raise NotImplementedError()
+        """The height (number of rows) of the full image."""
+        return self._primary_ifd.image_height
 
     def index(
         self,
@@ -218,12 +228,48 @@ class GeoTIFF:
 
         This transform maps pixel row/column coordinates to coordinates in the dataset's coordinate reference system.
         """
-        raise NotImplementedError()
+        if (tie_points := self._primary_ifd.model_tiepoint) and (
+            model_scale := self._primary_ifd.model_pixel_scale
+        ):
+            x_origin = tie_points[3]
+            y_origin = tie_points[4]
+            x_resolution = model_scale[0]
+            y_resolution = -model_scale[1]
+
+            return Affine(x_resolution, 0, x_origin, 0, y_resolution, y_origin)
+
+        if model_transformation := self._primary_ifd.model_transformation:
+            # ModelTransformation is a 4x4 matrix in row-major order
+            # [0  1  2  3 ]   [a  b  0  c]
+            # [4  5  6  7 ] = [d  e  0  f]
+            # [8  9  10 11]   [0  0  1  0]
+            # [12 13 14 15]   [0  0  0  1]
+            x_origin = model_transformation[3]
+            y_origin = model_transformation[7]
+            row_rotation = model_transformation[1]
+            col_rotation = model_transformation[4]
+
+            # TODO: confirm these are correct
+            # Why does geotiff.js square and then square-root them?
+            # https://github.com/developmentseed/async-geotiff/issues/7
+            x_resolution = model_transformation[0]
+            y_resolution = -model_transformation[5]
+
+            return Affine(
+                model_transformation[0],
+                row_rotation,
+                x_origin,
+                col_rotation,
+                model_transformation[5],
+                y_origin,
+            )
+
+        raise ValueError("The image does not have an affine transformation.")
 
     @property
     def width(self) -> int:
-        """The width (number of columns) of the dataset."""
-        raise NotImplementedError()
+        """The width (number of columns) of the full image."""
+        return self._primary_ifd.image_width
 
     def xy(
         self,
