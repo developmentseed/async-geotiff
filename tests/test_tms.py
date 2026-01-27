@@ -30,17 +30,6 @@ async def test_tms(load_geotiff: LoadGeoTIFF) -> None:
     assert tms_dict["tileMatrices"] == [
         {
             "id": "0",
-            "scaleDenominator": 3975696.099759771,
-            "cellSize": 0.01,
-            "cornerOfOrigin": "topLeft",
-            "pointOfOrigin": (0.0, 0.0),
-            "tileWidth": 64,
-            "tileHeight": 64,
-            "matrixWidth": 2,
-            "matrixHeight": 2,
-        },
-        {
-            "id": "1",
             "scaleDenominator": 7951392.199519542,
             "cellSize": 0.02,
             "cornerOfOrigin": "topLeft",
@@ -49,5 +38,16 @@ async def test_tms(load_geotiff: LoadGeoTIFF) -> None:
             "tileHeight": 64,
             "matrixWidth": 1,
             "matrixHeight": 1,
+        },
+        {
+            "id": "1",
+            "scaleDenominator": 3975696.099759771,
+            "cellSize": 0.01,
+            "cornerOfOrigin": "topLeft",
+            "pointOfOrigin": (0.0, 0.0),
+            "tileWidth": 64,
+            "tileHeight": 64,
+            "matrixWidth": 2,
+            "matrixHeight": 2,
         },
     ]
