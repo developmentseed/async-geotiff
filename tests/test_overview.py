@@ -1,17 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Awaitable, Callable
+from typing import TYPE_CHECKING
 
 import pytest
 from affine import Affine
 
-from async_geotiff import GeoTIFF
-
 if TYPE_CHECKING:
-    from rasterio.io import DatasetReader
-
-    LoadGeoTIFF = Callable[[str], Awaitable[GeoTIFF]]
-    LoadRasterio = Callable[[str], DatasetReader]
+    from .conftest import LoadGeoTIFF, LoadRasterio
 
 
 @pytest.mark.asyncio
