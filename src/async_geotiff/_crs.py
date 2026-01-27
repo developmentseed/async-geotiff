@@ -9,34 +9,27 @@ from pyproj import CRS
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory
 
-# GeoTIFF model type constants
-_MODEL_TYPE_PROJECTED = 1
-_MODEL_TYPE_GEOGRAPHIC = 2
+MODEL_TYPE_PROJECTED = 1
+"""GeoTIFF model type constant for projected coordinate systems."""
 
-# GeoTIFF "user-defined" sentinel value
-_USER_DEFINED = 32767
+MODEL_TYPE_GEOGRAPHIC = 2
+"""GeoTIFF model type constant for geographic coordinate systems."""
+
+USER_DEFINED_CRS = 32767
+"""Sentinel value for user-defined CRS."""
 
 
 def crs_from_geo_keys(gkd: GeoKeyDirectory) -> CRS:
     """Parse a pyproj CRS from a GeoKeyDirectory.
 
-    Supports both EPSG-coded and user-defined coordinate reference systems.
-
-    Args:
-        gkd: The GeoKeyDirectory from a GeoTIFF IFD.
-
-    Returns:
-        A pyproj CRS instance.
-
-    Raises:
-        ValueError: If the CRS cannot be determined from the geo keys.
+    Supports both EPSG-coded and user-defined CRSes.
     """
     model_type = gkd.model_type
 
-    if model_type == _MODEL_TYPE_PROJECTED:
+    if model_type == MODEL_TYPE_PROJECTED:
         return _parse_projected_crs(gkd)
 
-    if model_type == _MODEL_TYPE_GEOGRAPHIC:
+    if model_type == MODEL_TYPE_GEOGRAPHIC:
         return _parse_geographic_crs(gkd)
 
     raise ValueError(f"Unsupported GeoTIFF model type: {model_type}")
@@ -45,7 +38,7 @@ def crs_from_geo_keys(gkd: GeoKeyDirectory) -> CRS:
 def _parse_projected_crs(gkd: GeoKeyDirectory) -> CRS:
     """Parse a projected CRS from geo keys."""
     epsg = gkd.projected_type
-    if epsg is not None and epsg != _USER_DEFINED:
+    if epsg is not None and epsg != USER_DEFINED_CRS:
         return CRS.from_epsg(epsg)
 
     return _build_user_defined_projected_crs(gkd)
@@ -54,7 +47,7 @@ def _parse_projected_crs(gkd: GeoKeyDirectory) -> CRS:
 def _parse_geographic_crs(gkd: GeoKeyDirectory) -> CRS:
     """Parse a geographic CRS from geo keys."""
     epsg = gkd.geographic_type
-    if epsg is not None and epsg != _USER_DEFINED:
+    if epsg is not None and epsg != USER_DEFINED_CRS:
         return CRS.from_epsg(epsg)
 
     return _build_user_defined_geographic_crs(gkd)
@@ -72,7 +65,10 @@ def _build_user_defined_geographic_crs(gkd: GeoKeyDirectory) -> CRS:
     # Build prime meridian
     pm_name = "Greenwich"
     pm_longitude = 0.0
-    if gkd.geog_prime_meridian is not None and gkd.geog_prime_meridian != _USER_DEFINED:
+    if (
+        gkd.geog_prime_meridian is not None
+        and gkd.geog_prime_meridian != USER_DEFINED_CRS
+    ):
         # Known prime meridian by EPSG code
         pm_name = f"EPSG:{gkd.geog_prime_meridian}"
     elif gkd.geog_prime_meridian_long is not None:
@@ -81,7 +77,10 @@ def _build_user_defined_geographic_crs(gkd: GeoKeyDirectory) -> CRS:
 
     # Build datum
     datum_json: dict = {}
-    if gkd.geog_geodetic_datum is not None and gkd.geog_geodetic_datum != _USER_DEFINED:
+    if (
+        gkd.geog_geodetic_datum is not None
+        and gkd.geog_geodetic_datum != USER_DEFINED_CRS
+    ):
         # Known datum by EPSG code — let pyproj resolve it
         return CRS.from_json_dict(
             {
@@ -148,7 +147,7 @@ def _build_user_defined_projected_crs(gkd: GeoKeyDirectory) -> CRS:
 
 def _build_ellipsoid_params(gkd: GeoKeyDirectory) -> dict:
     """Build ellipsoid JSON parameters from geo keys."""
-    if gkd.geog_ellipsoid is not None and gkd.geog_ellipsoid != _USER_DEFINED:
+    if gkd.geog_ellipsoid is not None and gkd.geog_ellipsoid != USER_DEFINED_CRS:
         # Known ellipsoid by EPSG code — use parameters from geo keys if present
         ellipsoid: dict = {"name": f"EPSG ellipsoid {gkd.geog_ellipsoid}"}
 
