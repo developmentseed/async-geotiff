@@ -235,7 +235,7 @@ class GeoTIFF:
 
         For a 3-band dataset, this property will be [1, 2, 3].
         """
-        raise NotImplementedError()
+        return list(range(1, self._primary_ifd.samples_per_pixel + 1))
 
     @property
     def interleaving(self) -> Interleaving:
@@ -264,7 +264,7 @@ class GeoTIFF:
         return self._overviews
 
     @property
-    def photometric(self) -> PhotometricInterp | None:
+    def photometric(self) -> PhotometricInterpretation | None:
         """The photometric interpretation of the dataset."""
         # TODO: should return enum
         # https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.PhotometricInterp
