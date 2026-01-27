@@ -27,36 +27,80 @@ def crs_from_geo_keys(gkd: GeoKeyDirectory) -> CRS:
     model_type = gkd.model_type
 
     if model_type == MODEL_TYPE_PROJECTED:
-        return _parse_projected_crs(gkd)
+        crs = _projected_projection(gkd)
+        if isinstance(crs, int):
+            return CRS.from_epsg(crs)
+
+        return CRS.from_json_dict(crs)
 
     if model_type == MODEL_TYPE_GEOGRAPHIC:
-        return _parse_geographic_crs(gkd)
+        crs = _geographic_projection(gkd)
+        if isinstance(crs, int):
+            return CRS.from_epsg(crs)
+
+        return CRS.from_json_dict(crs)
 
     raise ValueError(f"Unsupported GeoTIFF model type: {model_type}")
 
 
-def _parse_projected_crs(gkd: GeoKeyDirectory) -> CRS:
-    """Parse a projected CRS from geo keys."""
-    epsg = gkd.projected_type
-    if epsg is not None and epsg != USER_DEFINED_CRS:
-        return CRS.from_epsg(epsg)
+def projjson_from_geo_keys(gkd: GeoKeyDirectory) -> dict:
+    """Build a PROJJSON dict from a GeoKeyDirectory.
 
-    return _build_user_defined_projected_crs(gkd)
+    For EPSG-coded CRSes, resolves via pyproj and returns the canonical
+    PROJJSON.
+
+    For user-defined CRSes, constructs the PROJJSON from individual
+    geo key parameters.
+    """
+    model_type = gkd.model_type
+
+    if model_type == MODEL_TYPE_PROJECTED:
+        crs = _projected_projection(gkd)
+        if isinstance(crs, int):
+            return CRS.from_epsg(crs).to_json_dict()
+
+        return crs
+
+    if model_type == MODEL_TYPE_GEOGRAPHIC:
+        crs = _geographic_projection(gkd)
+        if isinstance(crs, int):
+            return CRS.from_epsg(crs).to_json_dict()
+
+        return crs
+
+    raise ValueError(f"Unsupported GeoTIFF model type: {model_type}")
 
 
-def _parse_geographic_crs(gkd: GeoKeyDirectory) -> CRS:
-    """Parse a geographic CRS from geo keys."""
+def _geographic_projection(gkd: GeoKeyDirectory) -> int | dict:
+    """Infer the geographic CRS from geo keys.
+
+    If an EPSG code is present, returns that integer. Otherwise, constructs
+    a user-defined geographic CRS PROJJSON dict.
+    """
     epsg = gkd.geographic_type
     if epsg is not None and epsg != USER_DEFINED_CRS:
-        return CRS.from_epsg(epsg)
+        return epsg
 
-    return _build_user_defined_geographic_crs(gkd)
+    return _build_user_defined_geographic_projjson(gkd)
 
 
-def _build_user_defined_geographic_crs(gkd: GeoKeyDirectory) -> CRS:
-    """Build a user-defined geographic CRS from individual geo key parameters.
+def _projected_projection(gkd: GeoKeyDirectory) -> int | dict:
+    """Infer the projected CRS from geo keys.
 
-    Constructs a CRS from the ellipsoid, datum, prime meridian, and angular
+    If an EPSG code is present, returns that integer. Otherwise, constructs
+    a user-defined projected CRS PROJJSON dict.
+    """
+    epsg = gkd.projected_type
+    if epsg is not None and epsg != USER_DEFINED_CRS:
+        return epsg
+
+    return _build_user_defined_projected_projjson(gkd)
+
+
+def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
+    """Build a user-defined geographic CRS PROJJSON dict.
+
+    Constructs PROJJSON from the ellipsoid, datum, prime meridian, and angular
     unit parameters stored in the GeoKeyDirectory.
     """
     # Build ellipsoid parameters
