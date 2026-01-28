@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-import numpy as np
 from affine import Affine
 
-from async_geotiff import Array
+from async_geotiff._fetch import fetch_tile as _fetch_tile
+from async_geotiff._fetch import fetch_tiles as _fetch_tiles
 
 if TYPE_CHECKING:
-    from async_tiff import Array as AsyncTiffArray
     from async_tiff import GeoKeyDirectory, ImageFileDirectory
 
-    from async_geotiff import GeoTIFF
+    from async_geotiff import Array, GeoTIFF
 
 # ruff: noqa: SLF001
 
@@ -74,29 +72,16 @@ class Overview:
             y: The y coordinate of the tile.
 
         """
-        tile_fut = self._geotiff._tiff.fetch_tile(x, y, self._ifd[0])
-
-        mask_data: AsyncTiffArray | None = None
-        if mask_ifd := self._mask_ifd:
-            mask_fut = self._geotiff._tiff.fetch_tile(x, y, mask_ifd[0])
-            tile, mask = await asyncio.gather(tile_fut, mask_fut)
-            tile_data, mask_data = await asyncio.gather(tile.decode(), mask.decode())
-        else:
-            tile = await tile_fut
-            tile_data = await tile.decode()
-
-        tile_transform = self.transform * Affine.translation(
-            x * self.tile_width,
-            y * self.tile_height,
-        )
-
-        return Array(
-            data=np.asarray(tile_data),
-            mask=np.asarray(mask_data) if mask_data else None,
+        return await _fetch_tile(
+            x=x,
+            y=y,
+            tiff=self._geotiff._tiff,
             crs=self._geotiff.crs,
-            transform=tile_transform,
-            width=self.width,
-            height=self.height,
+            ifd_index=self._ifd[0],
+            mask_ifd_index=self._mask_ifd[0] if self._mask_ifd else None,
+            transform=self.transform,
+            tile_width=self.tile_width,
+            tile_height=self.tile_height,
         )
 
     # TODO: relax type hints to Sequence[int]
@@ -110,44 +95,17 @@ class Overview:
             ys: The y coordinates of the tiles.
 
         """
-        tiles_fut = self._geotiff._tiff.fetch_tiles(xs, ys, self._ifd[0])
-
-        decoded_masks: list[AsyncTiffArray | None] = [None] * len(xs)
-        if mask_ifd := self._mask_ifd:
-            masks_fut = self._geotiff._tiff.fetch_tiles(xs, ys, mask_ifd[0])
-            tiles, masks = await asyncio.gather(tiles_fut, masks_fut)
-
-            decoded_tile_futs = [tile.decode() for tile in tiles]
-            decoded_mask_futs = [mask.decode() for mask in masks]
-            decoded_tiles = await asyncio.gather(*decoded_tile_futs)
-            decoded_masks = await asyncio.gather(*decoded_mask_futs)
-        else:
-            tiles = await tiles_fut
-            decoded_tiles = await asyncio.gather(*[tile.decode() for tile in tiles])
-
-        arrays: list[Array] = []
-        for x, y, tile_data, mask_data in zip(
-            xs,
-            ys,
-            decoded_tiles,
-            decoded_masks,
-            strict=True,
-        ):
-            tile_transform = self.transform * Affine.translation(
-                x * self.tile_width,
-                y * self.tile_height,
-            )
-            array = Array(
-                data=np.asarray(tile_data),
-                mask=np.asarray(mask_data) if mask_data else None,
-                crs=self._geotiff.crs,
-                transform=tile_transform,
-                width=self.width,
-                height=self.height,
-            )
-            arrays.append(array)
-
-        return arrays
+        return await _fetch_tiles(
+            xs=xs,
+            ys=ys,
+            tiff=self._geotiff._tiff,
+            crs=self._geotiff.crs,
+            ifd_index=self._ifd[0],
+            mask_ifd_index=self._mask_ifd[0] if self._mask_ifd else None,
+            transform=self.transform,
+            tile_width=self.tile_width,
+            tile_height=self.tile_height,
+        )
 
     @property
     def height(self) -> int:
