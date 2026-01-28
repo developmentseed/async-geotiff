@@ -1,8 +1,12 @@
-from dataclasses import dataclass
+from __future__ import annotations
 
-from affine import Affine
-from numpy.typing import NDArray
-from pyproj import CRS
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from affine import Affine
+    from numpy.typing import NDArray
+    from pyproj import CRS
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
