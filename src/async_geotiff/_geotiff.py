@@ -9,6 +9,7 @@ from async_tiff import TIFF
 from async_tiff.enums import PhotometricInterpretation
 
 from async_geotiff._crs import crs_from_geo_keys
+from async_geotiff._fetch import fetch_tile as _fetch_tile
 from async_geotiff._overview import Overview
 from async_geotiff.enums import Compression, Interleaving
 
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
     import pyproj
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
+
+    from async_geotiff import Array
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
@@ -227,6 +230,30 @@ class GeoTIFF:
         # https://github.com/developmentseed/async-geotiff/issues/20
         raise NotImplementedError
 
+    async def fetch_tile(
+        self,
+        x: int,
+        y: int,
+    ) -> Array:
+        """Fetch a tile from this overview.
+
+        Args:
+            x: The x coordinate of the tile.
+            y: The y coordinate of the tile.
+
+        """
+        return await _fetch_tile(
+            x=x,
+            y=y,
+            tiff=self._tiff,
+            crs=self.crs,
+            ifd_index=0,
+            mask_ifd_index=1 if self._mask_ifd else None,
+            transform=self.transform,
+            tile_width=self.tile_width,
+            tile_height=self.tile_height,
+        )
+
     @property
     def height(self) -> int:
         """The height (number of rows) of the full image."""
@@ -303,6 +330,16 @@ class GeoTIFF:
     def shape(self) -> tuple[int, int]:
         """Get the shape (height, width) of the full image."""
         return (self.height, self.width)
+
+    @property
+    def tile_height(self) -> int:
+        """The height in pixels per tile of the image."""
+        return self._primary_ifd.tile_height or self.height
+
+    @property
+    def tile_width(self) -> int:
+        """The width in pixels per tile of the image."""
+        return self._primary_ifd.tile_width or self.width
 
     @cached_property
     def transform(self) -> Affine:

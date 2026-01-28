@@ -114,12 +114,12 @@ class Overview:
 
     @property
     def tile_height(self) -> int:
-        """The tile height of the overview in pixels."""
+        """The height in pixels per tile of the overview."""
         return self._ifd[1].tile_height or self.height
 
     @property
     def tile_width(self) -> int:
-        """The tile width of the overview in pixels."""
+        """The width in pixels per tile of the overview."""
         return self._ifd[1].tile_width or self.width
 
     @cached_property

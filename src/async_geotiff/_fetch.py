@@ -52,9 +52,6 @@ async def fetch_tile(  # noqa: PLR0913
     )
 
 
-# TODO: relax type hints to Sequence[int]
-# upstream issue:
-# https://github.com/developmentseed/async-tiff/issues/198
 async def fetch_tiles(  # noqa: PLR0913, D417
     *,
     xs: list[int],
