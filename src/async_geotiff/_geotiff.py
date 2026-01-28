@@ -34,6 +34,10 @@ class GeoTIFF:
     Some tags, like most geo tags, only exist on the primary IFD.
     """
 
+    _mask_ifd: ImageFileDirectory | None = None
+    """The mask IFD of the GeoTIFF, if any.
+    """
+
     _gkd: GeoKeyDirectory = field(init=False)
     """The GeoKeyDirectory of the primary IFD.
     """
@@ -61,6 +65,12 @@ class GeoTIFF:
 
         # Skip the first IFD, since it's the primary image
         ifd_idx = 1
+
+        # Check if the primary IFD has a mask
+        if len(tiff.ifds) >= 2 and is_mask_ifd(tiff.ifds[ifd_idx]):  # noqa: PLR2004
+            object.__setattr__(self, "_mask_ifd", tiff.ifds[ifd_idx])
+            ifd_idx += 1
+
         overviews: list[Overview] = []
         while True:
             try:
