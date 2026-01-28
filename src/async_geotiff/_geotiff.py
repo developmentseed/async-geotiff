@@ -10,6 +10,7 @@ from async_tiff.enums import PhotometricInterpretation
 
 from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import fetch_tile as _fetch_tile
+from async_geotiff._fetch import fetch_tiles as _fetch_tiles
 from async_geotiff._overview import Overview
 from async_geotiff.enums import Compression, Interleaving
 
@@ -235,7 +236,7 @@ class GeoTIFF:
         x: int,
         y: int,
     ) -> Array:
-        """Fetch a tile from this overview.
+        """Fetch a tile from the full-resolution image.
 
         Args:
             x: The x coordinate of the tile.
@@ -245,6 +246,29 @@ class GeoTIFF:
         return await _fetch_tile(
             x=x,
             y=y,
+            tiff=self._tiff,
+            crs=self.crs,
+            ifd_index=0,
+            mask_ifd_index=1 if self._mask_ifd else None,
+            transform=self.transform,
+            tile_width=self.tile_width,
+            tile_height=self.tile_height,
+        )
+
+    # TODO: relax type hints to Sequence[int]
+    # upstream issue:
+    # https://github.com/developmentseed/async-tiff/issues/198
+    async def fetch_tiles(self, xs: list[int], ys: list[int]) -> list[Array]:
+        """Fetch multiple tiles from the full-resolution image.
+
+        Args:
+            xs: The x coordinates of the tiles.
+            ys: The y coordinates of the tiles.
+
+        """
+        return await _fetch_tiles(
+            xs=xs,
+            ys=ys,
             tiff=self._tiff,
             crs=self.crs,
             ifd_index=0,
