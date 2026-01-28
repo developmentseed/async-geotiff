@@ -1,6 +1,6 @@
 [project]
 name = "async-geotiff"
-version = "0.1.0-beta.2"
+version = "0.1.0-beta.3"
 description = "Async GeoTIFF reader for Python"
 readme = "README.md"
 authors = [{ name = "Kyle Barron", email = "kyle@developmentseed.org" }]
