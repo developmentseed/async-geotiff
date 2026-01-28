@@ -1,16 +1,38 @@
 [project]
 name = "async-geotiff"
-version = "0.1.0"
+version = "0.1.0-beta.1"
 description = "Async GeoTIFF reader for Python"
 readme = "README.md"
 authors = [{ name = "Kyle Barron", email = "kyle@developmentseed.org" }]
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Typing :: Typed",
+]
+keywords = ["geotiff", "tiff", "async", "cog", "raster", "gis"]
 dependencies = [
     "affine>=2.4.0",
     "async-tiff>=0.4.0",
-    "numpy>2",
-    "pyproj>=3.7.2",
+    "numpy>=2.0",
+    "pyproj>=3.3.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/developmentseed/async-geotiff"
+Repository = "https://github.com/developmentseed/async-geotiff"
+Issues = "https://github.com/developmentseed/async-geotiff/issues"
+Changelog = "https://github.com/developmentseed/async-geotiff/blob/main/CHANGELOG.md"
+Documentation = "https://developmentseed.github.io/async-geotiff/"
 
 [project.optional-dependencies]
 morecantile = ["morecantile>=7.0,<8.0"]
@@ -18,6 +40,7 @@ morecantile = ["morecantile>=7.0,<8.0"]
 [dependency-groups]
 dev = [
     "affine>=3.0rc1",
+    "build>=1.4.0",
     "ipykernel>=7.1.0",
     "jsonschema>=4.26.0",
     "morecantile>=7.0.2",
