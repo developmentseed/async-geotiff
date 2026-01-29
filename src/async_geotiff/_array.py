@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from async_geotiff._transform import TransformMixin
+
 if TYPE_CHECKING:
     from affine import Affine
     from numpy.typing import NDArray
@@ -10,7 +12,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
-class Array:
+class Array(TransformMixin):
     """An array representation of data from a GeoTIFF."""
 
     data: NDArray
