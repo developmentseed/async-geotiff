@@ -8,6 +8,7 @@ from affine import Affine
 
 from async_geotiff._fetch import fetch_tile as _fetch_tile
 from async_geotiff._fetch import fetch_tiles as _fetch_tiles
+from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
-class Overview:
+class Overview(TransformMixin):
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 
     _geotiff: GeoTIFF
