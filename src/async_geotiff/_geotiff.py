@@ -18,7 +18,7 @@ from async_geotiff._transform import TransformMixin
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
-    from pyproj import CRS
+    from pyproj.crs import CRS
 
     from async_geotiff.enums import Compression, Interleaving
 
