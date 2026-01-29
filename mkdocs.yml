@@ -27,8 +27,9 @@ nav:
   - Changelog: CHANGELOG.md
 
 watch:
-  - src
-  - docs
+  - src/
+  - docs/
+  - README.md
 
 theme:
   language: en
@@ -96,6 +97,7 @@ plugins:
             allow_inspection: false
             docstring_section_style: list
             docstring_style: google
+            inherited_members: true
             line_length: 80
             separate_signature: true
             show_root_heading: true
@@ -107,6 +109,7 @@ plugins:
               - griffe_inherited_docstrings
 
           import:
+            - https://affine.readthedocs.io/en/latest/objects.inv
             - https://developmentseed.org/async-tiff/latest/objects.inv
             - https://developmentseed.org/obstore/latest/objects.inv
             - https://docs.python.org/3/objects.inv
