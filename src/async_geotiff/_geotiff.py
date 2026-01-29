@@ -204,10 +204,9 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
             4-element tuple.
 
         Raises:
-            ValueError
-                If no colormap is found for the specified band (NULL color table).
-            IndexError
-                If no band exists for the provided index.
+            ValueError: If no colormap is found for the specified band (NULL color
+                table).
+            IndexError: If no band exists for the provided index.
 
         """
         raise NotImplementedError
