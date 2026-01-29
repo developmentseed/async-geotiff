@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import TYPE_CHECKING, Literal, Self
+from typing import TYPE_CHECKING, Self
 
 from affine import Affine
 from async_tiff import TIFF
@@ -10,18 +10,17 @@ from async_tiff.enums import PhotometricInterpretation
 
 from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._overview import Overview
+from async_geotiff._transform import TransformMixin
 from async_geotiff.enums import Compression, Interleaving
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
-
     import pyproj
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
-class GeoTIFF:
+class GeoTIFF(TransformMixin):
     """A class representing a GeoTIFF image."""
 
     _tiff: TIFF
@@ -222,27 +221,6 @@ class GeoTIFF:
         """The height (number of rows) of the full image."""
         return self._primary_ifd.image_height
 
-    def index(
-        self,
-        x: float,
-        y: float,
-        op: Callable[[float, float], tuple[int, int]] | None = None,
-    ) -> tuple[int, int]:
-        """Get the (row, col) index of the pixel containing (x, y).
-
-        Args:
-            x: x value in coordinate reference system
-            y: y value in coordinate reference system
-            op: function, optional (default: numpy.floor)
-                Function to convert fractional pixels to whole numbers
-                (floor, ceiling, round)
-
-        Returns:
-            (row index, col index)
-
-        """
-        raise NotImplementedError
-
     def indexes(self) -> list[int]:
         """Return the 1-based indexes of each band in the dataset.
 
@@ -283,7 +261,7 @@ class GeoTIFF:
         # https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.PhotometricInterp
         raise NotImplementedError
 
-    @cached_property
+    @property
     def res(self) -> tuple[float, float]:
         """Return the (width, height) of pixels in the units of its CRS."""
         transform = self.transform
@@ -343,46 +321,6 @@ class GeoTIFF:
     def width(self) -> int:
         """The width (number of columns) of the full image."""
         return self._primary_ifd.image_width
-
-    def xy(
-        self,
-        row: int,
-        col: int,
-        offset: Literal["center", "ul", "ur", "ll", "lr"] | str = "center",
-    ) -> tuple[float, float]:
-        """Get the coordinates x, y of a pixel at row, col.
-
-        The pixel's center is returned by default, but a corner can be returned
-        by setting `offset` to one of `"ul"`, `"ur"`, `"ll"`, `"lr"`.
-
-        Args:
-            row: Pixel row.
-            col: Pixel column.
-            offset: Determines if the returned coordinates are for the center of the
-                pixel or for a corner.
-
-        """
-        transform = self.transform
-
-        if offset == "center":
-            c = col + 0.5
-            r = row + 0.5
-        elif offset == "ul":
-            c = col
-            r = row
-        elif offset == "ur":
-            c = col + 1
-            r = row
-        elif offset == "ll":
-            c = col
-            r = row + 1
-        elif offset == "lr":
-            c = col + 1
-            r = row + 1
-        else:
-            raise ValueError(f"Invalid offset value: {offset}")
-
-        return transform * (c, r)
 
 
 def has_geokeys(ifd: ImageFileDirectory) -> bool:
