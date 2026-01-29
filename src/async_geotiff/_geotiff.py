@@ -10,6 +10,7 @@ from async_tiff.enums import PhotometricInterpretation
 
 from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
+from async_geotiff._ifd import IFDReference
 from async_geotiff._overview import Overview
 from async_geotiff._transform import TransformMixin
 from async_geotiff.enums import Compression, Interleaving
@@ -35,13 +36,13 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
     """The underlying async-tiff TIFF instance that we wrap.
     """
 
-    _primary_ifd: ImageFileDirectory = field(init=False)
+    _primary_ifd: IFDReference = field(init=False)
     """The primary (first) IFD of the GeoTIFF.
 
     Some tags, like most geo tags, only exist on the primary IFD.
     """
 
-    _mask_ifd: tuple[int, ImageFileDirectory] | None = None
+    _mask_ifd: IFDReference | None = None
     """The mask IFD of the full-resolution GeoTIFF, if any.
 
     (positional index of the IFD in the TIFF file, IFD object)
@@ -56,14 +57,9 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
     """
 
     @property
-    def _ifd_index(self) -> int:
-        """The index of the data IFD in the TIFF file."""
-        return 0
-
-    @property
-    def _mask_ifd_index(self) -> int | None:
-        """The index of the mask IFD in the TIFF file, if any."""
-        return self._mask_ifd[0] if self._mask_ifd else None
+    def _ifd(self) -> IFDReference:
+        """An alias for the primary IFD to satisfy _fetch protocol."""
+        return self._primary_ifd
 
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""
@@ -84,15 +80,15 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
 
         # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
         # Data IFDs are indexed by (width, height) for matching with masks
-        data_ifds: dict[tuple[int, int], tuple[int, ImageFileDirectory]] = {}
-        mask_ifds: dict[tuple[int, int], tuple[int, ImageFileDirectory]] = {}
+        data_ifds: dict[tuple[int, int], IFDReference] = {}
+        mask_ifds: dict[tuple[int, int], IFDReference] = {}
 
         for idx, ifd in enumerate(tiff.ifds[1:], start=1):
             dims = (ifd.image_width, ifd.image_height)
             if is_mask_ifd(ifd):
-                mask_ifds[dims] = (idx, ifd)
+                mask_ifds[dims] = IFDReference(index=idx, ifd=ifd)
             else:
-                data_ifds[dims] = (idx, ifd)
+                data_ifds[dims] = IFDReference(index=idx, ifd=ifd)
 
         # Find and set the mask for the primary IFD (matches primary dimensions)
         if primary_mask_ifd := mask_ifds.get(
@@ -251,14 +247,14 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
     @property
     def height(self) -> int:
         """The height (number of rows) of the full image."""
-        return self._primary_ifd.image_height
+        return self._primary_ifd.ifd.image_height
 
     def indexes(self) -> list[int]:
         """Return the 1-based indexes of each band in the dataset.
 
         For a 3-band dataset, this property will be [1, 2, 3].
         """
-        return list(range(1, self._primary_ifd.samples_per_pixel + 1))
+        return list(range(1, self._primary_ifd.ifd.samples_per_pixel + 1))
 
     @property
     def interleaving(self) -> Interleaving:
@@ -275,7 +271,7 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
     @property
     def nodata(self) -> float | None:
         """The dataset's single nodata value."""
-        nodata = self._primary_ifd.gdal_nodata
+        nodata = self._primary_ifd.ifd.gdal_nodata
         if nodata is None:
             return None
 
@@ -307,12 +303,12 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the image."""
-        return self._primary_ifd.tile_height or self.height
+        return self._primary_ifd.ifd.tile_height or self.height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the image."""
-        return self._primary_ifd.tile_width or self.width
+        return self._primary_ifd.ifd.tile_width or self.width
 
     @property
     def transform(self) -> Affine:
@@ -321,8 +317,8 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
         This transform maps pixel row/column coordinates to coordinates in the dataset's
         CRS.
         """
-        if (tie_points := self._primary_ifd.model_tiepoint) and (
-            model_scale := self._primary_ifd.model_pixel_scale
+        if (tie_points := self._primary_ifd.ifd.model_tiepoint) and (
+            model_scale := self._primary_ifd.ifd.model_pixel_scale
         ):
             x_origin = tie_points[3]
             y_origin = tie_points[4]
@@ -331,7 +327,7 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
 
             return Affine(x_resolution, 0, x_origin, 0, y_resolution, y_origin)
 
-        if model_transformation := self._primary_ifd.model_transformation:
+        if model_transformation := self._primary_ifd.ifd.model_transformation:
             # ModelTransformation is a 4x4 matrix in row-major order
             # [0  1  2  3 ]   [a  b  0  c]
             # [4  5  6  7 ] = [d  e  0  f]
@@ -362,7 +358,7 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
     @property
     def width(self) -> int:
         """The width (number of columns) of the full image."""
-        return self._primary_ifd.image_width
+        return self._primary_ifd.ifd.image_width
 
 
 def has_geokeys(ifd: ImageFileDirectory) -> bool:

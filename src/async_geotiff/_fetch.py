@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Protocol
 
-import numpy as np
 from affine import Affine
 
 from async_geotiff import Array
@@ -14,18 +13,20 @@ if TYPE_CHECKING:
     from async_tiff import Array as AsyncTiffArray
     from pyproj import CRS
 
+    from async_geotiff._ifd import IFDReference
+
 
 class HasTiffReference(HasTransform, Protocol):
     """Protocol for objects that hold a TIFF reference and can request tiles."""
 
     @property
-    def _ifd_index(self) -> int:
-        """The index of the data IFD in the TIFF file."""
+    def _ifd(self) -> IFDReference:
+        """The data IFD for this image (index, IFD)."""
         ...
 
     @property
-    def _mask_ifd_index(self) -> int | None:
-        """The index of the mask IFD in the TIFF file, if any."""
+    def _mask_ifd(self) -> IFDReference | None:
+        """The mask IFD for this image (index, IFD), if any."""
         ...
 
     @property
@@ -60,10 +61,11 @@ class FetchTileMixin:
         x: int,
         y: int,
     ) -> Array:
-        tile_fut = self._tiff.fetch_tile(x, y, self._ifd_index)
+        tile_fut = self._tiff.fetch_tile(x, y, self._ifd.index)
 
         mask_data: AsyncTiffArray | None = None
-        if mask_ifd_index := self._mask_ifd_index:
+        if self._mask_ifd is not None:
+            mask_ifd_index = self._mask_ifd.index
             mask_fut = self._tiff.fetch_tile(x, y, mask_ifd_index)
             tile, mask = await asyncio.gather(tile_fut, mask_fut)
             tile_data, mask_data = await asyncio.gather(tile.decode(), mask.decode())
@@ -76,13 +78,12 @@ class FetchTileMixin:
             y * self.tile_height,
         )
 
-        return Array(
-            data=np.asarray(tile_data),
-            mask=np.asarray(mask_data) if mask_data else None,
+        return Array._create(  # noqa: SLF001
+            data=tile_data,
+            mask=mask_data,
+            planar_configuration=self._ifd.ifd.planar_configuration,
             crs=self.crs,
             transform=tile_transform,
-            width=self.tile_width,
-            height=self.tile_height,
         )
 
     async def fetch_tiles(
@@ -97,10 +98,11 @@ class FetchTileMixin:
             ys: The y coordinates of the tiles.
 
         """
-        tiles_fut = self._tiff.fetch_tiles(xs, ys, self._ifd_index)
+        tiles_fut = self._tiff.fetch_tiles(xs, ys, self._ifd.index)
 
         decoded_masks: list[AsyncTiffArray | None] = [None] * len(xs)
-        if mask_ifd_index := self._mask_ifd_index:
+        if self._mask_ifd is not None:
+            mask_ifd_index = self._mask_ifd.index
             masks_fut = self._tiff.fetch_tiles(xs, ys, mask_ifd_index)
             tiles, masks = await asyncio.gather(tiles_fut, masks_fut)
 
@@ -124,13 +126,12 @@ class FetchTileMixin:
                 x * self.tile_width,
                 y * self.tile_height,
             )
-            array = Array(
-                data=np.asarray(tile_data),
-                mask=np.asarray(mask_data) if mask_data else None,
+            array = Array._create(  # noqa: SLF001
+                data=tile_data,
+                mask=mask_data,
+                planar_configuration=self._ifd.ifd.planar_configuration,
                 crs=self.crs,
                 transform=tile_transform,
-                width=self.tile_width,
-                height=self.tile_height,
             )
             arrays.append(array)
 
