@@ -20,10 +20,9 @@ jobs:
         with:
           version: "latest"
 
-      # # Ensure docs build without warnings
-      # - name: Check docs
-      #   if: "${{ matrix.python-version == 3.11 }}"
-      #   run: uv run --group docs mkdocs build --strict
+      # Ensure docs build without warnings
+      - name: Check docs
+        run: uv run --group docs mkdocs build --strict
 
       # Use ruff-action so we get annotations in the Github UI
       - uses: astral-sh/ruff-action@v3

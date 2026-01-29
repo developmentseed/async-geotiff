@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from affine import Affine
     from async_tiff import Array as AsyncTiffArray
     from numpy.typing import NDArray
-    from pyproj import CRS
+    from pyproj.crs import CRS
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)

@@ -1,8 +1,8 @@
 # async-geotiff
 
-Async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python, wrapping [`async-tiff`].
+Async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python, wrapping [`async-tiff`][async-tiff].
 
-[`async-tiff`]: https://github.com/developmentseed/async-tiff
+[async-tiff]: https://github.com/developmentseed/async-tiff
 [cogeo]: https://cogeo.org/
 
 ## Project Goals:

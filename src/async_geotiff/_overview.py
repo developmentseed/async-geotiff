@@ -10,7 +10,7 @@ from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
     from async_tiff import TIFF, GeoKeyDirectory
-    from pyproj import CRS
+    from pyproj.crs import CRS
 
     from async_geotiff import GeoTIFF
     from async_geotiff._ifd import IFDReference
