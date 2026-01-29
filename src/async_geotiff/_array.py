@@ -23,7 +23,10 @@ class Array(TransformMixin):
     """The array data with shape (bands, height, width)."""
 
     mask: NDArray[np.bool_] | None
-    """The mask array with shape (height, width), if any."""
+    """The mask array with shape (height, width), if any.
+
+    Values of True indicate valid data; False indicates no data.
+    """
 
     width: int
     """The width of the array in pixels."""
