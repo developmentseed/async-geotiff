@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
+import async_tiff.enums
 from affine import Affine
 from async_tiff import TIFF
 from async_tiff.enums import PhotometricInterpretation
@@ -13,12 +14,13 @@ from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._ifd import IFDReference
 from async_geotiff._overview import Overview
 from async_geotiff._transform import TransformMixin
-from async_geotiff.enums import Compression, Interleaving
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
     from pyproj import CRS
+
+    from async_geotiff.enums import Compression, Interleaving
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
@@ -374,7 +376,7 @@ def has_geokeys(ifd: ImageFileDirectory) -> bool:
 def is_mask_ifd(ifd: ImageFileDirectory) -> bool:
     """Check if an IFD is a mask IFD."""
     return (
-        ifd.compression == Compression.deflate
+        ifd.compression == async_tiff.enums.CompressionMethod.Deflate
         and ifd.new_subfile_type is not None
         and ifd.new_subfile_type & 4 != 0
         and ifd.photometric_interpretation == PhotometricInterpretation.TransparencyMask

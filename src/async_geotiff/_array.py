@@ -22,8 +22,11 @@ class Array(TransformMixin):
     data: NDArray
     """The array data with shape (bands, height, width)."""
 
-    mask: NDArray | None
-    """The mask array with shape (height, width), if any."""
+    mask: NDArray[np.bool_] | None
+    """The mask array with shape (height, width), if any.
+
+    Values of True indicate valid data; False indicates no data.
+    """
 
     width: int
     """The width of the array in pixels."""
@@ -66,8 +69,15 @@ class Array(TransformMixin):
             An Array with data in (bands, height, width) order.
 
         """
-        data_arr = np.asarray(data)
-        mask_arr = np.asarray(mask) if mask is not None else None
+        data_arr = np.asarray(data, copy=False)
+        if mask is not None:
+            mask_arr = np.asarray(mask, copy=False).astype(np.bool_, copy=False)
+            assert mask_arr.ndim == 3  # noqa: S101, PLR2004
+            assert mask_arr.shape[2] == 1  # noqa: S101
+            # This assumes it's always (height, width, 1)
+            mask_arr = np.squeeze(mask_arr, axis=2)
+        else:
+            mask_arr = None
 
         assert data_arr.ndim == 3, f"Expected 3D array, got {data_arr.ndim}D"  # noqa: S101, PLR2004
 

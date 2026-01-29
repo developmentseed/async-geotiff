@@ -34,6 +34,7 @@ class LoadRasterio(Protocol):
         name: str,
         *,
         variant: Variant = "rasterio",
+        OVERVIEW_LEVEL: int | None = None,  # noqa: N803
         **kwargs: Any,  # noqa: ANN401
     ) -> Generator[DatasetReader, None, None]: ...
 
@@ -80,6 +81,7 @@ def load_rasterio(root_dir):
         name: str,
         *,
         variant: Variant = "rasterio",
+        OVERVIEW_LEVEL: int | None = None,  # noqa: N803
         **kwargs: Any,  # noqa: ANN401
     ) -> Generator[DatasetReader, None, None]:
         path = f"{root_dir}/fixtures/geotiff-test-data/"
@@ -93,6 +95,10 @@ def load_rasterio(root_dir):
             raise ValueError(f"Unknown variant: {variant}")
 
         path = f"{path}{name}.tif"
+
+        if OVERVIEW_LEVEL is not None and "OVERVIEW_LEVEL" not in kwargs:
+            kwargs["OVERVIEW_LEVEL"] = OVERVIEW_LEVEL
+
         with rasterio.open(path, **kwargs) as ds:
             yield ds
 
