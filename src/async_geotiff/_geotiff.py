@@ -9,28 +9,43 @@ from async_tiff import TIFF
 from async_tiff.enums import PhotometricInterpretation
 
 from async_geotiff._crs import crs_from_geo_keys
+from async_geotiff._fetch import FetchTileMixin
+from async_geotiff._ifd import IFDReference
 from async_geotiff._overview import Overview
 from async_geotiff._transform import TransformMixin
 from async_geotiff.enums import Compression, Interleaving
 
 if TYPE_CHECKING:
-    import pyproj
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
+    from pyproj import CRS
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
-class GeoTIFF(TransformMixin):
+class GeoTIFF(FetchTileMixin, TransformMixin):
     """A class representing a GeoTIFF image."""
+
+    _crs: CRS | None = None
+    """A cached CRS instance.
+
+    We don't use functools.cached_property on the `crs` attribute because of typing
+    issues.
+    """
 
     _tiff: TIFF
     """The underlying async-tiff TIFF instance that we wrap.
     """
 
-    _primary_ifd: ImageFileDirectory = field(init=False)
+    _primary_ifd: IFDReference = field(init=False)
     """The primary (first) IFD of the GeoTIFF.
 
     Some tags, like most geo tags, only exist on the primary IFD.
+    """
+
+    _mask_ifd: IFDReference | None = None
+    """The mask IFD of the full-resolution GeoTIFF, if any.
+
+    (positional index of the IFD in the TIFF file, IFD object)
     """
 
     _gkd: GeoKeyDirectory = field(init=False)
@@ -40,6 +55,11 @@ class GeoTIFF(TransformMixin):
     _overviews: list[Overview] = field(init=False)
     """A list of overviews for the GeoTIFF.
     """
+
+    @property
+    def _ifd(self) -> IFDReference:
+        """An alias for the primary IFD to satisfy _fetch protocol."""
+        return self._primary_ifd
 
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""
@@ -55,32 +75,35 @@ class GeoTIFF(TransformMixin):
 
         # We use object.__setattr__ because the dataclass is frozen
         object.__setattr__(self, "_tiff", tiff)
-        object.__setattr__(self, "_primary_ifd", first_ifd)
+        object.__setattr__(self, "_primary_ifd", IFDReference(index=0, ifd=first_ifd))
         object.__setattr__(self, "_gkd", gkd)
 
-        # Skip the first IFD, since it's the primary image
-        ifd_idx = 1
+        # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
+        # Data IFDs are indexed by (width, height) for matching with masks
+        data_ifds: dict[tuple[int, int], IFDReference] = {}
+        mask_ifds: dict[tuple[int, int], IFDReference] = {}
+
+        for idx, ifd in enumerate(tiff.ifds[1:], start=1):
+            dims = (ifd.image_width, ifd.image_height)
+            if is_mask_ifd(ifd):
+                mask_ifds[dims] = IFDReference(index=idx, ifd=ifd)
+            else:
+                data_ifds[dims] = IFDReference(index=idx, ifd=ifd)
+
+        # Find and set the mask for the primary IFD (matches primary dimensions)
+        if primary_mask_ifd := mask_ifds.get(
+            (first_ifd.image_width, first_ifd.image_height),
+        ):
+            object.__setattr__(self, "_mask_ifd", primary_mask_ifd)
+
+        # Build overviews, sorted by resolution (highest to lowest, i.e., largest first)
+        # Sort by width * height descending
+        sorted_dims = sorted(data_ifds.keys(), key=lambda d: d[0] * d[1], reverse=True)
+
         overviews: list[Overview] = []
-        while True:
-            try:
-                data_ifd = (ifd_idx, tiff.ifds[ifd_idx])
-            except IndexError:
-                # No more IFDs
-                break
-
-            ifd_idx += 1
-
-            mask_ifd = None
-            next_ifd = None
-            try:
-                next_ifd = tiff.ifds[ifd_idx]
-            except IndexError:
-                # No more IFDs
-                pass
-            finally:
-                if next_ifd is not None and is_mask_ifd(next_ifd):
-                    mask_ifd = (ifd_idx, next_ifd)
-                    ifd_idx += 1
+        for dims in sorted_dims:
+            data_ifd = data_ifds[dims]
+            mask_ifd = mask_ifds.get(dims)
 
             ovr = Overview._create(  # noqa: SLF001
                 geotiff=self,
@@ -203,10 +226,15 @@ class GeoTIFF(TransformMixin):
         """The number of raster bands in the full image."""
         raise NotImplementedError
 
-    @cached_property
-    def crs(self) -> pyproj.CRS:
+    @property
+    def crs(self) -> CRS:
         """The dataset's coordinate reference system."""
-        return crs_from_geo_keys(self._gkd)
+        if self._crs is not None:
+            return self._crs
+
+        crs = crs_from_geo_keys(self._gkd)
+        object.__setattr__(self, "_crs", crs)
+        return crs
 
     @property
     def dtypes(self) -> list[str]:
@@ -219,14 +247,14 @@ class GeoTIFF(TransformMixin):
     @property
     def height(self) -> int:
         """The height (number of rows) of the full image."""
-        return self._primary_ifd.image_height
+        return self._primary_ifd.ifd.image_height
 
     def indexes(self) -> list[int]:
         """Return the 1-based indexes of each band in the dataset.
 
         For a 3-band dataset, this property will be [1, 2, 3].
         """
-        return list(range(1, self._primary_ifd.samples_per_pixel + 1))
+        return list(range(1, self._primary_ifd.ifd.samples_per_pixel + 1))
 
     @property
     def interleaving(self) -> Interleaving:
@@ -243,7 +271,7 @@ class GeoTIFF(TransformMixin):
     @property
     def nodata(self) -> float | None:
         """The dataset's single nodata value."""
-        nodata = self._primary_ifd.gdal_nodata
+        nodata = self._primary_ifd.ifd.gdal_nodata
         if nodata is None:
             return None
 
@@ -272,15 +300,25 @@ class GeoTIFF(TransformMixin):
         """Get the shape (height, width) of the full image."""
         return (self.height, self.width)
 
-    @cached_property
+    @property
+    def tile_height(self) -> int:
+        """The height in pixels per tile of the image."""
+        return self._primary_ifd.ifd.tile_height or self.height
+
+    @property
+    def tile_width(self) -> int:
+        """The width in pixels per tile of the image."""
+        return self._primary_ifd.ifd.tile_width or self.width
+
+    @property
     def transform(self) -> Affine:
         """Return the dataset's georeferencing transformation matrix.
 
         This transform maps pixel row/column coordinates to coordinates in the dataset's
         CRS.
         """
-        if (tie_points := self._primary_ifd.model_tiepoint) and (
-            model_scale := self._primary_ifd.model_pixel_scale
+        if (tie_points := self._primary_ifd.ifd.model_tiepoint) and (
+            model_scale := self._primary_ifd.ifd.model_pixel_scale
         ):
             x_origin = tie_points[3]
             y_origin = tie_points[4]
@@ -289,7 +327,7 @@ class GeoTIFF(TransformMixin):
 
             return Affine(x_resolution, 0, x_origin, 0, y_resolution, y_origin)
 
-        if model_transformation := self._primary_ifd.model_transformation:
+        if model_transformation := self._primary_ifd.ifd.model_transformation:
             # ModelTransformation is a 4x4 matrix in row-major order
             # [0  1  2  3 ]   [a  b  0  c]
             # [4  5  6  7 ] = [d  e  0  f]
@@ -320,7 +358,7 @@ class GeoTIFF(TransformMixin):
     @property
     def width(self) -> int:
         """The width (number of columns) of the full image."""
-        return self._primary_ifd.image_width
+        return self._primary_ifd.ifd.image_width
 
 
 def has_geokeys(ifd: ImageFileDirectory) -> bool:

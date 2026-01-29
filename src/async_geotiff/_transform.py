@@ -21,8 +21,7 @@ class HasTransform(Protocol):
 class TransformMixin:
     """Mixin providing coordinate transformation methods.
 
-    Classes using this mixin must have a `transform` property that returns
-    an `Affine` transformation matrix.
+    Classes using this mixin must implement HasTransform.
     """
 
     def index(
