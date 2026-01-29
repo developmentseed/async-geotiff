@@ -15,14 +15,21 @@ from async_geotiff._transform import TransformMixin
 from async_geotiff.enums import Compression, Interleaving
 
 if TYPE_CHECKING:
-    import pyproj
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
+    from pyproj import CRS
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
 class GeoTIFF(FetchTileMixin, TransformMixin):
     """A class representing a GeoTIFF image."""
+
+    _crs: CRS | None = None
+    """A cached CRS instance.
+
+    We don't use functools.cached_property on the `crs` attribute because of typing
+    issues.
+    """
 
     _tiff: TIFF
     """The underlying async-tiff TIFF instance that we wrap.
@@ -226,10 +233,15 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
         """The number of raster bands in the full image."""
         raise NotImplementedError
 
-    @cached_property
-    def crs(self) -> pyproj.CRS:
+    @property
+    def crs(self) -> CRS:
         """The dataset's coordinate reference system."""
-        return crs_from_geo_keys(self._gkd)
+        if self._crs is not None:
+            return self._crs
+
+        crs = crs_from_geo_keys(self._gkd)
+        object.__setattr__(self, "_crs", crs)
+        return crs
 
     @property
     def dtypes(self) -> list[str]:
