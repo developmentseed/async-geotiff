@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from affine import Affine
 
+from async_geotiff._transform import TransformMixin
+
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory
 
@@ -13,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
-class Overview:
+class Overview(TransformMixin):
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 
     _geotiff: GeoTIFF
