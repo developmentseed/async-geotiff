@@ -75,7 +75,7 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
 
         # We use object.__setattr__ because the dataclass is frozen
         object.__setattr__(self, "_tiff", tiff)
-        object.__setattr__(self, "_primary_ifd", first_ifd)
+        object.__setattr__(self, "_primary_ifd", IFDReference(index=0, ifd=first_ifd))
         object.__setattr__(self, "_gkd", gkd)
 
         # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)

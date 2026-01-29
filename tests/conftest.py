@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 import pytest
 import rasterio
@@ -34,6 +34,7 @@ class LoadRasterio(Protocol):
         name: str,
         *,
         variant: Variant = "rasterio",
+        **kwargs: Any,  # noqa: ANN401
     ) -> Generator[DatasetReader, None, None]: ...
 
 
@@ -79,6 +80,7 @@ def load_rasterio(root_dir):
         name: str,
         *,
         variant: Variant = "rasterio",
+        **kwargs: Any,  # noqa: ANN401
     ) -> Generator[DatasetReader, None, None]:
         path = f"{root_dir}/fixtures/geotiff-test-data/"
         if variant == "rasterio":
@@ -91,7 +93,7 @@ def load_rasterio(root_dir):
             raise ValueError(f"Unknown variant: {variant}")
 
         path = f"{path}{name}.tif"
-        with rasterio.open(path) as ds:
+        with rasterio.open(path, **kwargs) as ds:
             yield ds
 
     return _load
