@@ -1,25 +1,24 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import cached_property
 from typing import TYPE_CHECKING
 
 from affine import Affine
 
-from async_geotiff._fetch import fetch_tile as _fetch_tile
-from async_geotiff._fetch import fetch_tiles as _fetch_tiles
+from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
-    from async_tiff import GeoKeyDirectory, ImageFileDirectory
+    from async_tiff import TIFF, GeoKeyDirectory, ImageFileDirectory
+    from pyproj import CRS
 
-    from async_geotiff import Array, GeoTIFF
+    from async_geotiff import GeoTIFF
 
 # ruff: noqa: SLF001
 
 
 @dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
-class Overview(TransformMixin):
+class Overview(FetchTileMixin, TransformMixin):
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 
     _geotiff: GeoTIFF
@@ -61,52 +60,25 @@ class Overview(TransformMixin):
 
         return instance
 
-    async def fetch_tile(
-        self,
-        x: int,
-        y: int,
-    ) -> Array:
-        """Fetch a tile from this overview.
+    @property
+    def _ifd_index(self) -> int:
+        """The index of the data IFD in the TIFF file."""
+        return self._ifd[0]
 
-        Args:
-            x: The x coordinate of the tile.
-            y: The y coordinate of the tile.
+    @property
+    def _mask_ifd_index(self) -> int | None:
+        """The index of the mask IFD in the TIFF file, if any."""
+        return self._mask_ifd[0] if self._mask_ifd else None
 
-        """
-        return await _fetch_tile(
-            x=x,
-            y=y,
-            tiff=self._geotiff._tiff,
-            crs=self._geotiff.crs,
-            ifd_index=self._ifd[0],
-            mask_ifd_index=self._mask_ifd[0] if self._mask_ifd else None,
-            transform=self.transform,
-            tile_width=self.tile_width,
-            tile_height=self.tile_height,
-        )
+    @property
+    def _tiff(self) -> TIFF:
+        """A reference to the underlying TIFF object."""
+        return self._geotiff._tiff
 
-    # TODO: relax type hints to Sequence[int]
-    # upstream issue:
-    # https://github.com/developmentseed/async-tiff/issues/198
-    async def fetch_tiles(self, xs: list[int], ys: list[int]) -> list[Array]:
-        """Fetch multiple tiles from this overview.
-
-        Args:
-            xs: The x coordinates of the tiles.
-            ys: The y coordinates of the tiles.
-
-        """
-        return await _fetch_tiles(
-            xs=xs,
-            ys=ys,
-            tiff=self._geotiff._tiff,
-            crs=self._geotiff.crs,
-            ifd_index=self._ifd[0],
-            mask_ifd_index=self._mask_ifd[0] if self._mask_ifd else None,
-            transform=self.transform,
-            tile_width=self.tile_width,
-            tile_height=self.tile_height,
-        )
+    @property
+    def crs(self) -> CRS:
+        """The coordinate reference system of the overview."""
+        return self._geotiff.crs
 
     @property
     def height(self) -> int:
@@ -123,8 +95,8 @@ class Overview(TransformMixin):
         """The width in pixels per tile of the overview."""
         return self._ifd[1].tile_width or self.width
 
-    @cached_property
-    def transform(self) -> Affine:
+    @property
+    def transform(self) -> Affine:  # type: ignore[override]
         """The affine transform mapping pixel coordinates to geographic coordinates.
 
         Returns:

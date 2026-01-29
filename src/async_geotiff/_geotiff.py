@@ -9,8 +9,7 @@ from async_tiff import TIFF
 from async_tiff.enums import PhotometricInterpretation
 
 from async_geotiff._crs import crs_from_geo_keys
-from async_geotiff._fetch import fetch_tile as _fetch_tile
-from async_geotiff._fetch import fetch_tiles as _fetch_tiles
+from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._overview import Overview
 from async_geotiff._transform import TransformMixin
 from async_geotiff.enums import Compression, Interleaving
@@ -20,11 +19,9 @@ if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
 
-    from async_geotiff import Array
-
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
-class GeoTIFF(TransformMixin):
+class GeoTIFF(FetchTileMixin, TransformMixin):
     """A class representing a GeoTIFF image."""
 
     _tiff: TIFF
@@ -37,8 +34,10 @@ class GeoTIFF(TransformMixin):
     Some tags, like most geo tags, only exist on the primary IFD.
     """
 
-    _mask_ifd: ImageFileDirectory | None = None
-    """The mask IFD of the GeoTIFF, if any.
+    _mask_ifd: tuple[int, ImageFileDirectory] | None = None
+    """The mask IFD of the full-resolution GeoTIFF, if any.
+
+    (positional index of the IFD in the TIFF file, IFD object)
     """
 
     _gkd: GeoKeyDirectory = field(init=False)
@@ -48,6 +47,16 @@ class GeoTIFF(TransformMixin):
     _overviews: list[Overview] = field(init=False)
     """A list of overviews for the GeoTIFF.
     """
+
+    @property
+    def _ifd_index(self) -> int:
+        """The index of the data IFD in the TIFF file."""
+        return 0
+
+    @property
+    def _mask_ifd_index(self) -> int | None:
+        """The index of the mask IFD in the TIFF file, if any."""
+        return self._mask_ifd[0] if self._mask_ifd else None
 
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""
@@ -71,7 +80,7 @@ class GeoTIFF(TransformMixin):
 
         # Check if the primary IFD has a mask
         if len(tiff.ifds) >= 2 and is_mask_ifd(tiff.ifds[ifd_idx]):  # noqa: PLR2004
-            object.__setattr__(self, "_mask_ifd", tiff.ifds[ifd_idx])
+            object.__setattr__(self, "_mask_ifd", (ifd_idx, tiff.ifds[ifd_idx]))
             ifd_idx += 1
 
         overviews: list[Overview] = []
@@ -230,53 +239,6 @@ class GeoTIFF(TransformMixin):
         # https://github.com/developmentseed/async-geotiff/issues/20
         raise NotImplementedError
 
-    async def fetch_tile(
-        self,
-        x: int,
-        y: int,
-    ) -> Array:
-        """Fetch a tile from the full-resolution image.
-
-        Args:
-            x: The x coordinate of the tile.
-            y: The y coordinate of the tile.
-
-        """
-        return await _fetch_tile(
-            x=x,
-            y=y,
-            tiff=self._tiff,
-            crs=self.crs,
-            ifd_index=0,
-            mask_ifd_index=1 if self._mask_ifd else None,
-            transform=self.transform,
-            tile_width=self.tile_width,
-            tile_height=self.tile_height,
-        )
-
-    # TODO: relax type hints to Sequence[int]
-    # upstream issue:
-    # https://github.com/developmentseed/async-tiff/issues/198
-    async def fetch_tiles(self, xs: list[int], ys: list[int]) -> list[Array]:
-        """Fetch multiple tiles from the full-resolution image.
-
-        Args:
-            xs: The x coordinates of the tiles.
-            ys: The y coordinates of the tiles.
-
-        """
-        return await _fetch_tiles(
-            xs=xs,
-            ys=ys,
-            tiff=self._tiff,
-            crs=self.crs,
-            ifd_index=0,
-            mask_ifd_index=1 if self._mask_ifd else None,
-            transform=self.transform,
-            tile_width=self.tile_width,
-            tile_height=self.tile_height,
-        )
-
     @property
     def height(self) -> int:
         """The height (number of rows) of the full image."""
@@ -343,7 +305,7 @@ class GeoTIFF(TransformMixin):
         """The width in pixels per tile of the image."""
         return self._primary_ifd.tile_width or self.width
 
-    @cached_property
+    @property
     def transform(self) -> Affine:
         """Return the dataset's georeferencing transformation matrix.
 
