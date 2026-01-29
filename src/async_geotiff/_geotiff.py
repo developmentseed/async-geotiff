@@ -82,35 +82,32 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
         object.__setattr__(self, "_primary_ifd", first_ifd)
         object.__setattr__(self, "_gkd", gkd)
 
-        # Skip the first IFD, since it's the primary image
-        ifd_idx = 1
+        # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
+        # Data IFDs are indexed by (width, height) for matching with masks
+        data_ifds: dict[tuple[int, int], tuple[int, ImageFileDirectory]] = {}
+        mask_ifds: dict[tuple[int, int], tuple[int, ImageFileDirectory]] = {}
 
-        # Check if the primary IFD has a mask
-        if len(tiff.ifds) >= 2 and is_mask_ifd(tiff.ifds[ifd_idx]):  # noqa: PLR2004
-            object.__setattr__(self, "_mask_ifd", (ifd_idx, tiff.ifds[ifd_idx]))
-            ifd_idx += 1
+        for idx, ifd in enumerate(tiff.ifds[1:], start=1):
+            dims = (ifd.image_width, ifd.image_height)
+            if is_mask_ifd(ifd):
+                mask_ifds[dims] = (idx, ifd)
+            else:
+                data_ifds[dims] = (idx, ifd)
+
+        # Find and set the mask for the primary IFD (matches primary dimensions)
+        if primary_mask_ifd := mask_ifds.get(
+            (first_ifd.image_width, first_ifd.image_height),
+        ):
+            object.__setattr__(self, "_mask_ifd", primary_mask_ifd)
+
+        # Build overviews, sorted by resolution (highest to lowest, i.e., largest first)
+        # Sort by width * height descending
+        sorted_dims = sorted(data_ifds.keys(), key=lambda d: d[0] * d[1], reverse=True)
 
         overviews: list[Overview] = []
-        while True:
-            try:
-                data_ifd = (ifd_idx, tiff.ifds[ifd_idx])
-            except IndexError:
-                # No more IFDs
-                break
-
-            ifd_idx += 1
-
-            mask_ifd = None
-            next_ifd = None
-            try:
-                next_ifd = tiff.ifds[ifd_idx]
-            except IndexError:
-                # No more IFDs
-                pass
-            finally:
-                if next_ifd is not None and is_mask_ifd(next_ifd):
-                    mask_ifd = (ifd_idx, next_ifd)
-                    ifd_idx += 1
+        for dims in sorted_dims:
+            data_ifd = data_ifds[dims]
+            mask_ifd = mask_ifds.get(dims)
 
             ovr = Overview._create(  # noqa: SLF001
                 geotiff=self,
