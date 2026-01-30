@@ -47,8 +47,8 @@ def generate_tms(
     bounds = geotiff.bounds
     crs = geotiff.crs
     tr = geotiff.transform
-    blockxsize = geotiff._primary_ifd.ifd.tile_width  # noqa: SLF001
-    blockysize = geotiff._primary_ifd.ifd.tile_height  # noqa: SLF001
+    blockxsize = geotiff._primary_ifd.tile_width  # noqa: SLF001
+    blockysize = geotiff._primary_ifd.tile_height  # noqa: SLF001
 
     if blockxsize is None or blockysize is None:
         raise ValueError("GeoTIFF must be tiled to generate a TMS.")
@@ -63,8 +63,8 @@ def generate_tms(
 
     for idx, overview in enumerate(reversed(geotiff.overviews)):
         overview_tr = overview.transform
-        blockxsize = overview._ifd.ifd.tile_width  # noqa: SLF001
-        blockysize = overview._ifd.ifd.tile_height  # noqa: SLF001
+        blockxsize = overview._ifd.tile_width  # noqa: SLF001
+        blockysize = overview._ifd.tile_height  # noqa: SLF001
 
         if blockxsize is None or blockysize is None:
             raise ValueError("GeoTIFF overviews must be tiled to generate a TMS.")
