@@ -25,7 +25,10 @@ class Colormap:
     Has shape `(N, 3)` and is of data type uint16.
     """
 
-    def as_array(self, *, dtype: type[np.uint8 | np.uint16]) -> NDArray:
+    _nodata: int | float | None
+    """The nodata value from gdal_nodata, if set."""
+
+    def as_array(self, *, dtype: type[np.uint8 | np.uint16] = np.uint8) -> NDArray:
         """Return the colormap as a NumPy array with shape (N, 3) and dtype uint16.
 
         Each row corresponds to a color entry in the colormap, with columns
@@ -35,7 +38,13 @@ class Colormap:
 
         ```py
         geotiff = await GeoTIFF.open(...)
+        array = await geotiff.fetch_tile(0, 0)
+
         colormap = geotiff.colormap
+        colormap_array = colormap.as_array()
+
+        rgb_data = colormap_array[array.data[0]]
+        # A 3D array with shape (height, width, 3)
         ```
 
         Returns:
@@ -52,7 +61,7 @@ class Colormap:
     def as_dict(
         self,
         *,
-        dtype: type[np.uint8 | np.uint16],
+        dtype: type[np.uint8 | np.uint16] = np.uint8,
     ) -> dict[int, tuple[int, int, int]]:
         """Return the colormap as a dictionary mapping indices to RGB tuples.
 
@@ -83,7 +92,10 @@ class Colormap:
 
         """
         cmap_array = self.as_array(dtype=np.uint8)
-        return {
-            int(idx): (int(r), int(g), int(b), 255)
-            for idx, (r, g, b) in enumerate(cmap_array)
-        }
+        cmap_dict: dict[int, tuple[int, int, int, int]] = {}
+
+        for idx, (r, g, b) in enumerate(cmap_array):
+            alpha = 255 if self._nodata is None or idx != self._nodata else 0
+            cmap_dict[int(idx)] = (int(r), int(g), int(b), alpha)
+
+        return cmap_dict
