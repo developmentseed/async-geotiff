@@ -165,7 +165,7 @@ async def test_read_single_tile(
 
     # Read a small region within the first tile
     window = ((0, 32), (0, 32))
-    result = await geotiff.read(window)
+    result = await geotiff.read(window=window)
 
     rasterio_window = Window(0, 0, 32, 32)
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
@@ -207,7 +207,7 @@ async def test_read_spanning_tiles(
     row_stop = min(tile_height + tile_height // 2, geotiff.height)
 
     window = ((row_start, row_stop), (col_start, col_stop))
-    result = await geotiff.read(window)
+    result = await geotiff.read(window=window)
 
     rasterio_window = Window(
         col_start,
