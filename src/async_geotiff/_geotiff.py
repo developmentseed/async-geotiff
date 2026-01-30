@@ -12,6 +12,7 @@ from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._overview import Overview
 from async_geotiff._transform import TransformMixin
+from async_geotiff.colormap import Colormap
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
@@ -189,23 +190,18 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
         # https://github.com/developmentseed/async-geotiff/issues/12
         raise NotImplementedError
 
-    def colormap(self, bidx: int) -> dict[int, tuple[int, int, int]]:
-        """Return a dict containing the colormap for a band.
-
-        Args:
-            bidx: The 1-based index of the band whose colormap will be returned.
+    @property
+    def colormap(self) -> Colormap | None:
+        """Return the Colormap stored in the file, if any.
 
         Returns:
-            Mapping of color index value (starting at 0) to RGBA color as a
-            4-element tuple.
-
-        Raises:
-            ValueError: If no colormap is found for the specified band (NULL color
-                table).
-            IndexError: If no band exists for the provided index.
+            A Colormap instance if the dataset has a colormap, else None.
 
         """
-        raise NotImplementedError
+        if upstream_colormap := self._primary_ifd.colormap:
+            return Colormap(_cmap=upstream_colormap, _nodata=self.nodata)
+
+        return None
 
     @property
     def compression(self) -> Compression:
