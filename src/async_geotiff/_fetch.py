@@ -12,6 +12,7 @@ from async_geotiff._transform import HasTransform
 if TYPE_CHECKING:
     from async_tiff import TIFF
     from async_tiff import Array as AsyncTiffArray
+    from numpy.typing import NDArray
     from pyproj import CRS
 
     from async_geotiff._ifd import IFDReference
@@ -165,7 +166,8 @@ class FetchTileMixin:
 
     async def read(
         self: CanFetchTiles,
-        window: WindowLike,
+        *,
+        window: WindowLike | None = None,
     ) -> Array:
         """Read pixel data for a window region.
 
@@ -175,7 +177,9 @@ class FetchTileMixin:
         Args:
             window: A tuple of ((row_start, row_stop), (col_start, col_stop))
                 defining the pixel region to read. This format is compatible
-                with rasterio's window tuple format.
+                with rasterio's window tuple format, with the caveat that here we only
+                support integer indices, not float indices. If None, the entire image is
+                read.
 
         Returns:
             An Array containing the pixel data for the requested window.
@@ -184,25 +188,20 @@ class FetchTileMixin:
             IndexError: If the window extends outside the image bounds.
 
         """
-        (row_start, row_stop), (col_start, col_stop) = window
+        if window is None:
+            row_start, row_stop = 0, self.height
+            col_start, col_stop = 0, self.width
+        else:
+            (row_start, row_stop), (col_start, col_stop) = window
 
-        # Validate window bounds
-        if row_start < 0 or col_start < 0:
-            raise IndexError(
-                f"Window start indices must be non-negative, "
-                f"got row_start={row_start}, col_start={col_start}",
-            )
-        if row_stop > self.height or col_stop > self.width:
-            raise IndexError(
-                f"Window extends outside image bounds. "
-                f"Window: rows={row_start}:{row_stop}, cols={col_start}:{col_stop}. "
-                f"Image size: {self.height}x{self.width}",
-            )
-        if row_start >= row_stop or col_start >= col_stop:
-            raise IndexError(
-                f"Window must have positive dimensions, "
-                f"got rows={row_start}:{row_stop}, cols={col_start}:{col_stop}",
-            )
+        validate_window(
+            row_start=row_start,
+            row_stop=row_stop,
+            col_start=col_start,
+            col_stop=col_stop,
+            height=self.height,
+            width=self.width,
+        )
 
         # Calculate which tiles we need to fetch
         tile_x_start = col_start // self.tile_width
@@ -213,8 +212,8 @@ class FetchTileMixin:
         # Build list of tile coordinates
         xs: list[int] = []
         ys: list[int] = []
-        for ty in range(tile_y_start, tile_y_stop):
-            for tx in range(tile_x_start, tile_x_stop):
+        for tx in range(tile_x_start, tile_x_stop):
+            for ty in range(tile_y_start, tile_y_stop):
                 xs.append(tx)
                 ys.append(ty)
 
@@ -233,14 +232,15 @@ class FetchTileMixin:
         output_data = np.empty((num_bands, window_height, window_width), dtype=dtype)
 
         # Check if any tiles have masks
-        has_mask = any(tile.mask is not None for tile in tiles)
-        output_mask: np.ndarray | None = None
-        if has_mask:
+        output_mask: NDArray[np.bool_] | None = None
+        if self._mask_ifd is not None:
             output_mask = np.ones((window_height, window_width), dtype=np.bool_)
 
-        # Place each tile's data into the output array
+        # Fill each tile's data into the output array
         num_tiles_x = tile_x_stop - tile_x_start
         for i, tile in enumerate(tiles):
+            # TODO: have to come back to check this in more detail
+
             # Calculate tile position in the grid
             tile_grid_y = i // num_tiles_x
             tile_grid_x = i % num_tiles_x
@@ -295,4 +295,33 @@ class FetchTileMixin:
             count=num_bands,
             transform=window_transform,
             crs=self.crs,
+        )
+
+
+def validate_window(  # noqa: PLR0913
+    *,
+    row_start: int,
+    row_stop: int,
+    col_start: int,
+    col_stop: int,
+    height: int,
+    width: int,
+) -> None:
+    if row_start < 0 or col_start < 0:
+        raise IndexError(
+            f"Window start indices must be non-negative, "
+            f"got row_start={row_start}, col_start={col_start}",
+        )
+
+    if row_stop > height or col_stop > width:
+        raise IndexError(
+            f"Window extends outside image bounds. "
+            f"Window: rows={row_start}:{row_stop}, cols={col_start}:{col_stop}. "
+            f"Image size: {height}x{width}",
+        )
+
+    if row_start >= row_stop or col_start >= col_stop:
+        raise IndexError(
+            f"Window must have positive dimensions, "
+            f"got rows={row_start}:{row_stop}, cols={col_start}:{col_stop}",
         )
