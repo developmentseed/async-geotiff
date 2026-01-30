@@ -6,13 +6,17 @@ from typing import TYPE_CHECKING, Self
 import numpy as np
 from async_tiff.enums import PlanarConfiguration
 
+from async_geotiff._photometric import convert_to_rgb
 from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
     from affine import Affine
     from async_tiff import Array as AsyncTiffArray
+    from async_tiff.enums import PhotometricInterpretation
     from numpy.typing import NDArray
     from pyproj.crs import CRS
+
+    from async_geotiff.colormap import Colormap
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
@@ -43,8 +47,12 @@ class Array(TransformMixin):
     crs: CRS
     """The coordinate reference system of the array."""
 
+    _photometric_interpretation: PhotometricInterpretation
+
+    _colormap: Colormap | None
+
     @classmethod
-    def _create(
+    def _create(  # noqa: PLR0913
         cls,
         *,
         data: AsyncTiffArray,
@@ -52,18 +60,22 @@ class Array(TransformMixin):
         planar_configuration: PlanarConfiguration,
         transform: Affine,
         crs: CRS,
+        photometric_interpretation: PhotometricInterpretation,
+        colormap: Colormap | None,
     ) -> Self:
         """Create an Array from async_tiff data.
 
         Handles axis reordering to ensure data is always in (bands, height, width)
         order, matching rasterio's convention.
 
-        Args:
+        Keyword Args:
             data: The decoded tile data from async_tiff.
             mask: The decoded mask data from async_tiff, if any.
             planar_configuration: The planar configuration of the source IFD.
             transform: The affine transform for this tile.
             crs: The coordinate reference system.
+            photometric_interpretation: The photometric interpretation of the data.
+            colormap: The colormap, if any.
 
         Returns:
             An Array with data in (bands, height, width) order.
@@ -99,4 +111,26 @@ class Array(TransformMixin):
             count=count,
             transform=transform,
             crs=crs,
+            _photometric_interpretation=photometric_interpretation,
+            _colormap=colormap,
+        )
+
+    def to_rgb(self) -> NDArray:
+        """Convert the array data to RGB format.
+
+        GeoTIFF data may use various photometric interpretations (e.g., grayscale,
+        palette color, CMYK, CIELab, YCbCr). This method transforms the data to standard
+        RGB format.
+
+        Returns:
+            A NumPy array with shape (3, height, width) representing RGB data.
+
+        Raises:
+            NotImplementedError: If the photometric interpretation is unsupported.
+
+        """
+        return convert_to_rgb(
+            self.data,
+            photometric_interpretation=self._photometric_interpretation,
+            colormap=self._colormap,
         )
