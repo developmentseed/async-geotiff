@@ -9,11 +9,10 @@ from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
-    from async_tiff import TIFF, GeoKeyDirectory
+    from async_tiff import TIFF, GeoKeyDirectory, ImageFileDirectory
     from pyproj.crs import CRS
 
     from async_geotiff import GeoTIFF
-    from async_geotiff._ifd import IFDReference
 
 # ruff: noqa: SLF001
 
@@ -30,13 +29,13 @@ class Overview(FetchTileMixin, TransformMixin):
     """The GeoKeyDirectory of the primary IFD.
     """
 
-    _ifd: IFDReference
+    _ifd: ImageFileDirectory
     """The IFD for this overview level.
 
     (positional index of the IFD in the TIFF file, IFD object)
     """
 
-    _mask_ifd: IFDReference | None
+    _mask_ifd: ImageFileDirectory | None
     """The IFD for the mask associated with this overview level, if any.
 
     (positional index of the IFD in the TIFF file, IFD object)
@@ -48,8 +47,8 @@ class Overview(FetchTileMixin, TransformMixin):
         *,
         geotiff: GeoTIFF,
         gkd: GeoKeyDirectory,
-        ifd: IFDReference,
-        mask_ifd: IFDReference | None,
+        ifd: ImageFileDirectory,
+        mask_ifd: ImageFileDirectory | None,
     ) -> Overview:
         instance = cls.__new__(cls)
 
@@ -74,17 +73,17 @@ class Overview(FetchTileMixin, TransformMixin):
     @property
     def height(self) -> int:
         """The height of the overview in pixels."""
-        return self._ifd.ifd.image_height
+        return self._ifd.image_height
 
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the overview."""
-        return self._ifd.ifd.tile_height or self.height
+        return self._ifd.tile_height or self.height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the overview."""
-        return self._ifd.ifd.tile_width or self.width
+        return self._ifd.tile_width or self.width
 
     @property
     def transform(self) -> Affine:  # type: ignore[override]
@@ -96,9 +95,9 @@ class Overview(FetchTileMixin, TransformMixin):
         """
         full_transform = self._geotiff.transform
 
-        overview_width = self._ifd.ifd.image_width
+        overview_width = self._ifd.image_width
         full_width = self._geotiff.width
-        overview_height = self._ifd.ifd.image_height
+        overview_height = self._ifd.image_height
         full_height = self._geotiff.height
 
         scale_x = full_width / overview_width
@@ -109,4 +108,4 @@ class Overview(FetchTileMixin, TransformMixin):
     @property
     def width(self) -> int:
         """The width of the overview in pixels."""
-        return self._ifd.ifd.image_width
+        return self._ifd.image_width
