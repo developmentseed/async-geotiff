@@ -43,7 +43,7 @@ class LoadRasterio(Protocol):
 def root_dir() -> Path:
     root_dir = Path(__file__).parent.resolve()
 
-    if root_dir.name != "async-geotiff":
+    while root_dir.name != "async-geotiff":
         root_dir = root_dir.parent
 
     return root_dir
