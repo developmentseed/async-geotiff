@@ -83,8 +83,11 @@ class Colormap:
         [`DatasetReader.colormap`][rasterio.io.DatasetReader.colormap] method.
 
         This is the same as
-        [`Colormap.as_dict`][async_geotiff.colormap.Colormap.as_dict] with `dtype` set
-        to `np.uint8`, but with an added alpha channel set to 255.
+        [`Colormap.as_dict`][async_geotiff.colormap.Colormap.as_dict] with:
+
+        - `dtype` set to `np.uint8`
+        - an added alpha channel set to 255, **except** for the nodata value, if
+          defined.
 
         Returns:
             Mapping of color index value (starting at 0) to RGBA color as a 4-element
