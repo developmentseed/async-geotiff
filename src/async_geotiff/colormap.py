@@ -87,7 +87,7 @@ class Colormap:
 
         - `dtype` set to `np.uint8`
         - an added alpha channel set to 255, **except** for the nodata value, if
-          defined.
+          defined, which has an alpha of 0.
 
         Returns:
             Mapping of color index value (starting at 0) to RGBA color as a 4-element
