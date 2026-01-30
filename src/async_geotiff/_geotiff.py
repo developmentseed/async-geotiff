@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
-import async_tiff.enums
 from affine import Affine
 from async_tiff import TIFF
 from async_tiff.enums import PhotometricInterpretation
@@ -375,8 +374,7 @@ def has_geokeys(ifd: ImageFileDirectory) -> bool:
 def is_mask_ifd(ifd: ImageFileDirectory) -> bool:
     """Check if an IFD is a mask IFD."""
     return (
-        ifd.compression == async_tiff.enums.CompressionMethod.Deflate
-        and ifd.new_subfile_type is not None
+        ifd.new_subfile_type is not None
         and ifd.new_subfile_type & 4 != 0
         and ifd.photometric_interpretation == PhotometricInterpretation.TransparencyMask
     )
