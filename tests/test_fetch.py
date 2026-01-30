@@ -205,7 +205,12 @@ async def test_read_spanning_tiles(
     window = ((row_start, row_stop), (col_start, col_stop))
     result = await geotiff.read(window)
 
-    rasterio_window = Window(col_start, row_start, col_stop - col_start, row_stop - row_start)
+    rasterio_window = Window(
+        col_start,
+        row_start,
+        col_stop - col_start,
+        row_stop - row_start,
+    )
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
         rasterio_data = rasterio_ds.read(window=rasterio_window)
 
