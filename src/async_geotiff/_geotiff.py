@@ -199,7 +199,7 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
 
         """
         if upstream_colormap := self._primary_ifd.colormap:
-            return Colormap(_cmap=upstream_colormap)
+            return Colormap(_cmap=upstream_colormap, _nodata=self.nodata)
 
         return None
 
