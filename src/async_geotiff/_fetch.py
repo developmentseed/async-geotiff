@@ -81,6 +81,8 @@ class FetchTileMixin:
             planar_configuration=self._ifd.planar_configuration,
             crs=self.crs,
             transform=tile_transform,
+            photometric_interpretation=self._ifd.photometric_interpretation,
+            colormap=self._ifd.colormap,
         )
 
     async def fetch_tiles(
@@ -128,6 +130,8 @@ class FetchTileMixin:
                 planar_configuration=self._ifd.planar_configuration,
                 crs=self.crs,
                 transform=tile_transform,
+                photometric_interpretation=self._ifd.photometric_interpretation,
+                colormap=self._ifd.colormap,
             )
             arrays.append(array)
 
