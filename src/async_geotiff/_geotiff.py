@@ -272,7 +272,14 @@ class GeoTIFF(FetchTileMixin, TransformMixin):
 
     @property
     def overviews(self) -> list[Overview]:
-        """A list of overview levels for the dataset."""
+        """A list of overview levels for the dataset.
+
+        Overviews are reduced-resolution versions of the main image used for faster
+        rendering at lower zoom levels.
+
+        This list of overviews is ordered from finest to coarsest resolution. The first
+        element of the list is the highest-resolution after the base image.
+        """
         return self._overviews
 
     @property

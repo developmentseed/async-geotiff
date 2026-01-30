@@ -43,6 +43,7 @@ dev = [
     "build>=1.4.0",
     "ipykernel>=7.1.0",
     "jsonschema>=4.26.0",
+    "matplotlib>=3.10.8",
     "morecantile>=7.0.2",
     "obstore>=0.8.2",
     "pydantic>=2.12.5",
