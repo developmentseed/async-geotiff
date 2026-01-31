@@ -10,6 +10,7 @@ from affine import Affine
 from async_geotiff._array import Array
 from async_geotiff._fetch import HasTiffReference
 from async_geotiff._windows import Window
+from async_geotiff.exceptions import WindowError
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -17,12 +18,18 @@ if TYPE_CHECKING:
     from async_geotiff._tile import Tile
 
 
-# Window type: tuple of ((row_start, row_stop), (col_start, col_stop))
-WindowLike = tuple[tuple[int, int], tuple[int, int]] | Window
-
-
 class CanFetchTiles(HasTiffReference, Protocol):
     """Protocol for objects that can fetch tiles."""
+
+    @property
+    def height(self) -> int:
+        """The height of the image in pixels."""
+        ...
+
+    @property
+    def width(self) -> int:
+        """The width of the image in pixels."""
+        ...
 
     async def fetch_tiles(
         self,
@@ -35,7 +42,7 @@ class ReadMixin:
     async def read(
         self: CanFetchTiles,
         *,
-        window: WindowLike | None = None,
+        window: Window | None = None,
     ) -> Array:
         """Read pixel data for a window region.
 
@@ -43,17 +50,14 @@ class ReadMixin:
         stitches them together, returning only the pixels within the window.
 
         Args:
-            window: A Window object or a tuple of ((row_start, row_stop),
-                (col_start, col_stop)) defining the pixel region to read.
-                The tuple format is compatible with rasterio's window tuple format,
-                with the caveat that here we only support integer indices, not float
-                indices. If None, the entire image is read.
+            window: A Window object defining the pixel region to read.
+                If None, the entire image is read.
 
         Returns:
             An Array containing the pixel data for the requested window.
 
         Raises:
-            IndexError: If the window extends outside the image bounds.
+            WindowError: If the window extends outside the image bounds.
 
         """
         return await read(self, window=window)
@@ -62,20 +66,18 @@ class ReadMixin:
 async def read(
     self: CanFetchTiles,
     *,
-    window: WindowLike | None = None,
+    window: Window | None = None,
 ) -> Array:
     # Normalize window to Window object
-    if window is None:
-        win = Window(col_off=0, row_off=0, width=self.width, height=self.height)
-    elif isinstance(window, Window):
+    if isinstance(window, Window):
         win = window
     else:
-        win = Window.from_slices(rows=window[0], cols=window[1])
+        win = Window(col_off=0, row_off=0, width=self.width, height=self.height)
 
     # Most validation occurred in construction of Window; here we just check against
     # image size
     if win.col_off + win.width > self.width or win.row_off + win.height > self.height:
-        raise IndexError(
+        raise WindowError(
             f"Window extends outside image bounds.\n"
             f"Window: cols={win.col_off}:{win.col_off + win.width}, "
             f"rows={win.row_off}:{win.row_off + win.height}.\n"

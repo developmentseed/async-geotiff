@@ -39,16 +39,6 @@ class HasTiffReference(HasTransform, Protocol):
         ...
 
     @property
-    def height(self) -> int:
-        """The height of the image in pixels."""
-        ...
-
-    @property
-    def width(self) -> int:
-        """The width of the image in pixels."""
-        ...
-
-    @property
     def tile_height(self) -> int:
         """The height of tiles in pixels."""
         ...
