@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from async_geotiff._windows import Window, WindowError
+from async_geotiff import Window
+from async_geotiff.exceptions import WindowError
 
 
 class TestWindowCreation:

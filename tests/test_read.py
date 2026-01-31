@@ -34,7 +34,7 @@ async def test_read_single_tile(
     geotiff = await load_geotiff(file_name, variant=variant)
 
     # Read a small region within the first tile
-    window = async_geotiff.windows.Window(0, 0, 32, 32)
+    window = async_geotiff.Window(0, 0, 32, 32)
     result = await geotiff.read(window=window)
 
     rasterio_window = Window(0, 0, 32, 32)

@@ -7,9 +7,8 @@ from typing import TYPE_CHECKING, Protocol
 import numpy as np
 from affine import Affine
 
-from async_geotiff import Array
+from async_geotiff import Array, Window
 from async_geotiff._fetch import HasTiffReference
-from async_geotiff.windows import Window
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
