@@ -79,6 +79,7 @@ module = [
     # https://github.com/rasterio/affine/issues/135
     "affine.*",
     "async_tiff.store.*",
+    "rasterio.*",
 ]
 ignore_missing_imports = true
 
