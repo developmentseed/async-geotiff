@@ -20,8 +20,8 @@ class TestWindowCreation:
         assert w.height == 50
 
     def test_negative_offset_raises(self) -> None:
-        """Test that negative offsets raise IndexError."""
-        with pytest.raises(IndexError, match="non-negative"):
+        """Test that negative offsets raise WindowError."""
+        with pytest.raises(WindowError, match="non-negative"):
             Window(col_off=-1, row_off=0, width=10, height=10)
 
     def test_negative_width_raises(self) -> None:

@@ -9,6 +9,7 @@ import pytest
 from rasterio.windows import Window
 
 import async_geotiff
+from async_geotiff.exceptions import WindowError
 
 if TYPE_CHECKING:
     from .conftest import LoadGeoTIFF, LoadRasterio, Variant
@@ -34,7 +35,7 @@ async def test_read_single_tile(
     geotiff = await load_geotiff(file_name, variant=variant)
 
     # Read a small region within the first tile
-    window = async_geotiff.Window(0, 0, 32, 32)
+    window = async_geotiff.Window(col_off=0, row_off=0, width=32, height=32)
     result = await geotiff.read(window=window)
 
     rasterio_window = Window(0, 0, 32, 32)
@@ -76,7 +77,12 @@ async def test_read_spanning_tiles(
     row_start = tile_height // 2
     row_stop = min(tile_height + tile_height // 2, geotiff.height)
 
-    window = ((row_start, row_stop), (col_start, col_stop))
+    window = async_geotiff.Window(
+        col_off=col_start,
+        row_off=row_start,
+        width=col_stop - col_start,
+        height=row_stop - row_start,
+    )
     result = await geotiff.read(window=window)
 
     rasterio_window = Window(
@@ -110,7 +116,7 @@ async def test_read_overview(
     geotiff = await load_geotiff(file_name, variant=variant)
     overview = geotiff.overviews[0]
 
-    window = ((0, 32), (0, 32))
+    window = async_geotiff.Window(col_off=0, row_off=0, width=32, height=32)
     result = await overview.read(window=window)
 
     rasterio_window = Window(0, 0, 32, 32)
@@ -126,17 +132,28 @@ async def test_read_overview(
 async def test_read_bounds_validation(
     load_geotiff: LoadGeoTIFF,
 ) -> None:
-    """Test that read raises IndexError for out-of-bounds windows."""
+    """Test that read raises WindowError for invalid windows."""
     geotiff = await load_geotiff("uint8_rgb_deflate_block64_cog", variant="rasterio")
 
     # Negative start index
-    with pytest.raises(IndexError, match="non-negative"):
-        await geotiff.read(window=((-1, 10), (0, 10)))
+    with pytest.raises(WindowError, match="non-negative"):
+        await geotiff.read(
+            window=async_geotiff.Window(col_off=-1, row_off=0, width=10, height=10),
+        )
 
     # Window extends past image bounds
-    with pytest.raises(IndexError, match="outside image bounds"):
-        await geotiff.read(window=((0, geotiff.height + 1), (0, 10)))
+    with pytest.raises(WindowError, match="outside image bounds"):
+        await geotiff.read(
+            window=async_geotiff.Window(
+                col_off=0,
+                row_off=0,
+                width=10,
+                height=geotiff.height + 1,
+            ),
+        )
 
     # Zero-size window
-    with pytest.raises(Exception, match="positive"):
-        await geotiff.read(window=((10, 10), (0, 10)))
+    with pytest.raises(WindowError, match="positive"):
+        await geotiff.read(
+            window=async_geotiff.Window(col_off=0, row_off=0, width=0, height=10),
+        )

@@ -42,7 +42,7 @@ class Window:
     def __post_init__(self) -> None:
         """Validate window dimensions."""
         if self.col_off < 0 or self.row_off < 0:
-            raise IndexError(
+            raise WindowError(
                 f"Window start indices must be non-negative, "
                 f"got col_off={self.col_off}, row_off={self.row_off}",
             )
