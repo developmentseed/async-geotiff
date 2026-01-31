@@ -17,9 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Self
 
-
-class WindowError(Exception):
-    """Exception raised for window-related errors."""
+from async_geotiff.exceptions import WindowError
 
 
 @dataclass(frozen=True, slots=True)
