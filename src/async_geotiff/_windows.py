@@ -1,16 +1,4 @@
-"""Window utilities for defining rectangular subsets of rasters.
-
-This module provides a Window class compatible with rasterio's Window API,
-but simplified for integer-only operations.
-
-A window can be created directly:
-
-    Window(col_off=0, row_off=0, width=100, height=100)
-
-Or from slice tuples (rasterio-style):
-
-    Window.from_slices(rows=(0, 100), cols=(0, 100))
-"""
+"""Window utilities for defining rectangular subsets of rasters."""
 
 from __future__ import annotations
 
@@ -24,20 +12,21 @@ class Window:
     """A rectangular subset of a raster.
 
     Windows define pixel regions using column/row offsets and dimensions.
-    This class is compatible with rasterio's Window API but uses integers only.
-
-    Attributes:
-        col_off: Column offset (x position of left edge).
-        row_off: Row offset (y position of top edge).
-        width: Width in pixels (number of columns).
-        height: Height in pixels (number of rows).
-
+    This class is similar to rasterio's [Window][rasterio.windows.Window] but supports
+    integer offsets and ranges only.
     """
 
     col_off: int
+    """The column offset (x position of the left edge)."""
+
     row_off: int
+    """The row offset (y position of the top edge)."""
+
     width: int
+    """The width in pixels (number of columns)."""
+
     height: int
+    """The height in pixels (number of rows)."""
 
     def __post_init__(self) -> None:
         """Validate window dimensions."""
