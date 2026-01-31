@@ -68,7 +68,6 @@ async def read(
     *,
     window: Window | None = None,
 ) -> Array:
-    # Normalize window to Window object
     if isinstance(window, Window):
         win = window
     else:
@@ -98,22 +97,17 @@ async def read(
             xs.append(tx)
             ys.append(ty)
 
-    # Fetch all needed tiles
     tiles = await self.fetch_tiles(xs, ys)
 
-    # Get number of bands from first tile
     num_bands = tiles[0].array.count
     dtype = tiles[0].array.data.dtype
 
-    # Create output array
+    # Create output array and mask array
     output_data = np.empty((num_bands, win.height, win.width), dtype=dtype)
-
-    # Check if any tiles have masks
     output_mask: NDArray[np.bool_] | None = None
     if self._mask_ifd is not None:
         output_mask = np.ones((win.height, win.width), dtype=np.bool_)
 
-    # Assemble tiles into output arrays
     assemble_tiles(
         tiles=tiles,
         window=win,
@@ -123,7 +117,6 @@ async def read(
         output_mask=output_mask,
     )
 
-    # Calculate transform for the window
     window_transform = self.transform * Affine.translation(
         win.col_off,
         win.row_off,
@@ -153,15 +146,6 @@ def assemble_tiles(  # noqa: PLR0913
 
     This function copies data from tiles into the appropriate positions
     in the output arrays, handling partial tiles at window boundaries.
-
-    Args:
-        tiles: List of Tile objects, each carrying its grid position.
-        window: The target window being read.
-        tile_width: Width of each tile in pixels.
-        tile_height: Height of each tile in pixels.
-        output_data: Output array with shape (bands, height, width) to fill.
-        output_mask: Output mask with shape (height, width) to fill, or None.
-
     """
     for tile in tiles:
         # Create a window for this tile's position in image coordinates
@@ -187,14 +171,13 @@ def assemble_tiles(  # noqa: PLR0913
         dst_row_start = overlap.row_off - window.row_off
         dst_row_stop = dst_row_start + overlap.height
 
-        # Copy data
+        # Copy data and mask if present
         output_data[
             :,
             dst_row_start:dst_row_stop,
             dst_col_start:dst_col_stop,
         ] = tile.array.data[:, src_row_start:src_row_stop, src_col_start:src_col_stop]
 
-        # Copy mask if present
         if output_mask is not None and tile.array.mask is not None:
             output_mask[
                 dst_row_start:dst_row_stop,
