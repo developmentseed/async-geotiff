@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Protocol
 
 from affine import Affine
 
-from async_geotiff import Array
+from async_geotiff._array import Array
 from async_geotiff._tile import Tile
 from async_geotiff._transform import HasTransform
 
