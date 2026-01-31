@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True, kw_only=True, eq=False)
 class Tile:
-    """An array representation of data from a GeoTIFF."""
+    """A tile from a GeoTIFF, containing array data and grid position."""
 
     x: int
     """The tile column index in the GeoTIFF or overview."""
