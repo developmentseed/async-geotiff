@@ -72,15 +72,17 @@ For a COG, you can access the overviews, or reduced resolution versions, of the 
 overview = geotiff.overviews[-2]
 ```
 
-Then we can read data from the image. This loads the tile in the upper-left
-corner of the selected overview.
+Then we can read data from the image. This loads a 512-pixel square from the
+upper-left corner of the selected overview.
 
 ```py
-array = await overview.fetch_tile(0, 0)
+from async_geotiff import Window
+
+window = Window(col_off=0, row_off=0, width=512, height=512)
+array = await overview.read(window=window)
 ```
 
 This `Array` instance has `data`, `mask`, and some other metadata about the fetched array data.
-
 
 Plot, using [`rasterio.plot.show`](https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show) (requires `matplotlib`):
 
