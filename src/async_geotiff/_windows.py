@@ -29,7 +29,7 @@ class Window:
     """The height in pixels (number of rows)."""
 
     def __post_init__(self) -> None:
-        """Validate window dimensions."""
+        # Validate window dimensions
         if self.col_off < 0 or self.row_off < 0:
             raise WindowError(
                 f"Window start indices must be non-negative, "
@@ -43,7 +43,6 @@ class Window:
             raise WindowError(f"Window height must be positive, got {self.height}")
 
     def __repr__(self) -> str:
-        """Return a nicely formatted representation string."""
         return (
             f"async_geotiff.Window(col_off={self.col_off}, row_off={self.row_off}, "
             f"width={self.width}, height={self.height})"

@@ -7,11 +7,7 @@ from enum import Enum
 
 # https://github.com/rasterio/rasterio/blob/2d79e5f3a00e919ecaa9573adba34a78274ce48c/rasterio/enums.py#L153-L174
 class Compression(Enum):
-    """Available compression algorithms for GeoTIFFs.
-
-    Note that compression options for EXR, MRF, etc are not included
-    in this enum.
-    """
+    """Available compression algorithms for GeoTIFFs."""
 
     JPEG = "JPEG"
     LZW = "LZW"
@@ -33,6 +29,8 @@ class Compression(Enum):
 
 # https://github.com/rasterio/rasterio/blob/2d79e5f3a00e919ecaa9573adba34a78274ce48c/rasterio/enums.py#L177-L182
 class Interleaving(Enum):
+    """GeoTIFF band interleaving options."""
+
     PIXEL = "PIXEL"
     BAND = "BAND"
     # TODO: Support GDAL's new TILE interleaving option

@@ -143,7 +143,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
                 `prefetch * 2`.
 
         Returns:
-            A TIFF instance.
+            A GeoTIFF instance.
 
         """
         tiff = await TIFF.open(
@@ -159,7 +159,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         """Return the bounds of the dataset in the units of its CRS.
 
         Returns:
-            (lower left x, lower left y, upper right x, upper right y)
+            lower left x, lower left y, upper right x, upper right y
 
         """
         transform = self.transform
@@ -237,7 +237,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
 
     @property
     def dtype(self) -> np.dtype | None:  # noqa: PLR0911, C901
-        """The numpy data type of the image.
+        """The NumPy data type of the image.
 
         Returns None if the data type is unknown/not supported.
         """

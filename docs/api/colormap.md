@@ -1,3 +1,3 @@
-# async_geotiff.Colormap
+# Colormap
 
 ::: async_geotiff.colormap
