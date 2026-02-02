@@ -11,8 +11,11 @@ Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python
 
 ## Features
 
-- Read-only support for **GeoTIFF and COG** formats.
-- High-level, familiar, **easy to use** API.
+- Asynchronous, read-only support for **GeoTIFF and COG** formats.
+- **High-level**, familiar, **easy to use** API.
+    - Integration with [NumPy], [Affine], and [PyProj].
+    - Access to full-resolution image and reduced-resolution overviews.
+    - Support for nodata values and nodata masks.
 - **Performance-focused**:
     - Rust core ensures native performance.
     - CPU-bound tasks like image decoding happen in a thread pool, without blocking the async executor.
@@ -22,12 +25,17 @@ Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python
 - **Full type hinting** for all operations.
 - **Broad decompression support**: Deflate, LZW, JPEG, JPEG2000, WebP, ZSTD.
 
+[Affine]: https://affine.readthedocs.io/en/latest/
+[NumPy]: https://numpy.org/
+[PyProj]: https://pyproj4.github.io/pyproj/stable/
+
 #### Anti-Features
 
 _Features explicitly not in scope_:
 
 - No pixel resampling.
 - No warping/reprojection.
+- Automatic resolution/overview selection
 
 Resampling and warping bring significant additional complexity and are out of scope for this library. Consider using `async-geotiff` to load data, then [rasterio]'s [In-Memory Files] to resample or reproject data, if needed.
 

@@ -84,15 +84,15 @@ class Overview(ReadMixin, FetchTileMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the overview."""
-        return self._ifd.tile_height or self.height
+        return self._geotiff.tile_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the overview."""
-        return self._ifd.tile_width or self.width
+        return self._geotiff.tile_width
 
     @property
-    def transform(self) -> Affine:  # type: ignore[override]
+    def transform(self) -> Affine:
         """The affine transform mapping pixel coordinates to geographic coordinates.
 
         Returns:

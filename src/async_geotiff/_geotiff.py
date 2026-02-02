@@ -2,11 +2,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, cast
 
+import numpy as np
 from affine import Affine
 from async_tiff import TIFF
-from async_tiff.enums import PhotometricInterpretation
+from async_tiff.enums import Compression as AsyncTiffCompression
+from async_tiff.enums import (
+    PhotometricInterpretation as AsyncTiffPhotometricInterpretation,
+)
+from async_tiff.enums import (
+    PlanarConfiguration,
+    SampleFormat,
+)
 
 from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
@@ -14,13 +22,12 @@ from async_geotiff._overview import Overview
 from async_geotiff._read import ReadMixin
 from async_geotiff._transform import TransformMixin
 from async_geotiff.colormap import Colormap
+from async_geotiff.enums import Compression, Interleaving, PhotometricInterpretation
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
     from pyproj.crs import CRS
-
-    from async_geotiff.enums import Compression, Interleaving
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
@@ -147,27 +154,6 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         )
         return cls(tiff)
 
-    @property
-    def block_shapes(self) -> list[tuple[int, int]]:
-        """An ordered list of block shapes for each bands.
-
-        Shapes are tuples and have the same ordering as the dataset's shape:
-
-        - (count of image rows, count of image columns).
-        """
-        raise NotImplementedError
-
-    def block_size(self, bidx: int, i: int, j: int) -> int:
-        """Return the size in bytes of a particular block.
-
-        Args:
-            bidx: Band index, starting with 1.
-            i: Row index of the block, starting with 0.
-            j: Column index of the block, starting with 0.
-
-        """
-        raise NotImplementedError
-
     @cached_property
     def bounds(self) -> tuple[float, float, float, float]:
         """Return the bounds of the dataset in the units of its CRS.
@@ -178,18 +164,22 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         """
         transform = self.transform
 
-        # Hopefully types will be fixed with affine 3.0
-        (left, top) = transform * (0, 0)  # type: ignore # noqa: PGH003
-        (right, bottom) = transform * (self.width, self.height)  # type: ignore # noqa: PGH003
+        # TODO: Remove type casts once affine supports typing overloads for matmul
+        # https://github.com/rasterio/affine/pull/137
+        (left, top) = cast("tuple[float, float]", transform * (0, 0))
+        (right, bottom) = cast(
+            "tuple[float, float]",
+            transform * (self.width, self.height),
+        )
 
         return (left, bottom, right, top)
 
-    @property
-    def colorinterp(self) -> list[str]:
-        """The color interpretation of each band in index order."""
-        # TODO: we should return an enum here. The enum should match rasterio.
-        # https://github.com/developmentseed/async-geotiff/issues/12
-        raise NotImplementedError
+    # @property
+    # def colorinterp(self) -> list[str]:
+    #     """The color interpretation of each band in index order."""
+    # TODO: we should return an enum here. The enum should match rasterio.
+    # https://github.com/developmentseed/async-geotiff/issues/12
+    # raise NotImplementedError
 
     @property
     def colormap(self) -> Colormap | None:
@@ -205,20 +195,31 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         return None
 
     @property
-    def compression(self) -> Compression:
-        """The compression algorithm used for the dataset."""
-        # TODO: should return an enum. The enum should match rasterio.
-        # https://github.com/developmentseed/async-geotiff/issues/12
-        # Also, is there ever a case where overviews have a different compression from
-        # the base image?
-        # Should we diverge from rasterio and not have this as a property returning a
-        # single string?
-        raise NotImplementedError
+    def compression(self) -> Compression | None:  # noqa: PLR0911
+        """The compression algorithm used for the dataset.
+
+        Returns None if the compression is not recognized.
+        """
+        match self._primary_ifd.compression:
+            case AsyncTiffCompression.JPEG:
+                return Compression.JPEG
+            case AsyncTiffCompression.LZW:
+                return Compression.LZW
+            case AsyncTiffCompression.PackBits:
+                return Compression.PACKBITS
+            case AsyncTiffCompression.Deflate:
+                return Compression.DEFLATE
+            case AsyncTiffCompression.Uncompressed:
+                return Compression.UNCOMPRESSED
+            case AsyncTiffCompression.ZSTD:
+                return Compression.ZSTD
+
+        return None
 
     @property
     def count(self) -> int:
         """The number of raster bands in the full image."""
-        raise NotImplementedError
+        return self._primary_ifd.samples_per_pixel
 
     @property
     def crs(self) -> CRS:
@@ -227,40 +228,73 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
             return self._crs
 
         crs = crs_from_geo_keys(self._gkd)
+
+        # We manually manage the cached property here because `@cached_property` messes
+        # with type-checking
         object.__setattr__(self, "_crs", crs)
+
         return crs
 
     @property
-    def dtypes(self) -> list[str]:
-        """The data types of each band in index order."""
-        # TODO: not sure what the return type should be. Perhaps we should define a
-        # `DataType` enum?
-        # https://github.com/developmentseed/async-geotiff/issues/20
-        raise NotImplementedError
+    def dtype(self) -> np.dtype | None:  # noqa: PLR0911, C901
+        """The numpy data type of the image.
+
+        Returns None if the data type is unknown/not supported.
+        """
+        formats = set(self._primary_ifd.sample_format)
+        bits_per_sample = set(self._primary_ifd.bits_per_sample)
+
+        if len(formats) != 1:
+            raise ValueError("Mixed sample formats are not supported.")
+        if len(bits_per_sample) != 1:
+            raise ValueError("Mixed bits per sample are not supported.")
+
+        match formats.pop(), bits_per_sample.pop():
+            case (SampleFormat.Uint, 8):
+                return np.dtype(np.uint8)
+            case (SampleFormat.Uint, 16):
+                return np.dtype(np.uint16)
+            case (SampleFormat.Uint, 32):
+                return np.dtype(np.uint32)
+            case (SampleFormat.Uint, 64):
+                return np.dtype(np.uint64)
+            case (SampleFormat.Float, 32):
+                return np.dtype(np.float32)
+            case (SampleFormat.Float, 64):
+                return np.dtype(np.float64)
+            case (SampleFormat.Int, 8):
+                return np.dtype(np.int8)
+            case (SampleFormat.Int, 16):
+                return np.dtype(np.int16)
+            case (SampleFormat.Int, 32):
+                return np.dtype(np.int32)
+            case (SampleFormat.Int, 64):
+                return np.dtype(np.int64)
+
+        return None
 
     @property
     def height(self) -> int:
         """The height (number of rows) of the full image."""
         return self._primary_ifd.image_height
 
-    def indexes(self) -> list[int]:
-        """Return the 1-based indexes of each band in the dataset.
-
-        For a 3-band dataset, this property will be [1, 2, 3].
-        """
-        return list(range(1, self._primary_ifd.samples_per_pixel + 1))
-
     @property
     def interleaving(self) -> Interleaving:
         """The interleaving scheme of the dataset."""
-        # TODO: Should return an enum.
-        # https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.Interleaving
-        raise NotImplementedError
+        planar_configuration = self._primary_ifd.planar_configuration
+
+        if planar_configuration == PlanarConfiguration.Planar:
+            return Interleaving.BAND
+
+        return Interleaving.PIXEL
 
     @property
     def is_tiled(self) -> bool:
         """Check if the dataset is tiled."""
-        raise NotImplementedError
+        return (
+            self._primary_ifd.tile_height is not None
+            and self._primary_ifd.tile_width is not None
+        )
 
     @property
     def nodata(self) -> float | None:
@@ -284,11 +318,30 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         return self._overviews
 
     @property
-    def photometric(self) -> PhotometricInterpretation | None:
-        """The photometric interpretation of the dataset."""
-        # TODO: should return enum
-        # https://rasterio.readthedocs.io/en/stable/api/rasterio.enums.html#rasterio.enums.PhotometricInterp
-        raise NotImplementedError
+    def photometric(self) -> PhotometricInterpretation | None:  # noqa: PLR0911
+        """The photometric interpretation of the dataset.
+
+        Returns None if the photometric interpretation is not recognized.
+        """
+        match self._primary_ifd.photometric_interpretation:
+            case AsyncTiffPhotometricInterpretation.WhiteIsZero:
+                return PhotometricInterpretation.WHITE_IS_ZERO
+            case AsyncTiffPhotometricInterpretation.BlackIsZero:
+                return PhotometricInterpretation.BLACK_IS_ZERO
+            case AsyncTiffPhotometricInterpretation.RGB:
+                return PhotometricInterpretation.RGB
+            case AsyncTiffPhotometricInterpretation.RGBPalette:
+                return PhotometricInterpretation.RGBPALETTE
+            case AsyncTiffPhotometricInterpretation.TransparencyMask:
+                return PhotometricInterpretation.TRANSPARENCY_MASK
+            case AsyncTiffPhotometricInterpretation.CMYK:
+                return PhotometricInterpretation.CMYK
+            case AsyncTiffPhotometricInterpretation.YCbCr:
+                return PhotometricInterpretation.YCBCR
+            case AsyncTiffPhotometricInterpretation.CIELab:
+                return PhotometricInterpretation.CIELAB
+
+        return None
 
     @property
     def res(self) -> tuple[float, float]:
@@ -304,12 +357,18 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the image."""
-        return self._primary_ifd.tile_height or self.height
+        if self._primary_ifd.tile_height is None:
+            raise ValueError("The image is not tiled.")
+
+        return self._primary_ifd.tile_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the image."""
-        return self._primary_ifd.tile_width or self.width
+        if self._primary_ifd.tile_width is None:
+            raise ValueError("The image is not tiled.")
+
+        return self._primary_ifd.tile_width
 
     @property
     def transform(self) -> Affine:
@@ -377,5 +436,6 @@ def is_mask_ifd(ifd: ImageFileDirectory) -> bool:
     return (
         ifd.new_subfile_type is not None
         and ifd.new_subfile_type & 4 != 0
-        and ifd.photometric_interpretation == PhotometricInterpretation.TransparencyMask
+        and ifd.photometric_interpretation
+        == AsyncTiffPhotometricInterpretation.TransparencyMask
     )
