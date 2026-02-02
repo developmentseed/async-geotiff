@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from affine import Affine
 
 from async_geotiff._fetch import FetchTileMixin
+from async_geotiff._read import ReadMixin
 from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
-class Overview(FetchTileMixin, TransformMixin):
+class Overview(ReadMixin, FetchTileMixin, TransformMixin):
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 
     _geotiff: GeoTIFF

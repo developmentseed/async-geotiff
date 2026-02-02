@@ -44,8 +44,8 @@ async def test_fetch(
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
         rasterio_data = rasterio_ds.read(window=window)
 
-    np.testing.assert_array_equal(tile.data, rasterio_data)
-    assert tile.crs == geotiff.crs
+    np.testing.assert_array_equal(tile.array.data, rasterio_data)
+    assert tile.array.crs == geotiff.crs
 
 
 @pytest.mark.asyncio
@@ -81,8 +81,8 @@ async def test_fetch_overview(
     with load_rasterio(file_name, variant=variant, OVERVIEW_LEVEL=0) as rasterio_ds:
         rasterio_data = rasterio_ds.read(window=window)
 
-    np.testing.assert_array_equal(tile.data, rasterio_data)
-    assert tile.crs == geotiff.crs
+    np.testing.assert_array_equal(tile.array.data, rasterio_data)
+    assert tile.array.crs == geotiff.crs
 
 
 @pytest.mark.asyncio
@@ -102,16 +102,16 @@ async def test_mask(
 
     tile = await geotiff.fetch_tile(0, 0)
 
-    assert tile.mask is not None
-    assert isinstance(tile.mask, np.ndarray)
-    assert tile.mask.dtype == np.bool_
-    assert tile.mask.shape == tile.data.shape[1:]
+    assert tile.array.mask is not None
+    assert isinstance(tile.array.mask, np.ndarray)
+    assert tile.array.mask.dtype == np.bool_
+    assert tile.array.mask.shape == tile.array.data.shape[1:]
 
     window = Window(0, 0, geotiff.tile_width, geotiff.tile_height)
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
         mask = rasterio_ds.dataset_mask(window=window)
 
-    np.testing.assert_array_equal(tile.mask, mask.astype(np.bool_))
+    np.testing.assert_array_equal(tile.array.mask, mask.astype(np.bool_))
 
 
 @pytest.mark.asyncio
@@ -132,16 +132,16 @@ async def test_mask_overview(
 
     tile = await overview.fetch_tile(0, 0)
 
-    assert tile.mask is not None
-    assert isinstance(tile.mask, np.ndarray)
-    assert tile.mask.dtype == np.bool_
-    assert tile.mask.shape == tile.data.shape[1:]
+    assert tile.array.mask is not None
+    assert isinstance(tile.array.mask, np.ndarray)
+    assert tile.array.mask.dtype == np.bool_
+    assert tile.array.mask.shape == tile.array.data.shape[1:]
 
     window = Window(0, 0, overview.tile_width, overview.tile_height)
     with load_rasterio(file_name, variant=variant, OVERVIEW_LEVEL=0) as rasterio_ds:
         mask = rasterio_ds.dataset_mask(window=window)
 
-    np.testing.assert_array_equal(tile.mask, mask.astype(np.bool_))
+    np.testing.assert_array_equal(tile.array.mask, mask.astype(np.bool_))
 
 
 @pytest.mark.asyncio
@@ -171,7 +171,7 @@ async def test_fetch_as_masked(
     geotiff = await load_geotiff(file_name, variant=variant)
 
     tile = await geotiff.fetch_tile(0, 0)
-    masked_array = tile.as_masked()
+    masked_array = tile.array.as_masked()
 
     window = Window(0, 0, geotiff.tile_width, geotiff.tile_height)
     with load_rasterio(file_name, variant=variant) as rasterio_ds:

@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, Protocol
 
 from affine import Affine
 
-from async_geotiff import Array
+from async_geotiff._array import Array
+from async_geotiff._tile import Tile
 from async_geotiff._transform import HasTransform
 
 if TYPE_CHECKING:
@@ -63,7 +64,7 @@ class FetchTileMixin:
         self: HasTiffReference,
         x: int,
         y: int,
-    ) -> Array:
+    ) -> Tile:
         tile_fut = self._ifd.fetch_tile(x, y)
 
         mask_data: AsyncTiffArray | None = None
@@ -80,7 +81,7 @@ class FetchTileMixin:
             y * self.tile_height,
         )
 
-        return Array._create(  # noqa: SLF001
+        array = Array._create(  # noqa: SLF001
             data=tile_data,
             mask=mask_data,
             planar_configuration=self._ifd.planar_configuration,
@@ -88,12 +89,18 @@ class FetchTileMixin:
             transform=tile_transform,
             nodata=self.nodata,
         )
+        return Tile(
+            x=x,
+            y=y,
+            _ifd=self._ifd,
+            array=array,
+        )
 
     async def fetch_tiles(
         self: HasTiffReference,
         xs: list[int],
         ys: list[int],
-    ) -> list[Array]:
+    ) -> list[Tile]:
         """Fetch multiple tiles from this overview.
 
         Args:
@@ -116,7 +123,7 @@ class FetchTileMixin:
             tiles = await tiles_fut
             decoded_tiles = await asyncio.gather(*[tile.decode() for tile in tiles])
 
-        arrays: list[Array] = []
+        final_tiles: list[Tile] = []
         for x, y, tile_data, mask_data in zip(
             xs,
             ys,
@@ -136,6 +143,12 @@ class FetchTileMixin:
                 transform=tile_transform,
                 nodata=self.nodata,
             )
-            arrays.append(array)
+            tile = Tile(
+                x=x,
+                y=y,
+                _ifd=self._ifd,
+                array=array,
+            )
+            final_tiles.append(tile)
 
-        return arrays
+        return final_tiles

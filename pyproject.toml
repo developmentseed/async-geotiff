@@ -43,6 +43,7 @@ dev = [
     "build>=1.4.0",
     "ipykernel>=7.1.0",
     "jsonschema>=4.26.0",
+    "matplotlib>=3.10.8",
     "morecantile>=7.0.2",
     "obstore>=0.8.2",
     "pydantic>=2.12.5",
@@ -52,6 +53,8 @@ dev = [
     "types-jsonschema>=4.26.0.20260109",
 ]
 docs = [
+    # Workaround for https://github.com/mkdocs/mkdocs/issues/4032
+    "click<8.3",
     "mkdocs-material[imaging]>=9.5.49",
     "mkdocs>=1.6.1",
     "mkdocstrings[python]>=1.0",
@@ -76,6 +79,7 @@ module = [
     # https://github.com/rasterio/affine/issues/135
     "affine.*",
     "async_tiff.store.*",
+    "rasterio.*",
 ]
 ignore_missing_imports = true
 
@@ -92,9 +96,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    "ANN001", # annotation in function argument
-    "ANN201", # return type annotation
-    "S101",   # assert
-    "SLF001", # private member access
-    "D",      # docstring
+    "ANN001",  # annotation in function argument
+    "ANN201",  # return type annotation
+    "PLR2004", # Magic value used in comparison
+    "S101",    # assert
+    "SLF001",  # private member access
+    "D",       # docstring
 ]
