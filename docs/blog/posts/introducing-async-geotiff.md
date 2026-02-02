@@ -193,7 +193,6 @@ Read the [obspec release post] for more information.
 [obspec-utils]: https://github.com/virtual-zarr/obspec-utils
 [Protocol]: https://typing.python.org/en/latest/spec/protocol.html
 
-
 ## Full type hinting
 
 ## Growing test suite
@@ -207,9 +206,16 @@ The majority of these test files are [written using Rasterio](https://github.com
 
 ## Future work
 
-More compression support.
+### `rio-tiler` integration
 
-- Better handling of GeoTIFF photometric interpretations like YCbCr
-- JPEG XL
-- LERC
--
+[`rio-tiler`] is a foundational library for accessing raster data for tiled web maps. And [Titiler], a Development Seed project for dynamic server-side raster tile generation, is built largely on the backs of `rio-tiler`. The first step of integrating Async-GeoTIFF into the Titiler ecosystem will be adding support to `rio-tiler`.
+
+[`rio-tiler`]: https://github.com/cogeotiff/rio-tiler
+
+### Better API for handling photometric interpretations
+
+Currently Async-GeoTIFF doesn't decode data out of RGB color spaces like YCbCr, which doesn't match Rasterio's handling. We may add an API like `Array.to_rgb` to offer explicit conversion to an RGB color space.
+
+### More compression support
+
+We should support additional compressions like [LERC](https://github.com/Esri/lerc) and JPEG XL.
