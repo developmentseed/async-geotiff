@@ -10,6 +10,8 @@ from async_geotiff._tile import Tile
 from async_geotiff._transform import HasTransform
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from async_tiff import TIFF, ImageFileDirectory
     from async_tiff import Array as AsyncTiffArray
     from pyproj import CRS
@@ -98,21 +100,19 @@ class FetchTileMixin:
 
     async def fetch_tiles(
         self: HasTiffReference,
-        xs: list[int],
-        ys: list[int],
+        xy: Sequence[tuple[int, int]],
     ) -> list[Tile]:
         """Fetch multiple tiles from this overview.
 
         Args:
-            xs: The x coordinates of the tiles.
-            ys: The y coordinates of the tiles.
+            xy: The (x, y) coordinates of the tiles.
 
         """
-        tiles_fut = self._ifd.fetch_tiles(xs, ys)
+        tiles_fut = self._ifd.fetch_tiles(xy)
 
-        decoded_masks: list[AsyncTiffArray | None] = [None] * len(xs)
+        decoded_masks: list[AsyncTiffArray | None] = [None] * len(xy)
         if self._mask_ifd is not None:
-            masks_fut = self._mask_ifd.fetch_tiles(xs, ys)
+            masks_fut = self._mask_ifd.fetch_tiles(xy)
             tiles, masks = await asyncio.gather(tiles_fut, masks_fut)
 
             decoded_tile_futs = [tile.decode() for tile in tiles]
@@ -124,9 +124,8 @@ class FetchTileMixin:
             decoded_tiles = await asyncio.gather(*[tile.decode() for tile in tiles])
 
         final_tiles: list[Tile] = []
-        for x, y, tile_data, mask_data in zip(
-            xs,
-            ys,
+        for (x, y), tile_data, mask_data in zip(
+            xy,
             decoded_tiles,
             decoded_masks,
             strict=True,
