@@ -1,3 +1,3 @@
-# async_geotiff.GeoTIFF
+# GeoTIFF
 
 ::: async_geotiff.GeoTIFF

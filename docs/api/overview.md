@@ -1,3 +1,3 @@
-# async_geotiff.Overview
+# Overview
 
 ::: async_geotiff.Overview

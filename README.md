@@ -21,7 +21,7 @@ Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python
     - CPU-bound tasks like image decoding happen in a thread pool, without blocking the async executor.
     - Buffer protocol integration for zero-copy data sharing between Rust and Python.
 - Lightweight with **no GDAL dependency**.
-- **Integration with [obstore]** for efficient data access on object stores.
+- **Integration with [obstore]** for efficient data access on object stores, such as AWS S3, Google Cloud Storage, and Azure Storage.
 - **Full type hinting** for all operations.
 - **Broad decompression support**: Deflate, LZW, JPEG, JPEG2000, WebP, ZSTD.
 
@@ -37,7 +37,7 @@ _Features explicitly not in scope_:
 - No warping/reprojection.
 - Automatic resolution/overview selection
 
-Resampling and warping bring significant additional complexity and are out of scope for this library. Consider using `async-geotiff` to load data, then [rasterio]'s [In-Memory Files] to resample or reproject data, if needed.
+Resampling and warping bring significant additional complexity and are out of scope for this library. Consider using Async-GeoTIFF to load data, then [Rasterio]'s [In-Memory Files] to resample or reproject data, if needed.
 
 [obstore]: https://developmentseed.org/obstore/latest/
 [obspec]: https://developmentseed.org/obspec/latest/

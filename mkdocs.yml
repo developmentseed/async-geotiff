@@ -24,7 +24,11 @@ nav:
       - api/geotiff.md
       - api/overview.md
       - api/array.md
+      - api/window.md
       - api/colormap.md
+      - api/enums.md
+      - api/exceptions.md
+      - api/tms.md
   - Changelog: CHANGELOG.md
 
 watch:
@@ -109,6 +113,7 @@ plugins:
           inventories:
             - https://affine.readthedocs.io/en/latest/objects.inv
             - https://developmentseed.org/async-tiff/latest/objects.inv
+            - https://developmentseed.org/morecantile/objects.inv
             - https://developmentseed.org/obstore/latest/objects.inv
             - https://docs.python.org/3/objects.inv
             - https://numpy.org/doc/stable/objects.inv

@@ -1,3 +1,3 @@
-# async_geotiff.Array
+# Array
 
 ::: async_geotiff.Array

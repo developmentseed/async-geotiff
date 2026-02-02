@@ -1,4 +1,7 @@
-"""Generate a Tile Matrix Set from a GeoTIFF file, using morecantile."""
+"""Generate a Tile Matrix Set from a GeoTIFF file, using [Morecantile].
+
+[Morecantile]: https://developmentseed.org/morecantile/
+"""
 
 from __future__ import annotations
 
@@ -35,7 +38,9 @@ def generate_tms(
     *,
     id: str = str(uuid4()),  # noqa: A002
 ) -> TileMatrixSet:
-    """Generate a Tile Matrix Set from a GeoTIFF file.
+    """Generate a [Tile Matrix Set] from a GeoTIFF file.
+
+    [Tile Matrix Set]: https://docs.ogc.org/is/17-083r4/17-083r4.html
 
     Args:
         geotiff: The GeoTIFF file to generate the TMS from.
@@ -47,11 +52,6 @@ def generate_tms(
     bounds = geotiff.bounds
     crs = geotiff.crs
     tr = geotiff.transform
-    blockxsize = geotiff._primary_ifd.tile_width  # noqa: SLF001
-    blockysize = geotiff._primary_ifd.tile_height  # noqa: SLF001
-
-    if blockxsize is None or blockysize is None:
-        raise ValueError("GeoTIFF must be tiled to generate a TMS.")
 
     mpu = meters_per_unit(crs)
 
@@ -63,10 +63,10 @@ def generate_tms(
 
     for idx, overview in enumerate(reversed(geotiff.overviews)):
         overview_tr = overview.transform
-        blockxsize = overview._ifd.tile_width  # noqa: SLF001
-        blockysize = overview._ifd.tile_height  # noqa: SLF001
+        ovr_blockxsize = overview.tile_width
+        ovr_blockysize = overview.tile_height
 
-        if blockxsize is None or blockysize is None:
+        if ovr_blockxsize is None or ovr_blockysize is None:
             raise ValueError("GeoTIFF overviews must be tiled to generate a TMS.")
 
         tile_matrices.append(
@@ -76,12 +76,18 @@ def generate_tms(
                 cellSize=overview_tr.a,
                 cornerOfOrigin=corner_of_origin,
                 pointOfOrigin=(overview_tr.c, overview_tr.f),
-                tileWidth=blockxsize,
-                tileHeight=blockysize,
-                matrixWidth=math.ceil(overview.width / blockxsize),
-                matrixHeight=math.ceil(overview.height / blockysize),
+                tileWidth=ovr_blockxsize,
+                tileHeight=ovr_blockysize,
+                matrixWidth=math.ceil(overview.width / ovr_blockxsize),
+                matrixHeight=math.ceil(overview.height / ovr_blockysize),
             ),
         )
+
+    blockxsize = geotiff.tile_width
+    blockysize = geotiff.tile_height
+
+    if blockxsize is None or blockysize is None:
+        raise ValueError("GeoTIFF must be tiled to generate a TMS.")
 
     # Add the full-resolution level last
     tile_matrices.append(
