@@ -79,6 +79,7 @@ module = [
     # https://github.com/rasterio/affine/issues/135
     "affine.*",
     "async_tiff.store.*",
+    "rasterio.*",
 ]
 ignore_missing_imports = true
 
@@ -95,9 +96,10 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = [
-    "ANN001", # annotation in function argument
-    "ANN201", # return type annotation
-    "S101",   # assert
-    "SLF001", # private member access
-    "D",      # docstring
+    "ANN001",  # annotation in function argument
+    "ANN201",  # return type annotation
+    "PLR2004", # Magic value used in comparison
+    "S101",    # assert
+    "SLF001",  # private member access
+    "D",       # docstring
 ]
