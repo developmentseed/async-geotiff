@@ -11,6 +11,8 @@ from rasterio.windows import Window
 import async_geotiff
 from async_geotiff.exceptions import WindowError
 
+from .image_list import ALL_DATA_IMAGES
+
 if TYPE_CHECKING:
     from .conftest import LoadGeoTIFF, LoadRasterio, Variant
 
@@ -18,12 +20,7 @@ if TYPE_CHECKING:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("file_name", "variant"),
-    [
-        ("uint16_1band_lzw_block128_predictor2", "rasterio"),
-        ("uint8_rgb_deflate_block64_cog", "rasterio"),
-        ("uint8_1band_deflate_block128_unaligned", "rasterio"),
-        ("nlcd_landcover", "nlcd"),
-    ],
+    ALL_DATA_IMAGES,
 )
 async def test_read_single_tile(
     load_geotiff: LoadGeoTIFF,
@@ -51,12 +48,7 @@ async def test_read_single_tile(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("file_name", "variant"),
-    [
-        ("uint16_1band_lzw_block128_predictor2", "rasterio"),
-        ("uint8_rgb_deflate_block64_cog", "rasterio"),
-        ("uint8_1band_deflate_block128_unaligned", "rasterio"),
-        ("nlcd_landcover", "nlcd"),
-    ],
+    ALL_DATA_IMAGES,
 )
 async def test_read_spanning_tiles(
     load_geotiff: LoadGeoTIFF,
@@ -102,9 +94,7 @@ async def test_read_spanning_tiles(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("file_name", "variant"),
-    [
-        ("uint8_rgb_deflate_block64_cog", "rasterio"),
-    ],
+    ALL_DATA_IMAGES,
 )
 async def test_read_overview(
     load_geotiff: LoadGeoTIFF,
@@ -162,20 +152,7 @@ async def test_read_bounds_validation(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("file_name", "variant"),
-    [
-        # TODO: support LERC
-        # https://github.com/developmentseed/async-geotiff/issues/34
-        # ("float32_1band_lerc_block32", "rasterio"), # noqa: ERA001
-        ("uint16_1band_lzw_block128_predictor2", "rasterio"),
-        ("uint8_1band_deflate_block128_unaligned", "rasterio"),
-        ("uint8_rgb_deflate_block64_cog", "rasterio"),
-        ("uint8_rgb_webp_block64_cog", "rasterio"),
-        ("uint8_rgba_webp_block64_cog", "rasterio"),
-        # TODO: debug incorrect data length
-        # https://github.com/developmentseed/async-tiff/issues/202
-        # ("maxar_opendata_yellowstone_visual", "vantor"), # noqa: ERA001
-        ("nlcd_landcover", "nlcd"),
-    ],
+    ALL_DATA_IMAGES,
 )
 async def test_read_full(
     load_geotiff: LoadGeoTIFF,

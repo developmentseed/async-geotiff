@@ -23,7 +23,7 @@ Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python
 - Lightweight with **no GDAL dependency**.
 - **Integration with [obstore]** for efficient data access on object stores, such as AWS S3, Google Cloud Storage, and Azure Storage.
 - **Full type hinting** for all operations.
-- **Broad decompression support**: Deflate, LZW, JPEG, JPEG2000, WebP, ZSTD.
+- **Broad decompression support**: Deflate, LZMA, LZW, JPEG, JPEG2000, WebP, ZSTD.
 
 [Affine]: https://affine.readthedocs.io/en/latest/
 [NumPy]: https://numpy.org/
