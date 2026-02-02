@@ -100,10 +100,12 @@ class Array(TransformMixin):
         """Return the data as a masked array using the Array mask or nodata value.
 
         !!! warning
-            [`Array.mask`][async_geotiff.Array.mask] array uses `True` for valid data
-            and `False` for invalid data. This is the inverse of numpy's masked array
-            convention. In a numpy [`MaskedArray`][numpy.ma.MaskedArray], `True`
+            In a numpy [`MaskedArray`][numpy.ma.MaskedArray], `True`
             indicates invalid (masked) data and `False` indicates valid data.
+
+            This is the inverse convention of a GeoTIFF's mask. The boolean array
+            [`Array.mask`][async_geotiff.Array.mask] uses `True` for valid data and
+            `False` for invalid data.
 
         Returns:
             A masked array with the same shape as `data`, where invalid data
