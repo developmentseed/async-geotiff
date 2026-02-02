@@ -99,26 +99,52 @@ array.data
 #         [245, 239, 244, ...,   0,   0,   0],
 #         [243, 236, 239, ...,   0,   0,   0],
 #         [246, 245, 245, ...,   0,   0,   0]],
-#
+
 #        [[135, 170, 229, ...,   0,   0,   0],
 #         [149, 180, 239, ...,   0,   0,   0],
 #         [192, 234, 252, ...,   0,   0,   0],
 #         ...,
 #         [183, 174, 179, ...,   0,   0,   0],
 #         [179, 171, 170, ...,   0,   0,   0],
-#         [191, 182, 180, ...,   0,   0,   0]],
-#
-#        [[ 98, 125, 188, ...,   0,   0,   0],
-#         [109, 135, 202, ...,   0,   0,   0],
-#         [150, 199, 229, ...,   0,   0,   0],
-#         ...,
-#         [144, 138, 140, ...,   0,   0,   0],
-#         [142, 135, 133, ...,   0,   0,   0],
-#         [152, 144, 141, ...,   0,   0,   0]]],
+#         [191, 182, 180, ...,   0,   0,   0]]],
 #       shape=(3, 512, 512), dtype=uint8)
 ```
 
-The goal is for this to integrate cleanly into existing tools. For example, we can plot using [`rasterio.plot.show`](https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show) (requires `matplotlib`):
+Or we can create a NumPy [MaskedArray][masked arrays] with the `as_masked` method:
+
+[masked arrays]: https://numpy.org/doc/stable/reference/maskedarray.generic.html
+
+
+```py
+array.as_masked()
+# masked_array(
+#   data=[[[217, 245, 255, ..., --, --, --],
+#          [230, 244, 255, ..., --, --, --],
+#          [251, 254, 255, ..., --, --, --],
+#          ...,
+#          [245, 239, 244, ..., --, --, --],
+#          [243, 236, 239, ..., --, --, --],
+#          [246, 245, 245, ..., --, --, --]],
+
+#         [[135, 170, 229, ..., --, --, --],
+#          [149, 180, 239, ..., --, --, --],
+#          [192, 234, 252, ..., --, --, --],
+#          ...,
+#          [183, 174, 179, ..., --, --, --],
+#          [179, 171, 170, ..., --, --, --],
+#          [191, 182, 180, ..., --, --, --]]],
+#   mask=[[[False, False, False, ...,  True,  True,  True],
+#          [False, False, False, ...,  True,  True,  True],
+#          [False, False, False, ...,  True,  True,  True],
+#          ...,
+#          [False, False, False, ...,  True,  True,  True],
+#          [False, False, False, ...,  True,  True,  True],
+#          [False, False, False, ...,  True,  True,  True]]],
+#   fill_value=0,
+#   dtype=uint8)
+```
+
+This should integrate cleanly into existing tools. For example, we can plot using [`rasterio.plot.show`](https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show) (requires `matplotlib`):
 
 ```py
 import rasterio.plot
