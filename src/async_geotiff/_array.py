@@ -56,7 +56,7 @@ class Array(TransformMixin):
         planar_configuration: PlanarConfiguration,
         transform: Affine,
         crs: CRS,
-        nodata: float | None = None,
+        nodata: float | None,
     ) -> Self:
         """Create an Array from async_tiff data.
 
