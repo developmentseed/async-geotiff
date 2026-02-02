@@ -2,31 +2,39 @@
 
 Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python, wrapping the Rust-based [Async-TIFF][async-tiff] library.
 
+[**Documentation website.**][docs]
+
+[docs]: https://developmentseed.org/async-geotiff/latest
+
 [async-tiff]: https://github.com/developmentseed/async-tiff
 [cogeo]: https://cogeo.org/
 
 ## Features
 
-- Read-only support for GeoTIFF and COG formats.
-- High-level, familiar, easy to use API.
-- Performance-focused:
+- Read-only support for **GeoTIFF and COG** formats.
+- High-level, familiar, **easy to use** API.
+- **Performance-focused**:
     - Rust core ensures native performance.
     - CPU-bound tasks like image decoding happen in a thread pool, without blocking the async executor.
     - Buffer protocol integration for zero-copy data sharing between Rust and Python.
-- Lightweight with no GDAL dependency.
-- Integration with [obstore] for efficient data access on object stores.
-- Full type hinting for all operations.
-- Broad decompression support: Deflate, LZW, JPEG, JPEG2000, WebP, ZSTD.
+- Lightweight with **no GDAL dependency**.
+- **Integration with [obstore]** for efficient data access on object stores.
+- **Full type hinting** for all operations.
+- **Broad decompression support**: Deflate, LZW, JPEG, JPEG2000, WebP, ZSTD.
 
-**Anti-Features** (features explicitly not in scope):
+#### Anti-Features
+
+_Features explicitly not in scope_:
 
 - No pixel resampling.
 - No warping/reprojection.
 
-Resampling and warping bring significant additional complexity and are out of scope for this library.
+Resampling and warping bring significant additional complexity and are out of scope for this library. Consider using `async-geotiff` to load data, then [rasterio]'s [In-Memory Files] to resample or reproject data, if needed.
 
 [obstore]: https://developmentseed.org/obstore/latest/
 [obspec]: https://developmentseed.org/obspec/latest/
+[In-Memory Files]: https://rasterio.readthedocs.io/en/stable/topics/memory-files.html
+[rasterio]: https://rasterio.readthedocs.io/
 
 ## Example
 
