@@ -28,7 +28,7 @@ We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata p
 
 <!-- more -->
 
-## High-level, Easy-to-Use API
+## High-level and Easy-to-Use
 
 
 - Load from full-resolution or reduced-resolution overviews as 3D [NumPy] arrays.
@@ -39,11 +39,25 @@ We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata p
 
 ## Performance-focused
 
-- Rust core ensures compiled performance.
-- CPU-bound image decoding happens in a thread pool, without blocking the async executor.
-- Buffer protocol integration for zero-copy data sharing between Rust and Python.
+### Rust core
 
-Until GDAL 3.11, GDAL TIFF parsing
+The underlying [Async-TIFF] library is written in [Rust], a fast, low-level language that compiles to native machine code, meaning it can be just as fast as any C or C++ library. Rust is memory efficient and its compiler automatically catches many memory bugs.
+
+[Rust]: https://rust-lang.org/
+
+### Multithreaded image decoding by default
+
+With asynchronous I/O, it's important to ensure that no blocking tasks happen on the primary executor, because it means no other tasks can be responded to during that time.
+
+Async-GeoTIFF splits up data fetching over the network and image decoding, ensuring any decoding is done in a Rust-based thread pool, leaving the executor responsive.
+
+Async-GeoTIFF is thread-safe, though you shouldn't usually need to use it with a Python thread pool, as it's already using a Rust thread pool under the hood.
+
+### Efficient memory usage
+
+The underlying [Async-TIFF] library implements the Python [Buffer Protocol], ensuring that we can share array data between Rust and NumPy without copies.
+
+[Buffer Protocol]: https://docs.python.org/3/c-api/buffer.html
 
 ## Read GeoTIFFs / COGs from any source
 
@@ -111,7 +125,9 @@ Read the [obspec release post] for more information.
 
 GDAL [provides a block cache](https://gdal.org/en/stable/development/rfc/rfc26_blockcache.html) per file handle opened. The block cache persists chunks of bytes in memory that have already been read over the network, so that if a later request requires some of those same bytes, a smaller network request to the source is required.
 
-However GDAL's block cache is entirely a black box at the Python level. Rasterio is unable to access it, and the end user is unable to see how much data the cache is using. Similarly, the Python user can't change core cache behavior, aside from a few configuration settings.
+However GDAL's block cache is entirely a black box at the Python level. Rasterio is unable to access it, and the end user is unable to see how much data the cache is using. Similarly, the Python user can't change core cache behavior, aside from a few [configuration settings][gdal_config_settings].
+
+[gdal_config_settings]: https://gdal.org/en/stable/user/configoptions.html
 
 Through Async-GeoTIFF's [Obspec] integration, we expect to have composable caching layers available to any tool relying on Obspec, including Async-GeoTIFF. We're currently experimenting with ideas in the [`obspec-utils`][obspec-utils] repository, but the basic idea is
 
@@ -165,7 +181,8 @@ class SimpleCache(GetRange, GetRangesAsync):
         lengths: Sequence[int] | None = None,
     ) -> Sequence[Buffer]:
         # This is meant as pseudocode; a real implementation would check each
-        # range against the cache and merge ranges if possible
+        # range against the cache and merge ranges if possible, so as few
+        # requests as possible are made to the actual source
         results = []
         for (start, end) in zip(starts, ends):
             results.append(self.get_range_async(path=path, start=start, end=end))
