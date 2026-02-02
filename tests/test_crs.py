@@ -10,6 +10,8 @@ from pyproj.datadir import get_data_dir
 
 from async_geotiff._crs import projjson_from_geo_keys
 
+from .image_list import ALL_TEST_IMAGES
+
 if TYPE_CHECKING:
     from .conftest import LoadGeoTIFF, LoadRasterio, Variant
 
@@ -25,14 +27,7 @@ def projjson_schema() -> dict:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("file_name", "variant"),
-    [
-        ("float32_1band_lerc_block32", "rasterio"),
-        ("uint16_1band_lzw_block128_predictor2", "rasterio"),
-        ("uint8_rgb_deflate_block64_cog", "rasterio"),
-        ("uint8_1band_deflate_block128_unaligned", "rasterio"),
-        ("maxar_opendata_yellowstone_visual", "vantor"),
-        ("nlcd_landcover", "nlcd"),
-    ],
+    ALL_TEST_IMAGES,
 )
 async def test_crs(
     load_geotiff: LoadGeoTIFF,
