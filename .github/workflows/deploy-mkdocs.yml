@@ -40,8 +40,8 @@ jobs:
           # https://stackoverflow.com/a/3867811
           # We don't use {{github.ref_name}} because if triggered manually, it
           # will be a branch name instead of a tag version.
-          # Then remove `py-` from the tag
-          VERSION=$(git describe --tags --match="py-*" --abbrev=0 | cut -c 4-)
+          VERSION=$(git describe --tags --match="v*" --abbrev=0)
+          echo $VERSION
 
           # Only push publish docs as latest version if no letters in git tag
           # after the first character
