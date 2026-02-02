@@ -11,7 +11,7 @@ authors:
 
 We're introducing Async-GeoTIFF, a new high-level library for reading [GeoTIFF][geotiff] and [Cloud-Optimized GeoTIFF][cogeo] (COG) data. By leveraging [asynchronous I/O][async-io-python], we can speed up concurrent GeoTIFF data fetching.
 
-According to the [2025 GDAL user survey][gdal_user_survey], almost 90% of respondents use GeoTIFFs and COGs as their primary raster data format. While [GDAL] and [Rasterio] are fantastic, rock-solid tools, they don't support asynchronous I/O and are missing some modern Python usability features, like type hinting.
+According to the [2025 GDAL user survey][gdal_user_survey], almost 90% of respondents use GeoTIFFs and COGs as their primary raster data format. While [GDAL] and its Python bindings [Rasterio] are fantastic, rock-solid tools, they don't support asynchronous I/O and are missing some modern Python usability features, like type hinting.
 
 We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata parsing at scale to be **25x faster** with the underlying Rust-based [Async-TIFF] library than with Rasterio. We expect Async-GeoTIFF to bring similar performance improvements to concurrent server-side image downloading, such as in [Titiler].
 
@@ -24,6 +24,7 @@ We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata p
 [pyasyncio-benchmark-results]: https://github.com/geospatial-jeff/pyasyncio-benchmark/blob/8809b62125ae75b3d216475e9964a6df4d96a91c/test_results/20250423_results/ec2_m5_300seconds/aggregated_results.csv
 [rasterio]: https://rasterio.readthedocs.io/
 [Titiler]: https://github.com/developmentseed/titiler
+
 
 <!-- more -->
 
@@ -44,13 +45,154 @@ We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata p
 
 Until GDAL 3.11, GDAL TIFF parsing
 
-## Obstore integration for remote data support
+## Read GeoTIFFs / COGs from any source
 
-## More tractable data caching
+### Fast cloud storage access with Obstore
 
-GDAL providesa block cache, but it's very much a black box.
+[Obstore] is a high-throughput Python interface to Amazon S3, Google Cloud Storage, Azure Storage, & other S3-compliant APIs, powered by a Rust core.
 
-Obspec for data caching.
+Async-GeoTIFF supports Obstore instances out of the box. Just create a store and pass it to [`GeoTIFF.open`][async_geotiff.GeoTIFF.open].
+
+```py
+from async_geotiff import GeoTIFF
+from obstore.store import S3Store
+
+store = S3Store("sentinel-cogs", region="us-west-2", skip_signature=True)
+path = "sentinel-s2-l2a-cogs/12/S/UF/2022/6/S2B_12SUF_20220609_0_L2A/TCI.tif"
+geotiff = await GeoTIFF.open(path, store=store)
+```
+
+### Generic backend support with obspec
+
+Async-GeoTIFF supports reading from arbitrary [Obspec] backends. [Obspec] defines a set of Python [protocols][Protocol] for generically accessing data from object storage-like resources.
+
+This means you can easily read GeoTIFF data from **any source**, as long as you define two simple methods:
+
+```py
+class MyBackend:
+    async def get_range_async(
+        self,
+        path: str,
+        *,
+        start: int,
+        end: int | None = None,
+        length: int | None = None,
+    ) -> Buffer:
+        """Return the bytes in the given byte range."""
+        ...
+
+    async def get_ranges_async(
+        self,
+        path: str,
+        *,
+        starts: Sequence[int],
+        ends: Sequence[int] | None = None,
+        lengths: Sequence[int] | None = None,
+    ) -> Sequence[Buffer]:
+        """Return the bytes in the given byte ranges."""
+        ...
+```
+
+Then just pass an instance of your backend into [`GeoTIFF.open`][async_geotiff.GeoTIFF.open].
+
+```py
+from async_geotiff import GeoTIFF
+from obstore.store import S3Store
+
+backend = MyBackend()
+geotiff = await GeoTIFF.open("path/in/backend.tif", store=backend)
+```
+
+Read the [obspec release post] for more information.
+
+[obspec release post]: https://developmentseed.org/obspec/latest/blog/2025/06/25/introducing-obspec-a-python-protocol-for-interfacing-with-object-storage/
+
+### More tractable data caching
+
+GDAL [provides a block cache](https://gdal.org/en/stable/development/rfc/rfc26_blockcache.html) per file handle opened. The block cache persists chunks of bytes in memory that have already been read over the network, so that if a later request requires some of those same bytes, a smaller network request to the source is required.
+
+However GDAL's block cache is entirely a black box at the Python level. Rasterio is unable to access it, and the end user is unable to see how much data the cache is using. Similarly, the Python user can't change core cache behavior, aside from a few configuration settings.
+
+Through Async-GeoTIFF's [Obspec] integration, we expect to have composable caching layers available to any tool relying on Obspec, including Async-GeoTIFF. We're currently experimenting with ideas in the [`obspec-utils`][obspec-utils] repository, but the basic idea is
+
+
+```py
+from __future__ import annotations
+from typing_extensions import Buffer
+from typing import Protocol
+from obspec import GetRangeAsync, GetRangesAsync
+
+class FetchClientProtocol(GetRange, GetRangesAsync, Protocol):
+    """A new type wrapper for classes that implement both `GetRange` and
+    `GetRangesAsync`.
+    """
+    ...
+
+class SimpleCache(GetRange, GetRangesAsync):
+    """A simple cache for range requests that never evicts data."""
+
+    def __init__(self, client: GetRange):
+        self.client = client
+        self.cache: dict[tuple[str, int, int | None, int | None], Buffer] = {}
+
+    async def get_range_async(
+        self,
+        path: str,
+        *,
+        start: int,
+        end: int | None = None,
+        length: int | None = None,
+    ) -> Buffer:
+        cache_key = (path, start, end, length)
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+
+        response = await self.client.get_range_async(
+            path,
+            start=start,
+            end=end,
+            length=length,
+        )
+        self.cache[cache_key] = response
+        return response
+
+    async def get_ranges_async(
+        self,
+        path: str,
+        *,
+        starts: Sequence[int],
+        ends: Sequence[int] | None = None,
+        lengths: Sequence[int] | None = None,
+    ) -> Sequence[Buffer]:
+        # This is meant as pseudocode; a real implementation would check each
+        # range against the cache and merge ranges if possible
+        results = []
+        for (start, end) in zip(starts, ends):
+            results.append(self.get_range_async(path=path, start=start, end=end))
+        return results
+```
+
+Now a user could easily choose to add the caching layer as a middleware:
+
+```py
+from obstore.store import S3Store
+from async_geotiff import GeoTIFF
+
+store = S3Store("bucket")
+caching_wrapper = SimpleCache(store)
+
+geotiff = await GeoTIFF.open("path/to/image.tif", store=caching_wrapper)
+```
+
+The user has full access to the `caching_wrapper` instance as well, if they want to inspect how much memory it's using or log what requests are made.
+
+Read the [obspec release post] for more information.
+
+[Obstore]: https://developmentseed.org/obstore/latest/
+[Obspec]: https://developmentseed.org/obspec/latest/
+[obspec-utils]: https://github.com/virtual-zarr/obspec-utils
+[Protocol]: https://typing.python.org/en/latest/spec/protocol.html
+
 
 ## Full type hinting
 
