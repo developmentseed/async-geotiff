@@ -29,6 +29,8 @@ nav:
       - api/enums.md
       - api/exceptions.md
       - api/tms.md
+  - Blog:
+      - blog/index.md
   - Changelog: CHANGELOG.md
 
 watch:
