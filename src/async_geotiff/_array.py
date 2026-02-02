@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Self
 
 import numpy as np
 from async_tiff.enums import PlanarConfiguration
+from numpy.ma import MaskedArray
 
 from async_geotiff._transform import TransformMixin
 
@@ -43,8 +44,11 @@ class Array(TransformMixin):
     crs: CRS
     """The coordinate reference system of the array."""
 
+    nodata: float | None = None
+    """The nodata value for the array, if any."""
+
     @classmethod
-    def _create(
+    def _create(  # noqa: PLR0913
         cls,
         *,
         data: AsyncTiffArray,
@@ -52,22 +56,12 @@ class Array(TransformMixin):
         planar_configuration: PlanarConfiguration,
         transform: Affine,
         crs: CRS,
+        nodata: float | None = None,
     ) -> Self:
         """Create an Array from async_tiff data.
 
         Handles axis reordering to ensure data is always in (bands, height, width)
         order, matching rasterio's convention.
-
-        Args:
-            data: The decoded tile data from async_tiff.
-            mask: The decoded mask data from async_tiff, if any.
-            planar_configuration: The planar configuration of the source IFD.
-            transform: The affine transform for this tile.
-            crs: The coordinate reference system.
-
-        Returns:
-            An Array with data in (bands, height, width) order.
-
         """
         data_arr = np.asarray(data, copy=False)
         if mask is not None:
@@ -99,4 +93,29 @@ class Array(TransformMixin):
             count=count,
             transform=transform,
             crs=crs,
+            nodata=nodata,
         )
+
+    def as_masked(self) -> MaskedArray:
+        """Return the data as a masked array using the Array mask or nodata value.
+
+        !!! warning
+            In a numpy [`MaskedArray`][numpy.ma.MaskedArray], `True`
+            indicates invalid (masked) data and `False` indicates valid data.
+
+            This is the inverse convention of a GeoTIFF's mask. The boolean array
+            [`Array.mask`][async_geotiff.Array.mask] uses `True` for valid data and
+            `False` for invalid data.
+
+        Returns:
+            A masked array with the same shape as `data`, where invalid data
+                (as indicated by the mask) is masked out.
+
+        """
+        if self.mask is not None:
+            return MaskedArray(self.data, mask=~self.mask)
+
+        if self.nodata is not None:
+            return np.ma.masked_equal(self.data, self.nodata)
+
+        return MaskedArray(self.data)

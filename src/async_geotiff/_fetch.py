@@ -48,6 +48,11 @@ class HasTiffReference(HasTransform, Protocol):
         """The width of tiles in pixels."""
         ...
 
+    @property
+    def nodata(self) -> int | float | None:
+        """The nodata value for the image, if any."""
+        ...
+
 
 class FetchTileMixin:
     """Mixin for fetching tiles from a GeoTIFF.
@@ -82,6 +87,7 @@ class FetchTileMixin:
             planar_configuration=self._ifd.planar_configuration,
             crs=self.crs,
             transform=tile_transform,
+            nodata=self.nodata,
         )
         return Tile(
             x=x,
@@ -135,6 +141,7 @@ class FetchTileMixin:
                 planar_configuration=self._ifd.planar_configuration,
                 crs=self.crs,
                 transform=tile_transform,
+                nodata=self.nodata,
             )
             tile = Tile(
                 x=x,

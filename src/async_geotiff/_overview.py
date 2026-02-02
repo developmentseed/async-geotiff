@@ -77,6 +77,11 @@ class Overview(ReadMixin, FetchTileMixin, TransformMixin):
         return self._ifd.image_height
 
     @property
+    def nodata(self) -> int | float | None:
+        """The nodata value for the overview, if any."""
+        return self._geotiff.nodata
+
+    @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the overview."""
         return self._ifd.tile_height or self.height

@@ -142,3 +142,42 @@ async def test_mask_overview(
         mask = rasterio_ds.dataset_mask(window=window)
 
     np.testing.assert_array_equal(tile.array.mask, mask.astype(np.bool_))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("file_name", "variant"),
+    [
+        # TODO: support LERC
+        # https://github.com/developmentseed/async-geotiff/issues/34
+        # ("float32_1band_lerc_block32", "rasterio"), # noqa: ERA001
+        ("uint16_1band_lzw_block128_predictor2", "rasterio"),
+        ("uint8_1band_deflate_block128_unaligned", "rasterio"),
+        ("uint8_rgb_deflate_block64_cog", "rasterio"),
+        ("uint8_rgb_webp_block64_cog", "rasterio"),
+        ("uint8_rgba_webp_block64_cog", "rasterio"),
+        # TODO: debug incorrect data length
+        # https://github.com/developmentseed/async-tiff/issues/202
+        # ("maxar_opendata_yellowstone_visual", "vantor"), # noqa: ERA001
+        ("nlcd_landcover", "nlcd"),
+    ],
+)
+async def test_fetch_as_masked(
+    load_geotiff: LoadGeoTIFF,
+    load_rasterio: LoadRasterio,
+    file_name: str,
+    variant: Variant,
+) -> None:
+    geotiff = await load_geotiff(file_name, variant=variant)
+
+    tile = await geotiff.fetch_tile(0, 0)
+    masked_array = tile.array.as_masked()
+
+    window = Window(0, 0, geotiff.tile_width, geotiff.tile_height)
+    with load_rasterio(file_name, variant=variant) as rasterio_ds:
+        rasterio_data = rasterio_ds.read(window=window, masked=True)
+
+    np.testing.assert_array_equal(masked_array.mask, rasterio_data.mask)
+    np.testing.assert_array_equal(masked_array.data, rasterio_data.data)
+    assert masked_array.shape == rasterio_data.shape
+    assert masked_array.dtype == rasterio_data.dtype
