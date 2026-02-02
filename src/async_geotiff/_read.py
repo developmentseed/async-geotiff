@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 from typing import TYPE_CHECKING, Protocol
 
 import numpy as np
@@ -13,6 +14,8 @@ from async_geotiff._windows import Window
 from async_geotiff.exceptions import WindowError
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import NDArray
 
     from async_geotiff._tile import Tile
@@ -33,8 +36,7 @@ class CanFetchTiles(HasTiffReference, Protocol):
 
     async def fetch_tiles(
         self,
-        xs: list[int],
-        ys: list[int],
+        xy: Sequence[tuple[int, int]],
     ) -> list[Tile]: ...
 
 
@@ -90,14 +92,14 @@ async def read(
     tile_y_stop = (win.row_off + win.height - 1) // self.tile_height + 1
 
     # Build list of tile coordinates
-    xs: list[int] = []
-    ys: list[int] = []
-    for tx in range(tile_x_start, tile_x_stop):
-        for ty in range(tile_y_start, tile_y_stop):
-            xs.append(tx)
-            ys.append(ty)
+    xy = list(
+        itertools.product(
+            range(tile_x_start, tile_x_stop),
+            range(tile_y_start, tile_y_stop),
+        ),
+    )
 
-    tiles = await self.fetch_tiles(xs, ys)
+    tiles = await self.fetch_tiles(xy)
 
     num_bands = tiles[0].array.count
     dtype = tiles[0].array.data.dtype

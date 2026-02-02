@@ -157,3 +157,36 @@ async def test_read_bounds_validation(
         await geotiff.read(
             window=async_geotiff.Window(col_off=0, row_off=0, width=0, height=10),
         )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("file_name", "variant"),
+    [
+        # TODO: support LERC
+        # https://github.com/developmentseed/async-geotiff/issues/34
+        # ("float32_1band_lerc_block32", "rasterio"), # noqa: ERA001
+        ("uint16_1band_lzw_block128_predictor2", "rasterio"),
+        ("uint8_1band_deflate_block128_unaligned", "rasterio"),
+        ("uint8_rgb_deflate_block64_cog", "rasterio"),
+        ("uint8_rgb_webp_block64_cog", "rasterio"),
+        ("uint8_rgba_webp_block64_cog", "rasterio"),
+        # TODO: debug incorrect data length
+        # https://github.com/developmentseed/async-tiff/issues/202
+        # ("maxar_opendata_yellowstone_visual", "vantor"), # noqa: ERA001
+        ("nlcd_landcover", "nlcd"),
+    ],
+)
+async def test_read_full(
+    load_geotiff: LoadGeoTIFF,
+    load_rasterio: LoadRasterio,
+    file_name: str,
+    variant: Variant,
+) -> None:
+    geotiff = await load_geotiff(file_name, variant=variant)
+    array = await geotiff.read()
+
+    with load_rasterio(file_name, variant=variant) as rasterio_ds:
+        rasterio_data = rasterio_ds.read()
+
+    np.testing.assert_array_equal(array.data, rasterio_data)
