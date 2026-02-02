@@ -30,12 +30,152 @@ We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata p
 
 ## High-level and Easy-to-Use
 
+We can open up a GeoTIFF using the [Obstore] integration:
 
-- Load from full-resolution or reduced-resolution overviews as 3D [NumPy] arrays.
-- Simplify handling of nodata values and nodata masks with [NumPy] [masked arrays].
-- Interpret Coordinate Reference Systems as [PyProj] CRS objects.
-- Find pixels with geotransforms exposed as [Affine] matrices.
-- Represent internal COG tile grids as [TileMatrixSets][TileMatrixSet] via [Morecantile] integration.
+```py
+from async_geotiff import GeoTIFF
+from obstore.store import S3Store
+
+store = S3Store("sentinel-cogs", region="us-west-2", skip_signature=True)
+path = "sentinel-s2-l2a-cogs/12/S/UF/2022/6/S2B_12SUF_20220609_0_L2A/TCI.tif"
+geotiff = await GeoTIFF.open(path, store=store)
+```
+On the `GeoTIFF` instance you have metadata about the image, such as its affine transform, exposed as [Affine] objects, and Coordinate Reference System, exposed as [PyProj] [CRS objects][pyproj_CRS].
+
+[Affine]: https://affine.readthedocs.io/en/latest/
+[PyProj]: https://pyproj4.github.io/pyproj/stable/
+[pyproj_CRS]: https://pyproj4.github.io/pyproj/stable/api/crs/crs.html
+
+```py
+geotiff.transform
+# Affine(10.0, 0.0, 300000.0,
+#        0.0, -10.0, 4100040.0)
+
+geotiff.crs
+# <Projected CRS: EPSG:32612>
+# Name: WGS 84 / UTM zone 12N
+
+geotiff.nodata
+# 0.0
+```
+
+For a COG, you can access the overviews, or reduced resolution versions, of the image:
+
+```py
+# Overviews are ordered from finest to coarsest resolution
+# In this case, access the second-coarsest resolution version of the image
+overview = geotiff.overviews[-2]
+```
+
+Then we can read data from the image. This loads a 512-pixel square from the
+upper-left corner of the selected overview.
+
+```py
+from async_geotiff import Window
+
+window = Window(col_off=0, row_off=0, width=512, height=512)
+array = await overview.read(window=window)
+```
+
+The `read` method returns an `Array` instance, which has fields including `data`, `shape`, `mask`, `transform`, and `crs`.
+
+```py
+# The affine transform of the loaded array
+array.transform
+# Affine(79.97086671522214, 0.0, 300000.0,
+#        0.0, -79.97086671522214, 4100040.0)
+```
+
+The `.data` attribute is a 3D [NumPy] array, with rasterio axis ordering `(bands, height, width)`.
+
+[NumPy]: https://numpy.org/
+
+```py
+array.data
+# array([[[217, 245, 255, ...,   0,   0,   0],
+#         [230, 244, 255, ...,   0,   0,   0],
+#         [251, 254, 255, ...,   0,   0,   0],
+#         ...,
+#         [245, 239, 244, ...,   0,   0,   0],
+#         [243, 236, 239, ...,   0,   0,   0],
+#         [246, 245, 245, ...,   0,   0,   0]],
+#
+#        [[135, 170, 229, ...,   0,   0,   0],
+#         [149, 180, 239, ...,   0,   0,   0],
+#         [192, 234, 252, ...,   0,   0,   0],
+#         ...,
+#         [183, 174, 179, ...,   0,   0,   0],
+#         [179, 171, 170, ...,   0,   0,   0],
+#         [191, 182, 180, ...,   0,   0,   0]],
+#
+#        [[ 98, 125, 188, ...,   0,   0,   0],
+#         [109, 135, 202, ...,   0,   0,   0],
+#         [150, 199, 229, ...,   0,   0,   0],
+#         ...,
+#         [144, 138, 140, ...,   0,   0,   0],
+#         [142, 135, 133, ...,   0,   0,   0],
+#         [152, 144, 141, ...,   0,   0,   0]]],
+#       shape=(3, 512, 512), dtype=uint8)
+```
+
+The goal is for this to integrate cleanly into existing tools. For example, we can plot using [`rasterio.plot.show`](https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show) (requires `matplotlib`):
+
+```py
+import rasterio.plot
+
+rasterio.plot.show(array.data)
+```
+
+![](../../assets/sentinel_2_plot.jpg)
+
+### TileMatrixSet integration with Morecantile
+
+With the [Morecantile] integration, we can create a [TileMatrixSet] representation of the internal COG tiles.
+
+[Morecantile]: https://github.com/developmentseed/morecantile
+[TileMatrixSet]: https://docs.ogc.org/is/17-083r4/17-083r4.html
+
+```py
+from async_geotiff.tms import generate_tms
+
+generate_tms(geotiff)
+```
+
+```json
+{
+  "crs": {"uri": "http://www.opengis.net/def/crs/EPSG/0/32612"},
+  "boundingBox": {
+    "lowerLeft": [300000.0, 3990240.0],
+    "upperRight": [409800.0, 4100040.0],
+    "crs": {"uri": "http://www.opengis.net/def/crs/EPSG/0/32612"}
+  },
+  "tileMatrices": [
+    {
+      "id": "0",
+      "scaleDenominator": 570804.741110418,
+      "cellSize": 159.82532751091702,
+      "cornerOfOrigin": "topLeft",
+      "pointOfOrigin": [300000.0, 4100040.0],
+      "tileWidth": 1024,
+      "tileHeight": 1024,
+      "matrixWidth": 1,
+      "matrixHeight": 1
+    },
+    {
+      "id": "1",
+      "scaleDenominator": 285610.23826865054,
+      "cellSize": 79.97086671522214,
+      "cornerOfOrigin": "topLeft",
+      "pointOfOrigin": [300000.0, 4100040.0],
+      "tileWidth": 1024,
+      "tileHeight": 1024,
+      "matrixWidth": 2,
+      "matrixHeight": 2
+    },
+    ...
+  ]
+}
+```
 
 ## Performance-focused
 
@@ -211,6 +351,8 @@ Read the [obspec release post] for more information.
 [Protocol]: https://typing.python.org/en/latest/spec/protocol.html
 
 ## Full type hinting
+
+The entire Async-GeoTIFF API is type-hinted as well as possible, leading to effective IDE integration.
 
 ## Growing test suite
 
