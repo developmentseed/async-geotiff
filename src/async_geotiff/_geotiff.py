@@ -26,7 +26,6 @@ from async_geotiff.enums import Compression, Interleaving, PhotometricInterpreta
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
-    from async_tiff.store import ObjectStore  # type: ignore # noqa: PGH003
     from pyproj.crs import CRS
 
 
@@ -127,7 +126,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         cls,
         path: str,
         *,
-        store: ObjectStore | ObspecInput,
+        store: ObspecInput,
         prefetch: int = 32768,
         multiplier: float = 2.0,
     ) -> Self:
