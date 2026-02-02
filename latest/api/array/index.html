@@ -18,7 +18,7 @@
         <link rel="prev" href="../overview/">
       
       
-        <link rel="next" href="../../CHANGELOG/">
+        <link rel="next" href="../colormap/">
       
       
         
@@ -347,6 +347,8 @@
       
         
       
+        
+      
     
     
     
@@ -577,6 +579,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#async_geotiff.Array.nodata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;nodata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#async_geotiff.Array.transform" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -592,6 +605,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;width
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#async_geotiff.Array.as_masked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;as_masked
       
     </span>
   </a>
@@ -629,6 +653,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../colormap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    async_geotiff.Colormap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -762,6 +814,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#async_geotiff.Array.nodata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;nodata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#async_geotiff.Array.transform" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -777,6 +840,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;width
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#async_geotiff.Array.as_masked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;as_masked
       
     </span>
   </a>
@@ -1002,6 +1076,31 @@
 
 
 
+<h3 id="async_geotiff.Array.nodata" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">nodata</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#async_geotiff.Array.nodata" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="n">nodata</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float">float</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The nodata value for the array, if any.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h3 id="async_geotiff.Array.transform" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">transform</span>
 
@@ -1048,6 +1147,52 @@
 
 
 
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="async_geotiff.Array.as_masked" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">as_masked</span>
+
+
+<a href="#async_geotiff.Array.as_masked" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">as_masked</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ma.MaskedArray" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray">MaskedArray</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return the data as a masked array using the Array mask or nodata value.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In a numpy <a class="autorefs autorefs-external" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray"><code>MaskedArray</code></a>, <code>True</code>
+indicates invalid (masked) data and <code>False</code> indicates valid data.</p>
+<p>This is the inverse convention of a GeoTIFF's mask. The boolean array
+<a class="autorefs autorefs-internal" title="mask
+
+
+  
+      instance-attribute
+  " href="#async_geotiff.Array.mask"><code>Array.mask</code></a> uses <code>True</code> for valid data and
+<code>False</code> for invalid data.</p>
+</div>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-external" title="numpy.ma.MaskedArray" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray">MaskedArray</a></code>
+          –
+          <div class="doc-md-description">
+            <p>A masked array with the same shape as <code>data</code>, where invalid data
+(as indicated by the mask) is masked out.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-function">
 

@@ -347,6 +347,8 @@
       
         
       
+        
+      
     
     
     
@@ -499,6 +501,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#async_geotiff.GeoTIFF.colormap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;colormap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#async_geotiff.GeoTIFF.compression" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -697,17 +710,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#async_geotiff.GeoTIFF.colormap" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;colormap
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#async_geotiff.GeoTIFF.fetch_tiles" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -745,6 +747,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;open
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#async_geotiff.GeoTIFF.read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;read
       
     </span>
   </a>
@@ -819,6 +832,34 @@
     
   
     async_geotiff.Array
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../colormap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    async_geotiff.Colormap
   
 
     
@@ -938,6 +979,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#async_geotiff.GeoTIFF.colormap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;colormap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#async_geotiff.GeoTIFF.compression" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1136,17 +1188,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#async_geotiff.GeoTIFF.colormap" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;colormap
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#async_geotiff.GeoTIFF.fetch_tiles" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1184,6 +1225,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;open
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#async_geotiff.GeoTIFF.read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;read
       
     </span>
   </a>
@@ -1249,7 +1301,7 @@
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="async_geotiff._fetch.FetchTileMixin">FetchTileMixin</span></code>, <code><span title="async_geotiff._transform.TransformMixin">TransformMixin</span></code></p>
+              Bases: <code><span title="async_geotiff._read.ReadMixin">ReadMixin</span></code>, <code><span title="async_geotiff._fetch.FetchTileMixin">FetchTileMixin</span></code>, <code><span title="async_geotiff._transform.TransformMixin">TransformMixin</span></code></p>
 
 
 
@@ -1357,6 +1409,52 @@
     <div class="doc doc-contents ">
 
         <p>The color interpretation of each band in index order.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="async_geotiff.GeoTIFF.colormap" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">colormap</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#async_geotiff.GeoTIFF.colormap" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="n">colormap</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="Colormap
+
+
+  
+      dataclass
+   (async_geotiff.colormap.Colormap)" href="../colormap/#async_geotiff.colormap.Colormap">Colormap</a></span> <span class="o">|</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return the Colormap stored in the file, if any.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-internal" title="Colormap
+
+
+  
+      dataclass
+   (async_geotiff.colormap.Colormap)" href="../colormap/#async_geotiff.colormap.Colormap">Colormap</a> | None</code>
+          –
+          <div class="doc-md-description">
+            <p>A Colormap instance if the dataset has a colormap, else None.</p>
+          </div>
+        </li>
+    </ul>
 
     </div>
 
@@ -1578,6 +1676,10 @@
     <div class="doc doc-contents ">
 
         <p>A list of overview levels for the dataset.</p>
+<p>Overviews are reduced-resolution versions of the main image used for faster
+rendering at lower zoom levels.</p>
+<p>This list of overviews is ordered from finest to coarsest resolution. The first
+element of the list is the highest-resolution after the base image.</p>
 
     </div>
 
@@ -1828,78 +1930,6 @@ CRS.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="async_geotiff.GeoTIFF.colormap" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">colormap</span>
-
-
-<a href="#async_geotiff.GeoTIFF.colormap" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">colormap</span><span class="p">(</span><span class="n">bidx</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">]]</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Return a dict containing the colormap for a band.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-            <b><code>bidx</code></b>
-              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></code>)
-          –
-          <div class="doc-md-description">
-            <p>The 1-based index of the band whose colormap will be returned.</p>
-          </div>
-        </li>
-    </ul>
-
-
-<p><span class="doc-section-title">Returns:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]]</code>
-          –
-          <div class="doc-md-description">
-            <p>Mapping of color index value (starting at 0) to RGBA color as a</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a>]]</code>
-          –
-          <div class="doc-md-description">
-            <p>4-element tuple.</p>
-          </div>
-        </li>
-    </ul>
-
-
-<p><span class="doc-section-title">Raises:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></code>
-            –
-          <div class="doc-md-description">
-            <p>If no colormap is found for the specified band (NULL color
-table).</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#IndexError">IndexError</a></code>
-            –
-          <div class="doc-md-description">
-            <p>If no band exists for the provided index.</p>
-          </div>
-        </li>
-    </ul>
-
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
 <h3 id="async_geotiff.GeoTIFF.fetch_tiles" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">fetch_tiles</span>
 
@@ -1909,12 +1939,7 @@ table).</p>
   </span>
 
 <a href="#async_geotiff.GeoTIFF.fetch_tiles" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">fetch_tiles</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">],</span> <span class="n">ys</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="async_geotiff.Array
-
-
-  
-      dataclass
-  " href="../array/#async_geotiff.Array">Array</a></span><span class="p">]</span>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">fetch_tiles</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">],</span> <span class="n">ys</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><span title="async_geotiff._tile.Tile">Tile</span></span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2112,6 +2137,82 @@ read will be of size <code>prefetch</code>, and then the next read will be of si
           –
           <div class="doc-md-description">
             <p>A TIFF instance.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="async_geotiff.GeoTIFF.read" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">read</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#async_geotiff.GeoTIFF.read" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">read</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="n"><span title="async_geotiff._windows.Window">Window</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="async_geotiff.Array
+
+
+  
+      dataclass
+   (async_geotiff._array.Array)" href="../array/#async_geotiff.Array">Array</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Read pixel data for a window region.</p>
+<p>This method fetches all tiles that intersect the given window and
+stitches them together, returning only the pixels within the window.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>window</code></b>
+              (<code><span title="async_geotiff._windows.Window">Window</span> | None</code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>A Window object defining the pixel region to read.
+If None, the entire image is read.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><a class="autorefs autorefs-internal" title="async_geotiff.Array
+
+
+  
+      dataclass
+   (async_geotiff._array.Array)" href="../array/#async_geotiff.Array">Array</a></code>
+          –
+          <div class="doc-md-description">
+            <p>An Array containing the pixel data for the requested window.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="async_geotiff.exceptions.WindowError">WindowError</span></code>
+            –
+          <div class="doc-md-description">
+            <p>If the window extends outside the image bounds.</p>
           </div>
         </li>
     </ul>

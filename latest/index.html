@@ -368,10 +368,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-goals" class="md-nav__link">
+  <a href="#features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Project Goals:
+        Features
       
     </span>
   </a>
@@ -379,10 +379,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
+  <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
       
-        References
+        Example
       
     </span>
   </a>
@@ -405,6 +405,8 @@
   
     
     
+      
+        
       
         
       
@@ -536,6 +538,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/colormap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    async_geotiff.Colormap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -597,10 +627,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-goals" class="md-nav__link">
+  <a href="#features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Project Goals:
+        Features
       
     </span>
   </a>
@@ -608,10 +638,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
+  <a href="#example" class="md-nav__link">
     <span class="md-ellipsis">
       
-        References
+        Example
       
     </span>
   </a>
@@ -642,23 +672,68 @@
 
 
 <h1 id="async-geotiff">async-geotiff<a class="headerlink" href="#async-geotiff" title="Permanent link">&para;</a></h1>
-<p>Async GeoTIFF and <a href="https://cogeo.org/">Cloud-Optimized GeoTIFF</a> (COG) reader for Python, wrapping <a href="https://github.com/developmentseed/async-tiff"><code>async-tiff</code></a>.</p>
-<h2 id="project-goals">Project Goals:<a class="headerlink" href="#project-goals" title="Permanent link">&para;</a></h2>
+<p>Fast, async GeoTIFF and <a href="https://cogeo.org/">Cloud-Optimized GeoTIFF</a> (COG) reader for Python, wrapping the Rust-based <a href="https://github.com/developmentseed/async-tiff">Async-TIFF</a> library.</p>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Support only for GeoTIFF and Cloud-Optimized GeoTIFF (COG) formats</li>
-<li>Support for reading only, no writing support</li>
-<li>Full type hinting.</li>
-<li>API similar to rasterio where possible.<ul>
-<li>We won't support the full rasterio API, but we'll try to when it's possible to implement rasterio APIs with straightforward maintenance requirements.</li>
-<li>For methods where we do intentionally try to match with rasterio, the tests should match against rasterio.</li>
+<li>Read-only support for GeoTIFF and COG formats.</li>
+<li>High-level, familiar, easy to use API.</li>
+<li>Performance-focused:<ul>
+<li>Rust core ensures native performance.</li>
+<li>CPU-bound tasks like image decoding happen in a thread pool, without blocking the async executor.</li>
+<li>Buffer protocol integration for zero-copy data sharing between Rust and Python.</li>
 </ul>
 </li>
-<li>Initially, we'll try to support a core set of GeoTIFF formats. Obscure GeoTIFF files may not be supported.</li>
+<li>Lightweight with no GDAL dependency.</li>
+<li>Integration with <a href="https://developmentseed.org/obstore/latest/">obstore</a> for efficient data access on object stores.</li>
+<li>Full type hinting for all operations.</li>
+<li>Broad decompression support: Deflate, LZW, JPEG, JPEG2000, WebP, ZSTD.</li>
 </ul>
-<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<p><strong>Anti-Features</strong> (features explicitly not in scope):</p>
 <ul>
-<li>aiocogeo: <a class="magiclink magiclink-github magiclink-repository" href="https://github.com/geospatial-jeff/aiocogeo" title="GitHub Repository: geospatial-jeff/aiocogeo">geospatial-jeff/aiocogeo</a></li>
+<li>No pixel resampling.</li>
+<li>No warping/reprojection.</li>
 </ul>
+<p>Resampling and warping bring significant additional complexity and are out of scope for this library.</p>
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<p>First create a "store", such as an <a href="https://developmentseed.org/obstore/latest/api/store/aws/#obstore.store.S3Store"><code>S3Store</code></a>, <a href="https://developmentseed.org/obstore/latest/api/store/gcs/#obstore.store.GCSStore"><code>GCSStore</code></a>, <a href="https://developmentseed.org/obstore/latest/api/store/azure/#obstore.store.AzureStore"><code>AzureStore</code></a>, or <a href="https://developmentseed.org/obstore/latest/api/store/local/#obstore.store.LocalStore"><code>LocalStore</code></a> for reading data from AWS S3, Google Cloud, Azure Storage, or local files. Refer to <a href="https://developmentseed.org/obstore/latest/">obstore</a> documentation for more information.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">obstore.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">S3Store</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">S3Store</span><span class="p">(</span><span class="s2">&quot;sentinel-cogs&quot;</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-west-2&quot;</span><span class="p">,</span> <span class="n">skip_signature</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;sentinel-s2-l2a-cogs/12/S/UF/2022/6/S2B_12SUF_20220609_0_L2A/TCI.tif&quot;</span>
+</code></pre></div>
+<p>Then open a <code>GeoTIFF</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTIFF</span>
+
+<span class="n">geotiff</span> <span class="o">=</span> <span class="k">await</span> <span class="n">GeoTIFF</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>
+</code></pre></div>
+<p>On the <code>GeoTIFF</code> instance you have metadata about the image, such as its affine transform and Coordinate Reference System:</p>
+<div class="highlight"><pre><span></span><code><span class="n">geotiff</span><span class="o">.</span><span class="n">transform</span>
+<span class="c1"># Affine(10.0, 0.0, 300000.0,</span>
+<span class="c1">#        0.0, -10.0, 4100040.0)</span>
+
+<span class="n">geotiff</span><span class="o">.</span><span class="n">crs</span>
+<span class="c1"># &lt;Projected CRS: EPSG:32612&gt;</span>
+<span class="c1"># Name: WGS 84 / UTM zone 12N</span>
+</code></pre></div>
+<p>For a COG, you can access the overviews, or reduced resolution versions, of the image:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Overviews are ordered from finest to coarsest resolution</span>
+<span class="c1"># In this case, access the second-coarsest resolution version of the image</span>
+<span class="n">overview</span> <span class="o">=</span> <span class="n">geotiff</span><span class="o">.</span><span class="n">overviews</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+</code></pre></div>
+<p>Then we can read data from the image. This loads a 512-pixel square from the
+upper-left corner of the selected overview.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">Window</span>
+
+<span class="n">window</span> <span class="o">=</span> <span class="n">Window</span><span class="p">(</span><span class="n">col_off</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row_off</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">array</span> <span class="o">=</span> <span class="k">await</span> <span class="n">overview</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
+</code></pre></div>
+<p>This <code>Array</code> instance has <code>data</code>, <code>mask</code>, and some other metadata about the fetched array data.</p>
+<p>Plot, using <a href="https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show"><code>rasterio.plot.show</code></a> (requires <code>matplotlib</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">rasterio.plot</span>
+
+<span class="n">rasterio</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="" src="assets/sentinel_2_plot.jpg" /></p>
 
 
 
