@@ -1,0 +1,1624 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A fast, async GeoTIFF and Cloud-Optimized GeoTIFF (COG) reader for Python.">
+      
+      
+        <meta name="author" content="Development Seed">
+      
+      
+        <link rel="canonical" href="https://developmentseed.org/async-geotiff/latest/blog/2026/02/03/introducing-async-geotiff/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Introducing Async-GeoTIFF - async-geotiff</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../../../overrides/stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Introducing Async-GeoTIFF - async-geotiff" />
+<meta property="og:description" content="A fast, async GeoTIFF and Cloud-Optimized GeoTIFF (COG) reader for Python." />
+<meta property="og:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/blog/2026/02/03/introducing-async-geotiff.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://developmentseed.org/async-geotiff/latest/blog/2026/02/03/introducing-async-geotiff/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Introducing Async-GeoTIFF - async-geotiff" />
+<meta property="twitter:description" content="A fast, async GeoTIFF and Cloud-Optimized GeoTIFF (COG) reader for Python." />
+<meta property="twitter:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/blog/2026/02/03/introducing-async-geotiff.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#introducing-async-geotiff" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+          <aside class="md-banner md-banner--warning">
+            <div class="md-banner__inner md-grid md-typeset">
+              
+  You're not viewing the latest version.
+  <a href="../../../../../..">
+    <strong>Click here to go to latest.</strong>
+  </a>
+
+            </div>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../../../../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+          </aside>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../../.." title="async-geotiff" class="md-header__button md-logo" aria-label="async-geotiff" data-md-component="logo">
+      
+  <img src="../../../../../assets/logo_no_text.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            async-geotiff
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Introducing Async-GeoTIFF
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="default" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="default" data-md-color-accent="deep-orange"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/developmentseed/async-geotiff" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    developmentseed/async-geotiff
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" hidden>
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../../.." title="async-geotiff" class="md-nav__button md-logo" aria-label="async-geotiff" data-md-component="logo">
+      
+  <img src="../../../../../assets/logo_no_text.png" alt="logo">
+
+    </a>
+    async-geotiff
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/developmentseed/async-geotiff" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    developmentseed/async-geotiff
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    async-geotiff
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/geotiff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GeoTIFF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/array/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Array
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/window/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Window
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/colormap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Colormap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/enums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enums
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../api/tms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TileMatrixSet integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blog
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Blog
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archive
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Archive
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../archive/2026/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2026
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Categories
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Categories
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../category/release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#high-level-and-easy-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level and Easy-to-Use
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="High-Level and Easy-to-Use">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tilematrixset-integration-with-morecantile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TileMatrixSet integration with Morecantile
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-focused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Performance-focused
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance-focused">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rust-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust core
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multithreaded-image-decoding-by-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multithreaded image decoding by default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#efficient-memory-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Efficient memory usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-geotiffs-cogs-from-any-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read GeoTIFFs / COGs from any source
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Read GeoTIFFs / COGs from any source">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fast-cloud-storage-access-with-obstore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fast cloud storage access with Obstore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generic-backend-support-with-obspec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic backend support with obspec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#more-tractable-data-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        More tractable data caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-type-hinting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full type hinting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#growing-test-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Growing test suite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future work
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Future work">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rio-tiler-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rio-tiler integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#better-api-for-handling-photometric-interpretations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Better API for handling photometric interpretations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#more-compression-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        More compression support
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+  <div class="md-content md-content--post" data-md-component="content">
+    <div class="md-sidebar md-sidebar--post" data-md-component="sidebar" data-md-type="navigation">
+      <div class="md-sidebar__scrollwrap">
+        <div class="md-sidebar__inner md-post">
+          <nav class="md-nav md-nav--primary">
+            <div class="md-post__back">
+              <div class="md-nav__title md-nav__container">
+                <a href="../../../../" class="md-nav__link">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+                  <span class="md-ellipsis">
+                    Back to index
+                  </span>
+                </a>
+              </div>
+            </div>
+            
+              <div class="md-post__authors md-typeset">
+                
+                  <div class="md-profile md-post__profile">
+                    <span class="md-author md-author--long">
+                      <img src="https://github.com/kylebarron.png" alt="Kyle Barron">
+                    </span>
+                    <span class="md-profile__description">
+                      <strong>
+                        
+                          Kyle Barron
+                        
+                      </strong>
+                      <br>
+                      Creator
+                    </span>
+                  </div>
+                
+              </div>
+            
+            <ul class="md-post__meta md-nav__list">
+              <li class="md-nav__item md-nav__item--section">
+                <div class="md-post__title">
+                  <span class="md-ellipsis">
+                    Metadata
+                  </span>
+                </div>
+                <nav class="md-nav">
+                  <ul class="md-nav__list">
+                    <li class="md-nav__item">
+                      <div class="md-nav__link">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 19H5V8h14m-3-7v2H8V1H6v2H5c-1.11 0-2 .89-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1m-1 11h-5v5h5z"/></svg>
+                        <time datetime="2026-02-03 00:00:00+00:00" class="md-ellipsis">February 3, 2026</time>
+                      </div>
+                    </li>
+                    
+                    
+                      <li class="md-nav__item">
+                        <div class="md-nav__link">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 3v15h3V3zm3 2 4 13 3-1-4-13zM5 5v13h3V5zM3 19v2h18v-2z"/></svg>
+                          <span class="md-ellipsis">
+                            in
+                            
+                              <a href="../../../../category/release/">Release</a></span>
+                        </div>
+                      </li>
+                    
+                    
+                      
+                      <li class="md-nav__item">
+                        <div class="md-nav__link">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 20a8 8 0 0 0 8-8 8 8 0 0 0-8-8 8 8 0 0 0-8 8 8 8 0 0 0 8 8m0-18a10 10 0 0 1 10 10 10 10 0 0 1-10 10C6.47 22 2 17.5 2 12A10 10 0 0 1 12 2m.5 5v5.25l4.5 2.67-.75 1.23L11 13V7z"/></svg>
+                          <span class="md-ellipsis">
+                            
+                              7 min read
+                            
+                          </span>
+                        </div>
+                      </li>
+                    
+                  </ul>
+                </nav>
+              </li>
+            </ul>
+            
+          </nav>
+          
+        </div>
+      </div>
+    </div>
+    <article class="md-content__inner md-typeset">
+      
+        
+  
+
+
+
+  
+  
+
+
+<h1 id="introducing-async-geotiff">Introducing Async-GeoTIFF<a class="headerlink" href="#introducing-async-geotiff" title="Permanent link">&para;</a></h1>
+<p>We're introducing Async-GeoTIFF, a new high-level library for reading <a href="https://en.wikipedia.org/wiki/GeoTIFF">GeoTIFF</a> and <a href="https://cogeo.org/">Cloud-Optimized GeoTIFF</a> (COG) data. By leveraging <a href="https://realpython.com/async-io-python/">asynchronous I/O</a>, we can speed up concurrent GeoTIFF data fetching.</p>
+<p>According to the <a href="https://gdal.org/en/stable/community/user_survey_2025.html#raster-data-formats">2025 GDAL user survey</a>, almost 90% of respondents use GeoTIFFs and COGs as their primary raster data format. While <a href="https://gdal.org/en/stable/index.html">GDAL</a> and its Python bindings <a href="https://rasterio.readthedocs.io/">Rasterio</a> are fantastic, rock-solid tools, they don't support asynchronous I/O and are missing some modern Python usability features, like type hinting.</p>
+<p>We <a href="https://github.com/geospatial-jeff/pyasyncio-benchmark/blob/8809b62125ae75b3d216475e9964a6df4d96a91c/test_results/20250423_results/ec2_m5_300seconds/aggregated_results.csv">previously found</a> concurrent GeoTIFF metadata parsing at scale to be <strong>25x faster</strong> with the underlying Rust-based <a href="https://github.com/developmentseed/async-tiff">Async-TIFF</a> library than with Rasterio. We expect Async-GeoTIFF to bring similar performance improvements to concurrent server-side image reading, improving downstream applications such as <a href="https://github.com/developmentseed/titiler">Titiler</a>.</p>
+<!-- more -->
+
+<h2 id="high-level-and-easy-to-use">High-Level and Easy-to-Use<a class="headerlink" href="#high-level-and-easy-to-use" title="Permanent link">&para;</a></h2>
+<p>We can open up a <a class="autorefs autorefs-internal" title="async_geotiff.GeoTIFF
+
+
+  
+      dataclass
+  " href="../../../../../api/geotiff/#async_geotiff.GeoTIFF">GeoTIFF</a> using the <a href="https://developmentseed.org/obstore/latest/">Obstore</a> integration:</p>
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTIFF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">obstore.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">S3Store</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">S3Store</span><span class="p">(</span><span class="s2">&quot;sentinel-cogs&quot;</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-west-2&quot;</span><span class="p">,</span> <span class="n">skip_signature</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;sentinel-s2-l2a-cogs/12/S/UF/2022/6/S2B_12SUF_20220609_0_L2A/TCI.tif&quot;</span>
+<span class="n">geotiff</span> <span class="o">=</span> <span class="k">await</span> <span class="n">GeoTIFF</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>
+</code></pre></div>
+On the <code>GeoTIFF</code> instance you have metadata about the image, such as its affine transform, exposed as <a href="https://affine.readthedocs.io/en/latest/">Affine</a> objects, and Coordinate Reference System, exposed as <a href="https://pyproj4.github.io/pyproj/stable/">PyProj</a> <a href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html">CRS objects</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">geotiff</span><span class="o">.</span><span class="n">transform</span>
+<span class="c1"># Affine(10.0, 0.0, 300000.0,</span>
+<span class="c1">#        0.0, -10.0, 4100040.0)</span>
+
+<span class="n">geotiff</span><span class="o">.</span><span class="n">crs</span>
+<span class="c1"># &lt;Projected CRS: EPSG:32612&gt;</span>
+<span class="c1"># Name: WGS 84 / UTM zone 12N</span>
+
+<span class="n">geotiff</span><span class="o">.</span><span class="n">nodata</span>
+<span class="c1"># 0.0</span>
+</code></pre></div>
+<p>For a COG, you can access the overviews, or reduced resolution versions, of the image:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Overviews are ordered from finest to coarsest resolution</span>
+<span class="c1"># In this case, access the second-coarsest resolution version of the image</span>
+<span class="n">overview</span> <span class="o">=</span> <span class="n">geotiff</span><span class="o">.</span><span class="n">overviews</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+</code></pre></div>
+<p>Then we can read data from the image. This loads a 512-pixel square from the
+upper-left corner of the selected overview.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">Window</span>
+
+<span class="n">window</span> <span class="o">=</span> <span class="n">Window</span><span class="p">(</span><span class="n">col_off</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row_off</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">array</span> <span class="o">=</span> <span class="k">await</span> <span class="n">overview</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
+</code></pre></div>
+<p>The <code>read</code> method returns an <a class="autorefs autorefs-internal" title="async_geotiff.Array
+
+
+  
+      dataclass
+  " href="../../../../../api/array/#async_geotiff.Array"><code>Array</code></a> instance, which has fields including <code>data</code>, <code>shape</code>, <code>mask</code>, <code>transform</code>, and <code>crs</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># The affine transform of the loaded array</span>
+<span class="n">array</span><span class="o">.</span><span class="n">transform</span>
+<span class="c1"># Affine(79.97086671522214, 0.0, 300000.0,</span>
+<span class="c1">#        0.0, -79.97086671522214, 4100040.0)</span>
+</code></pre></div>
+<p>The <code>.data</code> attribute is a 3D <a href="https://numpy.org/">NumPy</a> array, with rasterio axis ordering <code>(bands, height, width)</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">array</span><span class="o">.</span><span class="n">data</span>
+<span class="c1"># array([[[217, 245, 255, ...,   0,   0,   0],</span>
+<span class="c1">#         [230, 244, 255, ...,   0,   0,   0],</span>
+<span class="c1">#         [251, 254, 255, ...,   0,   0,   0],</span>
+<span class="c1">#         ...,</span>
+<span class="c1">#         [245, 239, 244, ...,   0,   0,   0],</span>
+<span class="c1">#         [243, 236, 239, ...,   0,   0,   0],</span>
+<span class="c1">#         [246, 245, 245, ...,   0,   0,   0]],</span>
+
+<span class="c1">#        [[135, 170, 229, ...,   0,   0,   0],</span>
+<span class="c1">#         [149, 180, 239, ...,   0,   0,   0],</span>
+<span class="c1">#         [192, 234, 252, ...,   0,   0,   0],</span>
+<span class="c1">#         ...,</span>
+<span class="c1">#         [183, 174, 179, ...,   0,   0,   0],</span>
+<span class="c1">#         [179, 171, 170, ...,   0,   0,   0],</span>
+<span class="c1">#         [191, 182, 180, ...,   0,   0,   0]]],</span>
+<span class="c1">#       shape=(3, 512, 512), dtype=uint8)</span>
+</code></pre></div>
+<p>Or we can create a NumPy <a href="https://numpy.org/doc/stable/reference/maskedarray.generic.html">MaskedArray</a> with the <code>as_masked</code> method:</p>
+<div class="highlight"><pre><span></span><code><span class="n">array</span><span class="o">.</span><span class="n">as_masked</span><span class="p">()</span>
+<span class="c1"># masked_array(</span>
+<span class="c1">#   data=[[[217, 245, 255, ..., --, --, --],</span>
+<span class="c1">#          [230, 244, 255, ..., --, --, --],</span>
+<span class="c1">#          [251, 254, 255, ..., --, --, --],</span>
+<span class="c1">#          ...,</span>
+<span class="c1">#          [245, 239, 244, ..., --, --, --],</span>
+<span class="c1">#          [243, 236, 239, ..., --, --, --],</span>
+<span class="c1">#          [246, 245, 245, ..., --, --, --]],</span>
+
+<span class="c1">#         [[135, 170, 229, ..., --, --, --],</span>
+<span class="c1">#          [149, 180, 239, ..., --, --, --],</span>
+<span class="c1">#          [192, 234, 252, ..., --, --, --],</span>
+<span class="c1">#          ...,</span>
+<span class="c1">#          [183, 174, 179, ..., --, --, --],</span>
+<span class="c1">#          [179, 171, 170, ..., --, --, --],</span>
+<span class="c1">#          [191, 182, 180, ..., --, --, --]]],</span>
+<span class="c1">#   mask=[[[False, False, False, ...,  True,  True,  True],</span>
+<span class="c1">#          [False, False, False, ...,  True,  True,  True],</span>
+<span class="c1">#          [False, False, False, ...,  True,  True,  True],</span>
+<span class="c1">#          ...,</span>
+<span class="c1">#          [False, False, False, ...,  True,  True,  True],</span>
+<span class="c1">#          [False, False, False, ...,  True,  True,  True],</span>
+<span class="c1">#          [False, False, False, ...,  True,  True,  True]]],</span>
+<span class="c1">#   fill_value=0,</span>
+<span class="c1">#   dtype=uint8)</span>
+</code></pre></div>
+<p>This should integrate cleanly into existing tools. For example, we can plot using <a href="https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show"><code>rasterio.plot.show</code></a>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">rasterio.plot</span>
+
+<span class="n">rasterio</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div>
+<p><img alt="" src="../../../../../assets/sentinel_2_plot.jpg" /></p>
+<h3 id="tilematrixset-integration-with-morecantile">TileMatrixSet integration with Morecantile<a class="headerlink" href="#tilematrixset-integration-with-morecantile" title="Permanent link">&para;</a></h3>
+<p>With the <a href="https://github.com/developmentseed/morecantile">Morecantile</a> integration, we can create a <a href="https://docs.ogc.org/is/17-083r4/17-083r4.html">TileMatrixSet</a> representation of the internal COG tiles. This is useful for applications that want to traverse the internal COG tile pyramid structure.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff.tms</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_tms</span>
+
+<span class="n">generate_tms</span><span class="p">(</span><span class="n">geotiff</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;crs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.opengis.net/def/crs/EPSG/0/32612&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;boundingBox&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;lowerLeft&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">300000.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3990240.0</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;upperRight&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">409800.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4100040.0</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;crs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.opengis.net/def/crs/EPSG/0/32612&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;tileMatrices&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;scaleDenominator&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">570804.741110418</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cellSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">159.82532751091702</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cornerOfOrigin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;topLeft&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;pointOfOrigin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">300000.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4100040.0</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;tileWidth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tileHeight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matrixWidth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matrixHeight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;scaleDenominator&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">285610.23826865054</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cellSize&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">79.97086671522214</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cornerOfOrigin&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;topLeft&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;pointOfOrigin&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">300000.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4100040.0</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;tileWidth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tileHeight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matrixWidth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matrixHeight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h2 id="performance-focused">Performance-focused<a class="headerlink" href="#performance-focused" title="Permanent link">&para;</a></h2>
+<h3 id="rust-core">Rust core<a class="headerlink" href="#rust-core" title="Permanent link">&para;</a></h3>
+<p>The underlying <a href="https://github.com/developmentseed/async-tiff">Async-TIFF</a> library is written in <a href="https://rust-lang.org/">Rust</a>, a fast, low-level language that compiles to native machine code. This means Async-TIFF and Async-GeoTIFF can be just as fast as any C or C++ library. Rust is memory efficient and its compiler automatically catches many memory bugs.</p>
+<h3 id="multithreaded-image-decoding-by-default">Multithreaded image decoding by default<a class="headerlink" href="#multithreaded-image-decoding-by-default" title="Permanent link">&para;</a></h3>
+<p>With asynchronous I/O, it's important to ensure that no blocking tasks happen on the primary executor, because those blocking tasks prevent any other asynchronous tasks from responding.</p>
+<p>Async-GeoTIFF splits up the I/O-bound network data fetching and CPU-bound image decoding, ensuring any decoding is done in a Rust-based thread pool, leaving the executor responsive.</p>
+<p>Async-GeoTIFF is thread-safe, though you shouldn't usually need to use it with a Python thread pool, as it's already using a Rust thread pool under the hood.</p>
+<h3 id="efficient-memory-usage">Efficient memory usage<a class="headerlink" href="#efficient-memory-usage" title="Permanent link">&para;</a></h3>
+<p>The underlying <a href="https://github.com/developmentseed/async-tiff">Async-TIFF</a> library implements the Python <a href="https://docs.python.org/3/c-api/buffer.html">Buffer Protocol</a>, ensuring that we can share array data between Rust and NumPy without copies.</p>
+<h2 id="read-geotiffs-cogs-from-any-source">Read GeoTIFFs / COGs from any source<a class="headerlink" href="#read-geotiffs-cogs-from-any-source" title="Permanent link">&para;</a></h2>
+<h3 id="fast-cloud-storage-access-with-obstore">Fast cloud storage access with Obstore<a class="headerlink" href="#fast-cloud-storage-access-with-obstore" title="Permanent link">&para;</a></h3>
+<p><a href="https://developmentseed.org/obstore/latest/">Obstore</a> is a high-throughput Python interface to Amazon S3, Google Cloud Storage, Azure Storage, &amp; other S3-compliant APIs, powered by a Rust core.</p>
+<p>Async-GeoTIFF supports Obstore instances out of the box. Just create a store and pass it to <a class="autorefs autorefs-internal" title="open
+
+
+  
+      async
+      classmethod
+  " href="../../../../../api/geotiff/#async_geotiff.GeoTIFF.open"><code>GeoTIFF.open</code></a>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTIFF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">obstore.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">S3Store</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">S3Store</span><span class="p">(</span><span class="s2">&quot;sentinel-cogs&quot;</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-west-2&quot;</span><span class="p">,</span> <span class="n">skip_signature</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;sentinel-s2-l2a-cogs/12/S/UF/2022/6/S2B_12SUF_20220609_0_L2A/TCI.tif&quot;</span>
+<span class="n">geotiff</span> <span class="o">=</span> <span class="k">await</span> <span class="n">GeoTIFF</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="generic-backend-support-with-obspec">Generic backend support with obspec<a class="headerlink" href="#generic-backend-support-with-obspec" title="Permanent link">&para;</a></h3>
+<p>Async-GeoTIFF supports reading from arbitrary <a href="https://developmentseed.org/obspec/latest/">Obspec</a> backends. <a href="https://developmentseed.org/obspec/latest/">Obspec</a> defines a set of Python <a href="https://typing.python.org/en/latest/spec/protocol.html">protocols</a> for generically accessing data from object storage-like resources.</p>
+<p>This means you can easily read GeoTIFF data from <strong>any source</strong>, as long as you define two simple methods:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MyBackend</span><span class="p">:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_range_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the bytes in the given byte range.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_ranges_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">starts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">ends</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lengths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Buffer</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the bytes in the given byte ranges.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div>
+<p>Then just pass an instance of your backend into <a class="autorefs autorefs-internal" title="open
+
+
+  
+      async
+      classmethod
+  " href="../../../../../api/geotiff/#async_geotiff.GeoTIFF.open"><code>GeoTIFF.open</code></a>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTIFF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">obstore.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">S3Store</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">MyBackend</span><span class="p">()</span>
+<span class="n">geotiff</span> <span class="o">=</span> <span class="k">await</span> <span class="n">GeoTIFF</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;path/in/backend.tif&quot;</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">backend</span><span class="p">)</span>
+</code></pre></div>
+<p>Read the <a href="https://developmentseed.org/obspec/latest/blog/2025/06/25/introducing-obspec-a-python-protocol-for-interfacing-with-object-storage/">obspec release post</a> for more information.</p>
+<h3 id="more-tractable-data-caching">More tractable data caching<a class="headerlink" href="#more-tractable-data-caching" title="Permanent link">&para;</a></h3>
+<p>GDAL <a href="https://gdal.org/en/stable/development/rfc/rfc26_blockcache.html">provides a block cache</a> per file handle opened. The block cache persists chunks of bytes in memory that have already been read over the network, so that if a later request requires some of those same bytes, a smaller network request to the source is required.</p>
+<p>However GDAL's block cache is entirely a black box at the Python level. Rasterio is unable to access it, and the end user is unable to see how much data the cache is using. Similarly, the Python user can't change core cache behavior, aside from a few <a href="https://gdal.org/en/stable/user/configoptions.html">configuration settings</a>.</p>
+<p>Through Async-GeoTIFF's <a href="https://developmentseed.org/obspec/latest/">Obspec</a> integration, we expect to have composable caching layers available to any tool relying on Obspec, including Async-GeoTIFF. We're currently experimenting with ideas in the <a href="https://github.com/virtual-zarr/obspec-utils"><code>obspec-utils</code></a> repository, but the basic idea is</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buffer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">obspec</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetRangeAsync</span><span class="p">,</span> <span class="n">GetRangesAsync</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FetchClientProtocol</span><span class="p">(</span><span class="n">GetRange</span><span class="p">,</span> <span class="n">GetRangesAsync</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A new type wrapper for classes that implement both `GetRange` and</span>
+<span class="sd">    `GetRangesAsync`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SimpleCache</span><span class="p">(</span><span class="n">GetRange</span><span class="p">,</span> <span class="n">GetRangesAsync</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A simple cache for range requests that never evicts data.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">:</span> <span class="n">GetRange</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">Buffer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_range_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Buffer</span><span class="p">:</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get_range_async</span><span class="p">(</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
+            <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">response</span>
+        <span class="k">return</span> <span class="n">response</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_ranges_async</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">starts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">ends</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lengths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Buffer</span><span class="p">]:</span>
+        <span class="c1"># This is meant as pseudocode; a real implementation would check each</span>
+        <span class="c1"># range against the cache and merge ranges if possible, so as few</span>
+        <span class="c1"># requests as possible are made to the actual source</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">ends</span><span class="p">):</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_range_async</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span>
+</code></pre></div>
+<p>Now a user could easily choose to add the caching layer as a middleware:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">obstore.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">S3Store</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTIFF</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">S3Store</span><span class="p">(</span><span class="s2">&quot;bucket&quot;</span><span class="p">)</span>
+<span class="n">caching_wrapper</span> <span class="o">=</span> <span class="n">SimpleCache</span><span class="p">(</span><span class="n">store</span><span class="p">)</span>
+
+<span class="n">geotiff</span> <span class="o">=</span> <span class="k">await</span> <span class="n">GeoTIFF</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;path/to/image.tif&quot;</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">caching_wrapper</span><span class="p">)</span>
+</code></pre></div>
+<p>The user has full access to the <code>caching_wrapper</code> instance as well, if they want to inspect how much memory it's using or log what requests are made.</p>
+<p>Read the <a href="https://developmentseed.org/obspec/latest/blog/2025/06/25/introducing-obspec-a-python-protocol-for-interfacing-with-object-storage/">obspec release post</a> for more information.</p>
+<h2 id="full-type-hinting">Full type hinting<a class="headerlink" href="#full-type-hinting" title="Permanent link">&para;</a></h2>
+<p>The entire Async-GeoTIFF API is type-hinted as well as possible, leading to effective IDE integration.</p>
+<h2 id="growing-test-suite">Growing test suite<a class="headerlink" href="#growing-test-suite" title="Permanent link">&para;</a></h2>
+<p>We recently created <a href="https://github.com/developmentseed/geotiff-test-data">geotiff-test-data</a>, a repository to hold various sorts of GeoTIFF test files. This repo can then be used as a submodule to provide test fixtures for various repositories like Async-GeoTIFF and <a href="https://github.com/developmentseed/deck.gl-raster">deck.gl-raster</a> without growing the disk size of the primary Git repository.</p>
+<p>The majority of these test files are <a href="https://github.com/developmentseed/geotiff-test-data/blob/7d1cecbc91d909a3e2fa7d554b904831a5378d3c/rasterio_generated/write_utils.py#L19">written using Rasterio</a></p>
+<h2 id="future-work">Future work<a class="headerlink" href="#future-work" title="Permanent link">&para;</a></h2>
+<h3 id="rio-tiler-integration"><code>rio-tiler</code> integration<a class="headerlink" href="#rio-tiler-integration" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/cogeotiff/rio-tiler"><code>rio-tiler</code></a> is a foundational library for accessing raster data for tiled web maps. And <a href="https://github.com/developmentseed/titiler">Titiler</a>, a Development Seed project for dynamic server-side raster tile generation, is built largely on the backs of <code>rio-tiler</code>. The first step of integrating Async-GeoTIFF into the Titiler ecosystem will be adding support to <code>rio-tiler</code>.</p>
+<h3 id="better-api-for-handling-photometric-interpretations">Better API for handling photometric interpretations<a class="headerlink" href="#better-api-for-handling-photometric-interpretations" title="Permanent link">&para;</a></h3>
+<p>Currently Async-GeoTIFF doesn't decode data out of RGB color spaces like YCbCr, which doesn't match Rasterio's handling. We may add an API like <code>Array.to_rgb</code> to offer explicit conversion to an RGB color space.</p>
+<h3 id="more-compression-support">More compression support<a class="headerlink" href="#more-compression-support" title="Permanent link">&para;</a></h3>
+<p>We should support additional compressions like <a href="https://github.com/Esri/lerc">LERC</a> and JPEG XL.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+  
+
+
+
+      
+    </article>
+  </div>
+
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/developmentseed" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/company/development-seed" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tracking", "search.suggest", "search.share"], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
