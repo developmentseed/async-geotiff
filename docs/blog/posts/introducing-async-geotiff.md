@@ -13,7 +13,7 @@ We're introducing Async-GeoTIFF, a new high-level library for reading [GeoTIFF][
 
 According to the [2025 GDAL user survey][gdal_user_survey], almost 90% of respondents use GeoTIFFs and COGs as their primary raster data format. While [GDAL] and its Python bindings [Rasterio] are fantastic, rock-solid tools, they don't support asynchronous I/O and are missing some modern Python usability features, like type hinting.
 
-We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata parsing at scale to be **25x faster** with the underlying Rust-based [Async-TIFF] library than with Rasterio. We expect Async-GeoTIFF to bring similar performance improvements to concurrent server-side image downloading, such as in [Titiler].
+We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata parsing at scale to be **25x faster** with the underlying Rust-based [Async-TIFF] library than with Rasterio. We expect Async-GeoTIFF to bring similar performance improvements to concurrent server-side image reading, improving downstream applications such as [Titiler].
 
 [async-io-python]: https://realpython.com/async-io-python/
 [async-tiff]: https://github.com/developmentseed/async-tiff
@@ -28,9 +28,9 @@ We [previously found][pyasyncio-benchmark-results] concurrent GeoTIFF metadata p
 
 <!-- more -->
 
-## High-level and Easy-to-Use
+## High-Level and Easy-to-Use
 
-We can open up a GeoTIFF using the [Obstore] integration:
+We can open up a [GeoTIFF][async_geotiff.GeoTIFF] using the [Obstore] integration:
 
 ```py
 from async_geotiff import GeoTIFF
@@ -40,7 +40,7 @@ store = S3Store("sentinel-cogs", region="us-west-2", skip_signature=True)
 path = "sentinel-s2-l2a-cogs/12/S/UF/2022/6/S2B_12SUF_20220609_0_L2A/TCI.tif"
 geotiff = await GeoTIFF.open(path, store=store)
 ```
-On the `GeoTIFF` instance you have metadata about the image, such as its affine transform, exposed as [Affine] objects, and Coordinate Reference System, exposed as [PyProj] [CRS objects][pyproj_CRS].
+On the `GeoTIFF` instance you have metadata about the image, such as its affine transform, exposed as [Affine] objects, and Coordinate Reference System, exposed as [PyProj][PyProj] [CRS objects][pyproj_CRS].
 
 [Affine]: https://affine.readthedocs.io/en/latest/
 [PyProj]: https://pyproj4.github.io/pyproj/stable/
@@ -77,7 +77,7 @@ window = Window(col_off=0, row_off=0, width=512, height=512)
 array = await overview.read(window=window)
 ```
 
-The `read` method returns an `Array` instance, which has fields including `data`, `shape`, `mask`, `transform`, and `crs`.
+The `read` method returns an [`Array`][async_geotiff.Array] instance, which has fields including `data`, `shape`, `mask`, `transform`, and `crs`.
 
 ```py
 # The affine transform of the loaded array
@@ -144,7 +144,7 @@ array.as_masked()
 #   dtype=uint8)
 ```
 
-This should integrate cleanly into existing tools. For example, we can plot using [`rasterio.plot.show`](https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show) (requires `matplotlib`):
+This should integrate cleanly into existing tools. For example, we can plot using [`rasterio.plot.show`](https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show):
 
 ```py
 import rasterio.plot
@@ -156,7 +156,7 @@ rasterio.plot.show(array.data)
 
 ### TileMatrixSet integration with Morecantile
 
-With the [Morecantile] integration, we can create a [TileMatrixSet] representation of the internal COG tiles.
+With the [Morecantile] integration, we can create a [TileMatrixSet] representation of the internal COG tiles. This is useful for applications that want to traverse the internal COG tile pyramid structure.
 
 [Morecantile]: https://github.com/developmentseed/morecantile
 [TileMatrixSet]: https://docs.ogc.org/is/17-083r4/17-083r4.html
@@ -207,15 +207,15 @@ generate_tms(geotiff)
 
 ### Rust core
 
-The underlying [Async-TIFF] library is written in [Rust], a fast, low-level language that compiles to native machine code, meaning it can be just as fast as any C or C++ library. Rust is memory efficient and its compiler automatically catches many memory bugs.
+The underlying [Async-TIFF] library is written in [Rust], a fast, low-level language that compiles to native machine code. This means Async-TIFF and Async-GeoTIFF can be just as fast as any C or C++ library. Rust is memory efficient and its compiler automatically catches many memory bugs.
 
 [Rust]: https://rust-lang.org/
 
 ### Multithreaded image decoding by default
 
-With asynchronous I/O, it's important to ensure that no blocking tasks happen on the primary executor, because it means no other tasks can be responded to during that time.
+With asynchronous I/O, it's important to ensure that no blocking tasks happen on the primary executor, because those blocking tasks prevent any other asynchronous tasks from responding.
 
-Async-GeoTIFF splits up data fetching over the network and image decoding, ensuring any decoding is done in a Rust-based thread pool, leaving the executor responsive.
+Async-GeoTIFF splits up the I/O-bound network data fetching and CPU-bound image decoding, ensuring any decoding is done in a Rust-based thread pool, leaving the executor responsive.
 
 Async-GeoTIFF is thread-safe, though you shouldn't usually need to use it with a Python thread pool, as it's already using a Rust thread pool under the hood.
 
@@ -393,9 +393,9 @@ The majority of these test files are [written using Rasterio](https://github.com
 
 ### `rio-tiler` integration
 
-[`rio-tiler`] is a foundational library for accessing raster data for tiled web maps. And [Titiler], a Development Seed project for dynamic server-side raster tile generation, is built largely on the backs of `rio-tiler`. The first step of integrating Async-GeoTIFF into the Titiler ecosystem will be adding support to `rio-tiler`.
+[`rio-tiler`][rio-tiler] is a foundational library for accessing raster data for tiled web maps. And [Titiler], a Development Seed project for dynamic server-side raster tile generation, is built largely on the backs of `rio-tiler`. The first step of integrating Async-GeoTIFF into the Titiler ecosystem will be adding support to `rio-tiler`.
 
-[`rio-tiler`]: https://github.com/cogeotiff/rio-tiler
+[rio-tiler]: https://github.com/cogeotiff/rio-tiler
 
 ### Better API for handling photometric interpretations
 
