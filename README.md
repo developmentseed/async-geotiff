@@ -2,7 +2,10 @@
 
 Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python, wrapping the Rust-based [Async-TIFF][async-tiff] library.
 
-[**Documentation website.**][docs]
+[**Documentation website.**][docs] </br>
+[Release post for v0.1][release_01_post]
+
+[release_01_post]: https://developmentseed.org/async-geotiff/latest/blog/2026/02/03/introducing-async-geotiff/
 
 [docs]: https://developmentseed.org/async-geotiff/latest
 
