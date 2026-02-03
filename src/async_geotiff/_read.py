@@ -132,6 +132,7 @@ async def read(
         count=num_bands,
         transform=window_transform,
         crs=self.crs,
+        nodata=self.nodata,
     )
 
 
