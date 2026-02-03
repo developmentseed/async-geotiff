@@ -13,21 +13,27 @@ Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python
 
 - Asynchronous, read-only support for **GeoTIFF and COG** formats.
 - **High-level**, familiar, **easy to use** API.
-    - Integration with [NumPy], [Affine], and [PyProj].
-    - Access to full-resolution image and reduced-resolution overviews.
-    - Support for nodata values and nodata masks.
+    - Load from full-resolution or reduced-resolution overviews as 3D [NumPy] arrays.
+    - Simplify handling of nodata values and nodata masks with [NumPy] [masked arrays].
+    - Interpret Coordinate Reference Systems as [PyProj] CRS objects.
+    - Find pixels with geotransforms exposed as [Affine] matrices.
+    - Represent internal COG tile grids as [TileMatrixSets][TileMatrixSet] via [Morecantile] integration.
 - **Performance-focused**:
-    - Rust core ensures native performance.
-    - CPU-bound tasks like image decoding happen in a thread pool, without blocking the async executor.
+    - Rust core ensures compiled performance.
+    - CPU-bound image decoding happens in a thread pool, without blocking the async executor.
     - Buffer protocol integration for zero-copy data sharing between Rust and Python.
 - Lightweight with **no GDAL dependency**.
-- **Integration with [obstore]** for efficient data access on object stores, such as AWS S3, Google Cloud Storage, and Azure Storage.
+- Access data from AWS S3, Google Cloud Storage, and Azure Storage via **integration with [obstore]**.
 - **Full type hinting** for all operations.
 - **Broad decompression support**: Deflate, LZMA, LZW, JPEG, JPEG2000, WebP, ZSTD.
+- Support for **any arbitrary backend** via [obspec] protocols.
 
 [Affine]: https://affine.readthedocs.io/en/latest/
+[masked arrays]: https://numpy.org/doc/stable/reference/maskedarray.generic.html
+[Morecantile]: https://github.com/developmentseed/morecantile/
 [NumPy]: https://numpy.org/
 [PyProj]: https://pyproj4.github.io/pyproj/stable/
+[TileMatrixSet]: https://docs.ogc.org/is/17-083r4/17-083r4.html
 
 #### Anti-Features
 
