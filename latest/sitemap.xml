@@ -33,6 +33,10 @@
          <lastmod>2026-02-03</lastmod>
     </url>
     <url>
+         <loc>https://developmentseed.org/async-geotiff/latest/api/tile/</loc>
+         <lastmod>2026-02-03</lastmod>
+    </url>
+    <url>
          <loc>https://developmentseed.org/async-geotiff/latest/api/tms/</loc>
          <lastmod>2026-02-03</lastmod>
     </url>
