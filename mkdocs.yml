@@ -24,6 +24,7 @@ nav:
       - api/geotiff.md
       - api/overview.md
       - api/array.md
+      - api/tile.md
       - api/window.md
       - api/colormap.md
       - api/enums.md
