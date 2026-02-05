@@ -26,14 +26,14 @@ def projjson_schema() -> dict:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     ALL_TEST_IMAGES,
 )
 async def test_crs(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
@@ -42,14 +42,14 @@ async def test_crs(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
-    [("nlcd_landcover", "nlcd")],
+    ("variant", "file_name"),
+    [("nlcd", "nlcd_landcover")],
 )
 async def test_crs_custom_projjson_schema(
     load_geotiff: LoadGeoTIFF,
     projjson_schema: dict,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     """Validate that a user-defined CRS produces valid PROJJSON."""
     geotiff = await load_geotiff(file_name, variant=variant)
