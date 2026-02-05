@@ -7,19 +7,19 @@ import pytest
 from .image_list import ALL_TEST_IMAGES
 
 if TYPE_CHECKING:
-    from .conftest import LoadGeoTIFF, LoadRasterio, Variant
+    from .conftest import LoadGeoTIFF, LoadRasterio
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     ALL_TEST_IMAGES,
 )
 async def test_ifd_info(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
+    variant: str,
     file_name: str,
-    variant: Variant,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
 

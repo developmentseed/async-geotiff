@@ -8,21 +8,21 @@ import numpy as np
 import pytest
 
 if TYPE_CHECKING:
-    from .conftest import LoadGeoTIFF, LoadRasterio, Variant
+    from .conftest import LoadGeoTIFF, LoadRasterio
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     [
-        ("nlcd_landcover", "nlcd"),
+        ("nlcd", "nlcd_landcover"),
     ],
 )
 async def test_colormap(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
+    variant: str,
     file_name: str,
-    variant: Variant,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     colormap = geotiff.colormap
