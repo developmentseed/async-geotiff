@@ -11,7 +11,7 @@ from rasterio.windows import Window
 import async_geotiff
 from async_geotiff.exceptions import WindowError
 
-from .image_list import ALL_DATA_IMAGES
+from .image_list import ALL_COG_IMAGES, ALL_DATA_IMAGES
 
 if TYPE_CHECKING:
     from .conftest import LoadGeoTIFF, LoadRasterio
@@ -94,7 +94,7 @@ async def test_read_spanning_tiles(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("variant", "file_name"),
-    ALL_DATA_IMAGES,
+    ALL_COG_IMAGES,
 )
 async def test_read_overview(
     load_geotiff: LoadGeoTIFF,

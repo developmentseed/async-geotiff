@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-ALL_DATA_IMAGES: list[tuple[str, str]] = [
-    ("eox", "eox_cloudless"),
+ALL_COG_IMAGES: list[tuple[str, str]] = [
     ("nlcd", "nlcd_landcover"),
     ("rasterio", "float32_1band_lerc_block32"),
     ("rasterio", "float32_1band_lerc_deflate_block32"),
@@ -13,6 +12,12 @@ ALL_DATA_IMAGES: list[tuple[str, str]] = [
     ("rasterio", "uint8_rgb_webp_block64_cog"),
     ("rasterio", "uint8_rgba_webp_block64_cog"),
     ("umbra", "sydney_airport_GEC"),
+]
+"""All fixtures that have overviews where the data can be compared with rasterio."""
+
+ALL_DATA_IMAGES: list[tuple[str, str]] = [
+    *ALL_COG_IMAGES,
+    ("eox", "eox_cloudless"),
 ]
 """All fixtures where the data can be compared with rasterio."""
 
