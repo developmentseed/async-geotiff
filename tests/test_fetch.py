@@ -8,7 +8,11 @@ import numpy as np
 import pytest
 from rasterio.windows import Window
 
-from .image_list import ALL_DATA_IMAGES, ALL_MASKED_IMAGES
+from .image_list import (
+    ALL_COG_IMAGES,
+    ALL_DATA_IMAGES,
+    ALL_MASKED_IMAGES,
+)
 
 if TYPE_CHECKING:
     from .conftest import LoadGeoTIFF, LoadRasterio
@@ -40,7 +44,7 @@ async def test_fetch(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("variant", "file_name"),
-    ALL_DATA_IMAGES,
+    ALL_COG_IMAGES,
 )
 async def test_fetch_overview(
     load_geotiff: LoadGeoTIFF,
