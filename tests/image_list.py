@@ -8,6 +8,7 @@ ALL_DATA_IMAGES: list[tuple[str, str]] = [
     ("uint8_rgb_webp_block64_cog", "rasterio"),
     ("uint8_rgba_webp_block64_cog", "rasterio"),
     ("nlcd_landcover", "nlcd"),
+    ("sydney_airport_GEC", "umbra"),
 ]
 """All fixtures where the data can be compared with rasterio."""
 
