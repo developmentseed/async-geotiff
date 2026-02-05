@@ -14,7 +14,7 @@ from async_geotiff.exceptions import WindowError
 from .image_list import ALL_DATA_IMAGES
 
 if TYPE_CHECKING:
-    from .conftest import LoadGeoTIFF, LoadRasterio, Variant
+    from .conftest import LoadGeoTIFF, LoadRasterio
 
 
 @pytest.mark.asyncio
@@ -26,7 +26,7 @@ async def test_read_single_tile(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     """Test reading a window that fits within a single tile."""
     geotiff = await load_geotiff(file_name, variant=variant)
@@ -54,7 +54,7 @@ async def test_read_spanning_tiles(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     """Test reading a window that spans multiple tiles."""
     geotiff = await load_geotiff(file_name, variant=variant)
@@ -100,7 +100,7 @@ async def test_read_overview(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     """Test reading from an overview level."""
     geotiff = await load_geotiff(file_name, variant=variant)
@@ -158,7 +158,7 @@ async def test_read_full(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     array = await geotiff.read()
