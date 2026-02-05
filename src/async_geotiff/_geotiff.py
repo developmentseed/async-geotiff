@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import TYPE_CHECKING, Self, cast
+from typing import TYPE_CHECKING, Self
 
 import numpy as np
 from affine import Affine
@@ -161,17 +162,25 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
             lower left x, lower left y, upper right x, upper right y
 
         """
-        transform = self.transform
-
-        # TODO: Remove type casts once affine supports typing overloads for matmul
-        # https://github.com/rasterio/affine/pull/137
-        (left, top) = cast("tuple[float, float]", transform * (0, 0))
-        (right, bottom) = cast(
-            "tuple[float, float]",
-            transform * (self.width, self.height),
+        # Transform all four corners to handle rotated images correctly
+        # Pixel coordinates of corners: (x, y, 1) for affine transform
+        corners_pixel = np.array(
+            [
+                [0, 0, 1],
+                [self.width, 0, 1],
+                [0, self.height, 1],
+                [self.width, self.height, 1],
+            ],
         )
 
-        return (left, bottom, right, top)
+        # Apply affine transform: transform @ corners_pixel.T
+        transform_matrix = np.array(self.transform).reshape(3, 3)
+        corners_geo = (transform_matrix @ corners_pixel.T)[:2].T
+
+        min_x, min_y = corners_geo.min(axis=0)
+        max_x, max_y = corners_geo.max(axis=0)
+
+        return (float(min_x), float(min_y), float(max_x), float(max_y))
 
     # @property
     # def colorinterp(self) -> list[str]:
@@ -346,7 +355,11 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
     def res(self) -> tuple[float, float]:
         """Return the (width, height) of pixels in the units of its CRS."""
         transform = self.transform
-        return (transform.a, -transform.e)
+        # For rotated images, resolution is the magnitude of the pixel size
+        # calculated from the transform matrix components
+        res_x = math.sqrt(transform.a**2 + transform.d**2)
+        res_y = math.sqrt(transform.b**2 + transform.e**2)
+        return (res_x, res_y)
 
     @property
     def shape(self) -> tuple[int, int]:
