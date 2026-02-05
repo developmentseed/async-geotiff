@@ -55,7 +55,7 @@ async def test_fetch_overview(
 
     window = Window(0, 0, overview.tile_width, overview.tile_height)
     with load_rasterio(file_name, variant=variant, OVERVIEW_LEVEL=0) as rasterio_ds:
-        rasterio_data = rasterio_ds.read(window=window)
+        rasterio_data = rasterio_ds.read(window=window, boundless=True)
 
     np.testing.assert_array_equal(tile.array.data, rasterio_data)
     assert tile.array.crs == geotiff.crs
