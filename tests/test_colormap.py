@@ -13,16 +13,16 @@ if TYPE_CHECKING:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     [
-        ("nlcd_landcover", "nlcd"),
+        ("nlcd", "nlcd_landcover"),
     ],
 )
 async def test_colormap(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     colormap = geotiff.colormap

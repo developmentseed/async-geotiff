@@ -16,14 +16,14 @@ if TYPE_CHECKING:
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     ALL_DATA_IMAGES,
 )
 async def test_fetch(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
 
@@ -39,14 +39,14 @@ async def test_fetch(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     ALL_DATA_IMAGES,
 )
 async def test_fetch_overview(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     overview = geotiff.overviews[0]
@@ -63,14 +63,14 @@ async def test_fetch_overview(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     ALL_MASKED_IMAGES,
 )
 async def test_mask(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
 
@@ -90,14 +90,14 @@ async def test_mask(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     ALL_MASKED_IMAGES,
 )
 async def test_mask_overview(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     overview = geotiff.overviews[0]
@@ -118,14 +118,14 @@ async def test_mask_overview(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("file_name", "variant"),
+    ("variant", "file_name"),
     ALL_DATA_IMAGES,
 )
 async def test_fetch_as_masked(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
-    file_name: str,
     variant: str,
+    file_name: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
 
