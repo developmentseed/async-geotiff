@@ -2,6 +2,9 @@ from __future__ import annotations
 
 ALL_DATA_IMAGES: list[tuple[str, str]] = [
     ("nlcd", "nlcd_landcover"),
+    ("rasterio", "float32_1band_lerc_block32"),
+    ("rasterio", "float32_1band_lerc_deflate_block32"),
+    ("rasterio", "float32_1band_lerc_zstd_block32"),
     ("rasterio", "uint16_1band_lzw_block128_predictor2"),
     ("rasterio", "uint8_1band_deflate_block128_unaligned"),
     ("rasterio", "uint8_1band_lzma_block64"),
@@ -17,8 +20,6 @@ ALL_TEST_IMAGES: list[tuple[str, str]] = [
     *ALL_DATA_IMAGES,
     # YCbCr is auto-decompressed by rasterio
     ("vantor", "maxar_opendata_yellowstone_visual"),
-    # we don't support LERC yet
-    ("rasterio", "float32_1band_lerc_block32"),
 ]
 """All fixtures where we test metadata parsing."""
 
