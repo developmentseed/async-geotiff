@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 import pytest
 import rasterio
@@ -15,15 +15,13 @@ if TYPE_CHECKING:
 
     from rasterio.io import DatasetReader
 
-Variant = Literal["rasterio", "nlcd", "vantor"]
-
 
 class LoadGeoTIFF(Protocol):
     async def __call__(
         self,
         name: str,
         *,
-        variant: Variant = "rasterio",
+        variant: str = "rasterio",
     ) -> GeoTIFF: ...
 
 
@@ -33,7 +31,7 @@ class LoadRasterio(Protocol):
         self,
         name: str,
         *,
-        variant: Variant = "rasterio",
+        variant: str = "rasterio",
         OVERVIEW_LEVEL: int | None = None,  # noqa: N803
         **kwargs: Any,  # noqa: ANN401
     ) -> Generator[DatasetReader, None, None]: ...
@@ -56,17 +54,13 @@ def fixture_store(root_dir) -> LocalStore:
 
 @pytest.fixture
 def load_geotiff(fixture_store):
-    async def _load(name: str, *, variant: Variant = "rasterio") -> GeoTIFF:
+    async def _load(name: str, *, variant: str = "rasterio") -> GeoTIFF:
         path = "geotiff-test-data/"
 
         if variant == "rasterio":
             path += "rasterio_generated/fixtures/"
-        elif variant == "nlcd":
-            path += "real_data/nlcd/"
-        elif variant == "vantor":
-            path += "real_data/vantor/"
         else:
-            raise ValueError(f"Unknown variant: {variant}")
+            path += f"real_data/{variant}/"
 
         path = f"{path}{name}.tif"
         return await GeoTIFF.open(path=path, store=fixture_store)
@@ -80,19 +74,15 @@ def load_rasterio(root_dir):
     def _load(
         name: str,
         *,
-        variant: Variant = "rasterio",
+        variant: str = "rasterio",
         OVERVIEW_LEVEL: int | None = None,  # noqa: N803
         **kwargs: Any,  # noqa: ANN401
     ) -> Generator[DatasetReader, None, None]:
         path = f"{root_dir}/fixtures/geotiff-test-data/"
         if variant == "rasterio":
             path += "rasterio_generated/fixtures/"
-        elif variant == "nlcd":
-            path += "real_data/nlcd/"
-        elif variant == "vantor":
-            path += "real_data/vantor/"
         else:
-            raise ValueError(f"Unknown variant: {variant}")
+            path += f"real_data/{variant}/"
 
         path = f"{path}{name}.tif"
 

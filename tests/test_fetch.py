@@ -11,7 +11,7 @@ from rasterio.windows import Window
 from .image_list import ALL_DATA_IMAGES, ALL_MASKED_IMAGES
 
 if TYPE_CHECKING:
-    from .conftest import LoadGeoTIFF, LoadRasterio, Variant
+    from .conftest import LoadGeoTIFF, LoadRasterio
 
 
 @pytest.mark.asyncio
@@ -23,7 +23,7 @@ async def test_fetch(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
 
@@ -46,7 +46,7 @@ async def test_fetch_overview(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     overview = geotiff.overviews[0]
@@ -55,7 +55,7 @@ async def test_fetch_overview(
 
     window = Window(0, 0, overview.tile_width, overview.tile_height)
     with load_rasterio(file_name, variant=variant, OVERVIEW_LEVEL=0) as rasterio_ds:
-        rasterio_data = rasterio_ds.read(window=window)
+        rasterio_data = rasterio_ds.read(window=window, boundless=True)
 
     np.testing.assert_array_equal(tile.array.data, rasterio_data)
     assert tile.array.crs == geotiff.crs
@@ -70,7 +70,7 @@ async def test_mask(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
 
@@ -97,7 +97,7 @@ async def test_mask_overview(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
     overview = geotiff.overviews[0]
@@ -125,7 +125,7 @@ async def test_fetch_as_masked(
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     file_name: str,
-    variant: Variant,
+    variant: str,
 ) -> None:
     geotiff = await load_geotiff(file_name, variant=variant)
 
