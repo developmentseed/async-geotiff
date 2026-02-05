@@ -61,12 +61,8 @@ def load_geotiff(fixture_store):
 
         if variant == "rasterio":
             path += "rasterio_generated/fixtures/"
-        elif variant == "nlcd":
-            path += "real_data/nlcd/"
-        elif variant == "vantor":
-            path += "real_data/vantor/"
         else:
-            raise ValueError(f"Unknown variant: {variant}")
+            path += f"real_data/{variant}/"
 
         path = f"{path}{name}.tif"
         return await GeoTIFF.open(path=path, store=fixture_store)
@@ -87,12 +83,8 @@ def load_rasterio(root_dir):
         path = f"{root_dir}/fixtures/geotiff-test-data/"
         if variant == "rasterio":
             path += "rasterio_generated/fixtures/"
-        elif variant == "nlcd":
-            path += "real_data/nlcd/"
-        elif variant == "vantor":
-            path += "real_data/vantor/"
         else:
-            raise ValueError(f"Unknown variant: {variant}")
+            path += f"real_data/{variant}/"
 
         path = f"{path}{name}.tif"
 
