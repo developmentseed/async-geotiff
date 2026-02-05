@@ -12,29 +12,31 @@
         <meta name="author" content="Development Seed">
       
       
-        <link rel="canonical" href="https://developmentseed.org/async-geotiff/latest/">
+        <link rel="canonical" href="https://developmentseed.org/async-geotiff/latest/api/tms/">
       
       
+        <link rel="prev" href="../exceptions/">
       
-        <link rel="next" href="api/geotiff/">
+      
+        <link rel="next" href="../../blog/">
       
       
         
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>async-geotiff</title>
+        <title>TileMatrixSet integration - async-geotiff</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,11 +55,11 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="overrides/stylesheets/extra.css">
+      <link rel="stylesheet" href="../../overrides/stylesheets/extra.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -65,17 +67,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="async-geotiff" />
+<meta property="og:title" content="TileMatrixSet integration - async-geotiff" />
 <meta property="og:description" content="A fast, async GeoTIFF and Cloud-Optimized GeoTIFF (COG) reader for Python." />
-<meta property="og:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/index.png" />
+<meta property="og:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/api/tms.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://developmentseed.org/async-geotiff/latest/" />
+<meta property="og:url" content="https://developmentseed.org/async-geotiff/latest/api/tms/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="async-geotiff" />
+<meta property="twitter:title" content="TileMatrixSet integration - async-geotiff" />
 <meta property="twitter:description" content="A fast, async GeoTIFF and Cloud-Optimized GeoTIFF (COG) reader for Python." />
-<meta property="twitter:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/index.png" />
+<meta property="twitter:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/api/tms.png" />
 </head>
   
   
@@ -95,7 +97,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#async-geotiff" class="md-skip">
+        <a href="#tilematrixset-integration" class="md-skip">
           Skip to content
         </a>
       
@@ -110,12 +112,12 @@
             <div class="md-banner__inner md-grid md-typeset">
               
   You're not viewing the latest version.
-  <a href="../.">
+  <a href="../../..">
     <strong>Click here to go to latest.</strong>
   </a>
 
             </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
           </aside>
         
       </div>
@@ -127,9 +129,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="async-geotiff" class="md-header__button md-logo" aria-label="async-geotiff" data-md-component="logo">
+    <a href="../.." title="async-geotiff" class="md-header__button md-logo" aria-label="async-geotiff" data-md-component="logo">
       
-  <img src="assets/logo_no_text.png" alt="logo">
+  <img src="../../assets/logo_no_text.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -146,7 +148,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              async-geotiff
+              TileMatrixSet integration
             
           </span>
         </div>
@@ -279,9 +281,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="async-geotiff" class="md-nav__button md-logo" aria-label="async-geotiff" data-md-component="logo">
+    <a href="../.." title="async-geotiff" class="md-nav__button md-logo" aria-label="async-geotiff" data-md-component="logo">
       
-  <img src="assets/logo_no_text.png" alt="logo">
+  <img src="../../assets/logo_no_text.png" alt="logo">
 
     </a>
     async-geotiff
@@ -305,37 +307,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    async-geotiff
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -351,65 +326,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Features
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#anti-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Anti-Features
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -418,8 +334,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -445,11 +363,11 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -470,7 +388,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -488,7 +406,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/geotiff/" class="md-nav__link">
+      <a href="../geotiff/" class="md-nav__link">
         
   
   
@@ -516,7 +434,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/overview/" class="md-nav__link">
+      <a href="../overview/" class="md-nav__link">
         
   
   
@@ -544,7 +462,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/array/" class="md-nav__link">
+      <a href="../array/" class="md-nav__link">
         
   
   
@@ -572,7 +490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/tile/" class="md-nav__link">
+      <a href="../tile/" class="md-nav__link">
         
   
   
@@ -600,7 +518,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/window/" class="md-nav__link">
+      <a href="../window/" class="md-nav__link">
         
   
   
@@ -628,7 +546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/colormap/" class="md-nav__link">
+      <a href="../colormap/" class="md-nav__link">
         
   
   
@@ -656,7 +574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/enums/" class="md-nav__link">
+      <a href="../enums/" class="md-nav__link">
         
   
   
@@ -684,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="api/exceptions/" class="md-nav__link">
+      <a href="../exceptions/" class="md-nav__link">
         
   
   
@@ -709,10 +627,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="api/tms/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TileMatrixSet integration
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -728,6 +673,54 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#async_geotiff.tms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;tms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" tms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#async_geotiff.tms.generate_tms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;generate_tms
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -769,7 +762,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="blog/" class="md-nav__link ">
+            <a href="../../blog/" class="md-nav__link ">
               
   
   
@@ -866,7 +859,7 @@
   
   
     <li class="md-nav__item">
-      <a href="blog/archive/2026/" class="md-nav__link">
+      <a href="../../blog/archive/2026/" class="md-nav__link">
         
   
   
@@ -955,7 +948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="blog/category/release/" class="md-nav__link">
+      <a href="../../blog/category/release/" class="md-nav__link">
         
   
   
@@ -998,7 +991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="CHANGELOG/" class="md-nav__link">
+      <a href="../../CHANGELOG/" class="md-nav__link">
         
   
   
@@ -1045,22 +1038,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
+  <a href="#async_geotiff.tms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Features
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;tms
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Features">
+    <nav class="md-nav" aria-label=" tms">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#anti-features" class="md-nav__link">
+  <a href="#async_geotiff.tms.generate_tms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Anti-Features
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;generate_tms
       
     </span>
   </a>
@@ -1069,17 +1062,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example
-      
-    </span>
-  </a>
   
 </li>
       
@@ -1106,81 +1088,106 @@
   
 
 
-<h1 id="async-geotiff">async-geotiff<a class="headerlink" href="#async-geotiff" title="Permanent link">&para;</a></h1>
-<p>Fast, async GeoTIFF and <a href="https://cogeo.org/">Cloud-Optimized GeoTIFF</a> (COG) reader for Python, wrapping the Rust-based <a href="https://github.com/developmentseed/async-tiff">Async-TIFF</a> library.</p>
-<p><a href="https://developmentseed.org/async-geotiff/latest"><strong>Documentation website.</strong></a> </br>
-<a href="https://developmentseed.org/async-geotiff/latest/blog/2026/02/03/introducing-async-geotiff/">Release post for v0.1</a></p>
-<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
-<ul>
-<li>Asynchronous, read-only support for <strong>GeoTIFF and COG</strong> formats.</li>
-<li><strong>High-level</strong>, familiar, <strong>easy to use</strong> API.<ul>
-<li>Load from full-resolution or reduced-resolution overviews as 3D <a href="https://numpy.org/">NumPy</a> arrays.</li>
-<li>Simplify handling of nodata values and nodata masks with <a href="https://numpy.org/doc/stable/reference/maskedarray.generic.html">NumPy</a>.</li>
-<li>Interpret Coordinate Reference Systems as <a href="https://pyproj4.github.io/pyproj/stable/">PyProj</a> CRS objects.</li>
-<li>Find pixels with geotransforms exposed as <a href="https://affine.readthedocs.io/en/latest/">Affine</a> matrices.</li>
-<li>Represent internal COG tile grids as <a href="https://docs.ogc.org/is/17-083r4/17-083r4.html">TileMatrixSets</a> via <a href="https://github.com/developmentseed/morecantile/">Morecantile</a> integration.</li>
-</ul>
-</li>
-<li><strong>Performance-focused</strong>:<ul>
-<li>Rust core ensures compiled performance.</li>
-<li>CPU-bound image decoding happens in a thread pool, without blocking the async executor.</li>
-<li>Buffer protocol integration for zero-copy data sharing between Rust and Python.</li>
-</ul>
-</li>
-<li>Lightweight with <strong>no GDAL dependency</strong>.</li>
-<li>Access data from AWS S3, Google Cloud Storage, and Azure Storage via <strong>integration with <a href="https://developmentseed.org/obstore/latest/">obstore</a></strong>.</li>
-<li><strong>Full type hinting</strong> for all operations.</li>
-<li><strong>Broad decompression support</strong>: Deflate, JPEG, JPEG2000, LERC, LERC_DEFLATE, LERC_ZSTD, LZMA, LZW, WebP, ZSTD.</li>
-<li>Support for <strong>any arbitrary backend</strong> via <a href="https://developmentseed.org/obspec/latest/">obspec</a> protocols.</li>
-</ul>
-<h4 id="anti-features">Anti-Features<a class="headerlink" href="#anti-features" title="Permanent link">&para;</a></h4>
-<p><em>Features explicitly not in scope</em>:</p>
-<ul>
-<li>No pixel resampling.</li>
-<li>No warping/reprojection.</li>
-<li>Automatic resolution/overview selection</li>
-</ul>
-<p>Resampling and warping bring significant additional complexity and are out of scope for this library. Consider using Async-GeoTIFF to load data, then <a href="https://rasterio.readthedocs.io/">Rasterio</a>'s <a href="https://rasterio.readthedocs.io/en/stable/topics/memory-files.html">In-Memory Files</a> to resample or reproject data, if needed.</p>
-<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p>First create a "store", such as an <a href="https://developmentseed.org/obstore/latest/api/store/aws/#obstore.store.S3Store"><code>S3Store</code></a>, <a href="https://developmentseed.org/obstore/latest/api/store/gcs/#obstore.store.GCSStore"><code>GCSStore</code></a>, <a href="https://developmentseed.org/obstore/latest/api/store/azure/#obstore.store.AzureStore"><code>AzureStore</code></a>, or <a href="https://developmentseed.org/obstore/latest/api/store/local/#obstore.store.LocalStore"><code>LocalStore</code></a> for reading data from AWS S3, Google Cloud, Azure Storage, or local files. Refer to <a href="https://developmentseed.org/obstore/latest/">obstore</a> documentation for more information.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">obstore.store</span><span class="w"> </span><span class="kn">import</span> <span class="n">S3Store</span>
+<h1 id="tilematrixset-integration">TileMatrixSet integration<a class="headerlink" href="#tilematrixset-integration" title="Permanent link">&para;</a></h1>
 
-<span class="n">store</span> <span class="o">=</span> <span class="n">S3Store</span><span class="p">(</span><span class="s2">&quot;sentinel-cogs&quot;</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-west-2&quot;</span><span class="p">,</span> <span class="n">skip_signature</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;sentinel-s2-l2a-cogs/12/S/UF/2022/6/S2B_12SUF_20220609_0_L2A/TCI.tif&quot;</span>
-</code></pre></div>
-<p>Then open a <code>GeoTIFF</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoTIFF</span>
 
-<span class="n">geotiff</span> <span class="o">=</span> <span class="k">await</span> <span class="n">GeoTIFF</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>
-</code></pre></div>
-<p>On the <code>GeoTIFF</code> instance you have metadata about the image, such as its affine transform and Coordinate Reference System:</p>
-<div class="highlight"><pre><span></span><code><span class="n">geotiff</span><span class="o">.</span><span class="n">transform</span>
-<span class="c1"># Affine(10.0, 0.0, 300000.0,</span>
-<span class="c1">#        0.0, -10.0, 4100040.0)</span>
+<div class="doc doc-object doc-module">
 
-<span class="n">geotiff</span><span class="o">.</span><span class="n">crs</span>
-<span class="c1"># &lt;Projected CRS: EPSG:32612&gt;</span>
-<span class="c1"># Name: WGS 84 / UTM zone 12N</span>
-</code></pre></div>
-<p>For a COG, you can access the overviews, or reduced resolution versions, of the image:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Overviews are ordered from finest to coarsest resolution</span>
-<span class="c1"># In this case, access the second-coarsest resolution version of the image</span>
-<span class="n">overview</span> <span class="o">=</span> <span class="n">geotiff</span><span class="o">.</span><span class="n">overviews</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
-</code></pre></div>
-<p>Then we can read data from the image. This loads a 512-pixel square from the
-upper-left corner of the selected overview.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">async_geotiff</span><span class="w"> </span><span class="kn">import</span> <span class="n">Window</span>
 
-<span class="n">window</span> <span class="o">=</span> <span class="n">Window</span><span class="p">(</span><span class="n">col_off</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">row_off</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
-<span class="n">array</span> <span class="o">=</span> <span class="k">await</span> <span class="n">overview</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
-</code></pre></div>
-<p>This <code>Array</code> instance has <code>data</code>, <code>mask</code>, and some other metadata about the fetched array data.</p>
-<p>Plot, using <a href="https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show"><code>rasterio.plot.show</code></a> (requires <code>matplotlib</code>):</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">rasterio.plot</span>
 
-<span class="n">rasterio</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<h2 id="async_geotiff.tms" class="doc doc-heading">
+            <span class="doc doc-object-name doc-module-name">async_geotiff.tms</span>
+
+
+<a href="#async_geotiff.tms" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Generate a Tile Matrix Set from a GeoTIFF file, using <a href="https://developmentseed.org/morecantile/">Morecantile</a>.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="async_geotiff.tms.generate_tms" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">generate_tms</span>
+
+
+<a href="#async_geotiff.tms.generate_tms" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">generate_tms</span><span class="p">(</span><span class="n">geotiff</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="async_geotiff.GeoTIFF
+
+
+  
+      dataclass
+  " href="../geotiff/#async_geotiff.GeoTIFF">GeoTIFF</a></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">(</span><span class="n"><a class="autorefs autorefs-external" title="uuid.uuid4" href="https://docs.python.org/3/library/uuid.html#uuid.uuid4">uuid4</a></span><span class="p">()))</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="morecantile.models.TileMatrixSet" href="https://developmentseed.org/morecantile/api/morecantile/models/#morecantile.models.TileMatrixSet">TileMatrixSet</a></span>
 </code></pre></div>
-<p><img alt="" src="assets/sentinel_2_plot.jpg" /></p>
+
+    <div class="doc doc-contents ">
+
+        <p>Generate a <a href="https://docs.ogc.org/is/17-083r4/17-083r4.html">Tile Matrix Set</a> from a GeoTIFF file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>geotiff</code></b>
+              (<code><a class="autorefs autorefs-internal" title="async_geotiff.GeoTIFF
+
+
+  
+      dataclass
+  " href="../geotiff/#async_geotiff.GeoTIFF">GeoTIFF</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The GeoTIFF file to generate the TMS from.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Other Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code>id</code></b>
+              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>The ID to assign to the Tile Matrix Set.</p>
+          </div>
+        </li>
+    </ul>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 
@@ -1258,10 +1265,10 @@ upper-left corner of the selected overview.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tracking", "search.suggest", "search.share"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tracking", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
