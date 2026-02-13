@@ -12,8 +12,8 @@ from async_geotiff._transform import HasTransform
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from async_tiff import TIFF, ImageFileDirectory
     from async_tiff import Array as AsyncTiffArray
+    from async_tiff import ImageFileDirectory
     from pyproj import CRS
 
 
@@ -28,11 +28,6 @@ class HasTiffReference(HasTransform, Protocol):
     @property
     def _mask_ifd(self) -> ImageFileDirectory | None:
         """The mask IFD for this image (index, IFD), if any."""
-        ...
-
-    @property
-    def _tiff(self) -> TIFF:
-        """A reference to the underlying TIFF object."""
         ...
 
     @property
