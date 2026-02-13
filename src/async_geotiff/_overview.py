@@ -15,8 +15,6 @@ if TYPE_CHECKING:
 
     from async_geotiff import GeoTIFF
 
-# ruff: noqa: SLF001
-
 
 @dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
 class Overview(ReadMixin, FetchTileMixin, TransformMixin):
