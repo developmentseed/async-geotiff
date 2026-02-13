@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass, field
 from functools import cached_property
 from typing import TYPE_CHECKING, Self
@@ -350,16 +349,6 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
                 return PhotometricInterpretation.CIELAB
 
         return None
-
-    @property
-    def res(self) -> tuple[float, float]:
-        """Return the (width, height) of pixels in the units of its CRS."""
-        transform = self.transform
-        # For rotated images, resolution is the magnitude of the pixel size
-        # calculated from the transform matrix components
-        res_x = math.sqrt(transform.a**2 + transform.d**2)
-        res_y = math.sqrt(transform.b**2 + transform.e**2)
-        return (res_x, res_y)
 
     @property
     def shape(self) -> tuple[int, int]:

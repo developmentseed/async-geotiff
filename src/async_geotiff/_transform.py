@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from math import floor
 from typing import TYPE_CHECKING, Literal, Protocol
 
@@ -47,6 +48,18 @@ class TransformMixin:
         col_frac, row_frac = inv_transform * (x, y)  # type: ignore[misc]
 
         return (op(row_frac), op(col_frac))
+
+    @property
+    def res(self: HasTransform) -> tuple[float, float]:
+        """Return the (width, height) of pixels in the units of its CRS."""
+        transform = self.transform
+
+        # For rotated images, resolution is the magnitude of the pixel size
+        # calculated from the transform matrix components
+        res_x = math.sqrt(transform.a**2 + transform.d**2)
+        res_y = math.sqrt(transform.b**2 + transform.e**2)
+
+        return (res_x, res_y)
 
     def xy(
         self: HasTransform,
