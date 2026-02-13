@@ -10,12 +10,10 @@ from async_geotiff._read import ReadMixin
 from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
-    from async_tiff import TIFF, GeoKeyDirectory, ImageFileDirectory
+    from async_tiff import GeoKeyDirectory, ImageFileDirectory
     from pyproj.crs import CRS
 
     from async_geotiff import GeoTIFF
-
-# ruff: noqa: SLF001
 
 
 @dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
@@ -60,11 +58,6 @@ class Overview(ReadMixin, FetchTileMixin, TransformMixin):
         object.__setattr__(instance, "_mask_ifd", mask_ifd)
 
         return instance
-
-    @property
-    def _tiff(self) -> TIFF:
-        """A reference to the underlying TIFF object."""
-        return self._geotiff._tiff
 
     @property
     def crs(self) -> CRS:
