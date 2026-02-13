@@ -89,7 +89,6 @@ class FetchTileMixin:
         return Tile(
             x=x,
             y=y,
-            _ifd=self._ifd,
             array=array,
         )
 
@@ -140,7 +139,6 @@ class FetchTileMixin:
             tile = Tile(
                 x=x,
                 y=y,
-                _ifd=self._ifd,
                 array=array,
             )
             final_tiles.append(tile)
