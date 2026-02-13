@@ -4,8 +4,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from async_tiff import ImageFileDirectory
-
     from async_geotiff._array import Array
 
 
@@ -18,9 +16,6 @@ class Tile:
 
     y: int
     """The tile row index in the GeoTIFF or overview."""
-
-    _ifd: ImageFileDirectory
-    """A reference to the IFD this tile belongs to."""
 
     array: Array
     """The array data for this tile."""
