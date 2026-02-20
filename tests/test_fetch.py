@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -118,6 +119,57 @@ async def test_mask_overview(
         mask = rasterio_ds.dataset_mask(window=window)
 
     np.testing.assert_array_equal(tile.array.mask, mask.astype(np.bool_))
+
+
+@pytest.mark.asyncio
+async def test_fetch_tile_bounded(
+    load_geotiff: LoadGeoTIFF,
+    load_rasterio: LoadRasterio,
+) -> None:
+    """Edge tiles clipped to image bounds match rasterio's non-boundless read."""
+    file_name = "uint8_1band_deflate_block128_unaligned"
+    geotiff = await load_geotiff(file_name)
+
+    tiles_across = math.ceil(geotiff.width / geotiff.tile_width)
+    tiles_down = math.ceil(geotiff.height / geotiff.tile_height)
+
+    # Test every edge tile (last column and last row)
+    edge_tiles = [
+        (x, y)
+        for x in range(tiles_across)
+        for y in range(tiles_down)
+        if x == tiles_across - 1 or y == tiles_down - 1
+    ]
+
+    with load_rasterio(file_name) as rasterio_ds:
+        for tx, ty in edge_tiles:
+            tile = await geotiff.fetch_tile(tx, ty, boundless=False)
+
+            expected_width = (
+                min((tx + 1) * geotiff.tile_width, geotiff.width)
+                - tx * geotiff.tile_width
+            )
+            expected_height = (
+                min((ty + 1) * geotiff.tile_height, geotiff.height)
+                - ty * geotiff.tile_height
+            )
+
+            assert tile.array.width == expected_width, f"tile ({tx},{ty}) width"
+            assert tile.array.height == expected_height, f"tile ({tx},{ty}) height"
+
+            window = Window(
+                tx * geotiff.tile_width,
+                ty * geotiff.tile_height,
+                expected_width,
+                expected_height,
+            )
+            rasterio_data = rasterio_ds.read(window=window, boundless=False)
+
+            np.testing.assert_array_equal(
+                tile.array.data,
+                rasterio_data,
+                err_msg=f"tile ({tx},{ty}) data mismatch",
+            )
 
 
 @pytest.mark.asyncio
