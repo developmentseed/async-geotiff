@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from async_tiff import Array as AsyncTiffArray
     from numpy.typing import NDArray
     from pyproj.crs import CRS
+    from xarray import DataArray
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
@@ -119,3 +120,31 @@ class Array(TransformMixin):
             return np.ma.masked_equal(self.data, self.nodata)
 
         return MaskedArray(self.data)
+
+    def as_xarray(self) -> DataArray:
+        """Return the array as an xarray DataArray."""
+        import xarray as xr
+        import xproj as _  # noqa: F401
+        from rasterix import RasterIndex
+
+        index = RasterIndex.from_transform(
+            self.transform,
+            width=self.width,
+            height=self.height,
+            crs=self.crs,
+        )
+
+        # TODO: figure out how to represent CRS, nodata, mask.
+        # We shouldn't depend on rioxarray because that requires rasterio
+        #
+        da = xr.DataArray(
+            self.data,
+            dims=["band", "y", "x"],
+            coords={
+                "band": np.arange(1, self.count + 1),
+                **xr.Coordinates.from_xindex(index),
+            },
+        )
+
+        # Assign CRS with xproj?
+        return da.proj.assign_crs(self.crs)
