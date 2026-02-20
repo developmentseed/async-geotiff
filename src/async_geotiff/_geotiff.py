@@ -85,6 +85,10 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         object.__setattr__(self, "_primary_ifd", first_ifd)
         object.__setattr__(self, "_gkd", gkd)
 
+        for ifd in tiff.ifds:
+            if ifd.tile_height is None or ifd.tile_width is None:
+                raise ValueError("Only tiled GeoTIFFs are supported.")
+
         # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
         # Data IFDs are indexed by (width, height) for matching with masks
         data_ifds: dict[tuple[int, int], ImageFileDirectory] = {}
@@ -297,14 +301,6 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return Interleaving.PIXEL
 
     @property
-    def is_tiled(self) -> bool:
-        """Check if the dataset is tiled."""
-        return (
-            self._primary_ifd.tile_height is not None
-            and self._primary_ifd.tile_width is not None
-        )
-
-    @property
     def nodata(self) -> float | None:
         """The dataset's single nodata value."""
         nodata = self._primary_ifd.gdal_nodata
@@ -359,18 +355,16 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the image."""
-        if self._primary_ifd.tile_height is None:
-            raise ValueError("The image is not tiled.")
-
-        return self._primary_ifd.tile_height
+        tile_height = self._ifd.tile_height
+        assert tile_height is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the image."""
-        if self._primary_ifd.tile_width is None:
-            raise ValueError("The image is not tiled.")
-
-        return self._primary_ifd.tile_width
+        tile_width = self._ifd.tile_width
+        assert tile_width is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_width
 
     @property
     def transform(self) -> Affine:
