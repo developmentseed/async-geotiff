@@ -72,12 +72,16 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the overview."""
-        return self._geotiff.tile_height
+        tile_height = self._ifd.tile_height
+        assert tile_height is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the overview."""
-        return self._geotiff.tile_width
+        tile_width = self._ifd.tile_width
+        assert tile_width is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_width
 
     @property
     def transform(self) -> Affine:
