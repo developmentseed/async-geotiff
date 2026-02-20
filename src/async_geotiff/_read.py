@@ -24,16 +24,6 @@ if TYPE_CHECKING:
 class CanFetchTiles(HasTiffReference, Protocol):
     """Protocol for objects that can fetch tiles."""
 
-    @property
-    def height(self) -> int:
-        """The height of the image in pixels."""
-        ...
-
-    @property
-    def width(self) -> int:
-        """The width of the image in pixels."""
-        ...
-
     async def fetch_tiles(
         self,
         xy: Sequence[tuple[int, int]],

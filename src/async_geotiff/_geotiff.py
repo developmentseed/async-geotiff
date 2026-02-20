@@ -20,6 +20,7 @@ from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._overview import Overview
 from async_geotiff._read import ReadMixin
+from async_geotiff._tile import TiledMixin
 from async_geotiff._transform import TransformMixin
 from async_geotiff.colormap import Colormap
 from async_geotiff.enums import Compression, Interleaving, PhotometricInterpretation
@@ -30,7 +31,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
-class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
+class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     """A class representing a GeoTIFF image."""
 
     _crs: CRS | None = None
