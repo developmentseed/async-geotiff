@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -129,9 +128,7 @@ async def test_fetch_tile_bounded(
     """Edge tiles clipped to image bounds match rasterio's non-boundless read."""
     file_name = "uint8_1band_deflate_block128_unaligned"
     geotiff = await load_geotiff(file_name)
-
-    tiles_across = math.ceil(geotiff.width / geotiff.tile_width)
-    tiles_down = math.ceil(geotiff.height / geotiff.tile_height)
+    tiles_across, tiles_down = geotiff.tile_count
 
     # Test every edge tile (last column and last row)
     edge_tiles = [

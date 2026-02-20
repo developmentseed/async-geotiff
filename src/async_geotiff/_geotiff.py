@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
 import numpy as np
@@ -20,6 +19,7 @@ from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._overview import Overview
 from async_geotiff._read import ReadMixin
+from async_geotiff._tile import TiledMixin
 from async_geotiff._transform import TransformMixin
 from async_geotiff.colormap import Colormap
 from async_geotiff.enums import Compression, Interleaving, PhotometricInterpretation
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
-class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
+class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     """A class representing a GeoTIFF image."""
 
     _crs: CRS | None = None
@@ -83,6 +83,10 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         object.__setattr__(self, "_tiff", tiff)
         object.__setattr__(self, "_primary_ifd", first_ifd)
         object.__setattr__(self, "_gkd", gkd)
+
+        for ifd in tiff.ifds:
+            if ifd.tile_height is None or ifd.tile_width is None:
+                raise ValueError("Only tiled GeoTIFFs are supported.")
 
         # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
         # Data IFDs are indexed by (width, height) for matching with masks
@@ -152,34 +156,6 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
             multiplier=multiplier,
         )
         return cls(tiff)
-
-    @cached_property
-    def bounds(self) -> tuple[float, float, float, float]:
-        """Return the bounds of the dataset in the units of its CRS.
-
-        Returns:
-            lower left x, lower left y, upper right x, upper right y
-
-        """
-        # Transform all four corners to handle rotated images correctly
-        # Pixel coordinates of corners: (x, y, 1) for affine transform
-        corners_pixel = np.array(
-            [
-                [0, 0, 1],
-                [self.width, 0, 1],
-                [0, self.height, 1],
-                [self.width, self.height, 1],
-            ],
-        )
-
-        # Apply affine transform: transform @ corners_pixel.T
-        transform_matrix = np.array(self.transform).reshape(3, 3)
-        corners_geo = (transform_matrix @ corners_pixel.T)[:2].T
-
-        min_x, min_y = corners_geo.min(axis=0)
-        max_x, max_y = corners_geo.max(axis=0)
-
-        return (float(min_x), float(min_y), float(max_x), float(max_y))
 
     # @property
     # def colorinterp(self) -> list[str]:
@@ -296,14 +272,6 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
         return Interleaving.PIXEL
 
     @property
-    def is_tiled(self) -> bool:
-        """Check if the dataset is tiled."""
-        return (
-            self._primary_ifd.tile_height is not None
-            and self._primary_ifd.tile_width is not None
-        )
-
-    @property
     def nodata(self) -> float | None:
         """The dataset's single nodata value."""
         nodata = self._primary_ifd.gdal_nodata
@@ -358,18 +326,16 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the image."""
-        if self._primary_ifd.tile_height is None:
-            raise ValueError("The image is not tiled.")
-
-        return self._primary_ifd.tile_height
+        tile_height = self._ifd.tile_height
+        assert tile_height is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the image."""
-        if self._primary_ifd.tile_width is None:
-            raise ValueError("The image is not tiled.")
-
-        return self._primary_ifd.tile_width
+        tile_width = self._ifd.tile_width
+        assert tile_width is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_width
 
     @property
     def transform(self) -> Affine:

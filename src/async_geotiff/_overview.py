@@ -7,6 +7,7 @@ from affine import Affine
 
 from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._read import ReadMixin
+from async_geotiff._tile import TiledMixin
 from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(init=False, frozen=True, kw_only=True, eq=False, repr=False)
-class Overview(ReadMixin, FetchTileMixin, TransformMixin):
+class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     """An overview level of a Cloud-Optimized GeoTIFF image."""
 
     _geotiff: GeoTIFF
@@ -71,12 +72,16 @@ class Overview(ReadMixin, FetchTileMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the overview."""
-        return self._geotiff.tile_height
+        tile_height = self._ifd.tile_height
+        assert tile_height is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the overview."""
-        return self._geotiff.tile_width
+        tile_width = self._ifd.tile_width
+        assert tile_width is not None, "Constructor validated that images are tiled"  # noqa: S101
+        return tile_width
 
     @property
     def transform(self) -> Affine:
