@@ -50,6 +50,16 @@ class HasTiffReference(HasTransform, Protocol):
         """The nodata value for the image, if any."""
         ...
 
+    @property
+    def width(self) -> int:
+        """The width of the image in pixels."""
+        ...
+
+    @property
+    def height(self) -> int:
+        """The height of the image in pixels."""
+        ...
+
 
 class FetchTileMixin:
     """Mixin for fetching tiles from a GeoTIFF.
@@ -61,7 +71,22 @@ class FetchTileMixin:
         self: HasTiffReference,
         x: int,
         y: int,
+        *,
+        boundless: bool = True,
     ) -> Tile:
+        """Fetch a single tile from the GeoTIFF.
+
+        Args:
+            x: The x-coordinate of the tile.
+            y: The y-coordinate of the tile.
+
+        Keyword Args:
+            boundless: If False, clip edge tiles to the image bounds. Defaults to True.
+
+        Returns:
+            A Tile object containing the fetched tile data.
+
+        """
         tile_fut = self._ifd.fetch_tile(x, y)
 
         mask_data: AsyncTiffArray | None = None
@@ -86,6 +111,10 @@ class FetchTileMixin:
             transform=tile_transform,
             nodata=self.nodata,
         )
+
+        if not boundless:
+            array = _clip_to_image_bounds(self, x, y, array)
+
         return Tile(
             x=x,
             y=y,
@@ -95,11 +124,16 @@ class FetchTileMixin:
     async def fetch_tiles(
         self: HasTiffReference,
         xy: Sequence[tuple[int, int]],
+        *,
+        boundless: bool = True,
     ) -> list[Tile]:
         """Fetch multiple tiles from this overview.
 
         Args:
             xy: The (x, y) coordinates of the tiles.
+
+        Keyword Args:
+            boundless: If False, clip edge tiles to the image bounds.
 
         """
         tiles_fut = self._ifd.fetch_tiles(xy)
@@ -136,6 +170,10 @@ class FetchTileMixin:
                 transform=tile_transform,
                 nodata=self.nodata,
             )
+
+            if not boundless:
+                array = _clip_to_image_bounds(self, x, y, array)
+
             tile = Tile(
                 x=x,
                 y=y,
@@ -144,3 +182,43 @@ class FetchTileMixin:
             final_tiles.append(tile)
 
         return final_tiles
+
+
+def _clip_to_image_bounds(
+    self: HasTiffReference,
+    x: int,
+    y: int,
+    array: Array,
+) -> Array:
+    """Clip a decoded tile array to the valid image bounds.
+
+    Edge tiles in a COG are always encoded at the full tile size, with the
+    out-of-bounds region zero-padded. When ``boundless=False`` is requested,
+    this function copies only the valid pixel sub-rectangle into a new array,
+    returning an Array whose width/height match the actual image content.
+
+    Interior tiles (where the tile fits entirely within the image) are
+    returned unchanged.
+    """
+    clipped_width = min((x + 1) * self.tile_width, self.width) - x * self.tile_width
+    clipped_height = min((y + 1) * self.tile_height, self.height) - y * self.tile_height
+
+    if clipped_width == self.tile_width and clipped_height == self.tile_height:
+        return array
+
+    # data shape is (bands, height, width)
+    clipped_data = array.data[:, :clipped_height, :clipped_width]
+    clipped_mask = (
+        array.mask[:clipped_height, :clipped_width] if array.mask is not None else None
+    )
+
+    return Array(
+        data=clipped_data,
+        mask=clipped_mask,
+        width=clipped_width,
+        height=clipped_height,
+        count=array.count,
+        transform=array.transform,
+        crs=array.crs,
+        nodata=array.nodata,
+    )
