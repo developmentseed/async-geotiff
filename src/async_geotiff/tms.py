@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -22,8 +21,6 @@ from morecantile.utils import meters_per_unit
 from pydantic import AnyUrl
 
 if TYPE_CHECKING:
-    from typing import Literal
-
     import pyproj
 
     from async_geotiff import GeoTIFF
@@ -49,45 +46,29 @@ def generate_tms(
         id: The ID to assign to the Tile Matrix Set.
 
     """
-    bounds = geotiff.bounds
-    crs = geotiff.crs
-    tr = geotiff.transform
-
-    mpu = meters_per_unit(crs)
-
-    corner_of_origin: Literal["bottomLeft", "topLeft"] = (
-        "bottomLeft" if tr.e > 0 else "topLeft"
-    )
+    mpu = meters_per_unit(geotiff.crs)
 
     tile_matrices: list[TileMatrix] = []
-
     for idx, overview in enumerate(reversed(geotiff.overviews)):
-        overview_tr = overview.transform
-        ovr_blockxsize = overview.tile_width
-        ovr_blockysize = overview.tile_height
-
-        if ovr_blockxsize is None or ovr_blockysize is None:
-            raise ValueError("GeoTIFF overviews must be tiled to generate a TMS.")
+        ovr_tr = overview.transform
+        ovr_matrix_width, ovr_matrix_height = overview.tile_count
 
         tile_matrices.append(
             TileMatrix(
                 id=str(idx),
-                scaleDenominator=overview_tr.a * mpu / _SCREEN_PIXEL_SIZE,
-                cellSize=overview_tr.a,
-                cornerOfOrigin=corner_of_origin,
-                pointOfOrigin=(overview_tr.c, overview_tr.f),
-                tileWidth=ovr_blockxsize,
-                tileHeight=ovr_blockysize,
-                matrixWidth=math.ceil(overview.width / ovr_blockxsize),
-                matrixHeight=math.ceil(overview.height / ovr_blockysize),
+                scaleDenominator=ovr_tr.a * mpu / _SCREEN_PIXEL_SIZE,
+                cellSize=ovr_tr.a,
+                cornerOfOrigin="bottomLeft" if ovr_tr.e > 0 else "topLeft",
+                pointOfOrigin=(ovr_tr.c, ovr_tr.f),
+                tileWidth=overview.tile_width,
+                tileHeight=overview.tile_height,
+                matrixWidth=ovr_matrix_width,
+                matrixHeight=ovr_matrix_height,
             ),
         )
 
-    blockxsize = geotiff.tile_width
-    blockysize = geotiff.tile_height
-
-    if blockxsize is None or blockysize is None:
-        raise ValueError("GeoTIFF must be tiled to generate a TMS.")
+    matrix_width, matrix_height = geotiff.tile_count
+    tr = geotiff.transform
 
     # Add the full-resolution level last
     tile_matrices.append(
@@ -95,17 +76,17 @@ def generate_tms(
             id=str(len(geotiff.overviews)),
             scaleDenominator=tr.a * mpu / _SCREEN_PIXEL_SIZE,
             cellSize=tr.a,
-            cornerOfOrigin=corner_of_origin,
+            cornerOfOrigin="bottomLeft" if tr.e > 0 else "topLeft",
             pointOfOrigin=(tr.c, tr.f),
-            tileWidth=blockxsize,
-            tileHeight=blockysize,
-            matrixWidth=math.ceil(geotiff.width / blockxsize),
-            matrixHeight=math.ceil(geotiff.height / blockysize),
+            tileWidth=geotiff.tile_width,
+            tileHeight=geotiff.tile_height,
+            matrixWidth=matrix_width,
+            matrixHeight=matrix_height,
         ),
     )
 
-    bbox = BoundingBox(*bounds)
-    tms_crs = _parse_crs(crs)
+    bbox = BoundingBox(*geotiff.bounds)
+    tms_crs = _parse_crs(geotiff.crs)
 
     return TileMatrixSet(
         title="Generated TMS",
