@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING, Protocol
 
-import numpy as np
 from affine import Affine
 
 from async_geotiff._array import Array
@@ -208,11 +207,9 @@ def _clip_to_image_bounds(
         return array
 
     # data shape is (bands, height, width)
-    clipped_data = np.ascontiguousarray(array.data[:, :clipped_height, :clipped_width])
+    clipped_data = array.data[:, :clipped_height, :clipped_width]
     clipped_mask = (
-        np.ascontiguousarray(array.mask[:clipped_height, :clipped_width])
-        if array.mask is not None
-        else None
+        array.mask[:clipped_height, :clipped_width] if array.mask is not None else None
     )
 
     return Array(
