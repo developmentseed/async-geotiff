@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from functools import cached_property
 from typing import TYPE_CHECKING, Self
 
 import numpy as np
@@ -157,34 +156,6 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
             multiplier=multiplier,
         )
         return cls(tiff)
-
-    @cached_property
-    def bounds(self) -> tuple[float, float, float, float]:
-        """Return the bounds of the dataset in the units of its CRS.
-
-        Returns:
-            lower left x, lower left y, upper right x, upper right y
-
-        """
-        # Transform all four corners to handle rotated images correctly
-        # Pixel coordinates of corners: (x, y, 1) for affine transform
-        corners_pixel = np.array(
-            [
-                [0, 0, 1],
-                [self.width, 0, 1],
-                [0, self.height, 1],
-                [self.width, self.height, 1],
-            ],
-        )
-
-        # Apply affine transform: transform @ corners_pixel.T
-        transform_matrix = np.array(self.transform).reshape(3, 3)
-        corners_geo = (transform_matrix @ corners_pixel.T)[:2].T
-
-        min_x, min_y = corners_geo.min(axis=0)
-        max_x, max_y = corners_geo.max(axis=0)
-
-        return (float(min_x), float(min_y), float(max_x), float(max_y))
 
     # @property
     # def colorinterp(self) -> list[str]:
