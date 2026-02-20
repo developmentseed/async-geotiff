@@ -29,16 +29,10 @@ class Overview(ReadMixin, FetchTileMixin, TransformMixin):
     """
 
     _ifd: ImageFileDirectory
-    """The IFD for this overview level.
-
-    (positional index of the IFD in the TIFF file, IFD object)
-    """
+    """The IFD for this overview level."""
 
     _mask_ifd: ImageFileDirectory | None
-    """The IFD for the mask associated with this overview level, if any.
-
-    (positional index of the IFD in the TIFF file, IFD object)
-    """
+    """The IFD for the mask associated with this overview level, if any."""
 
     @classmethod
     def _create(
@@ -94,9 +88,9 @@ class Overview(ReadMixin, FetchTileMixin, TransformMixin):
         """
         full_transform = self._geotiff.transform
 
-        overview_width = self._ifd.image_width
+        overview_width = self.width
         full_width = self._geotiff.width
-        overview_height = self._ifd.image_height
+        overview_height = self.height
         full_height = self._geotiff.height
 
         scale_x = full_width / overview_width
