@@ -124,6 +124,7 @@ class Array(TransformMixin):
     def as_xarray(self) -> DataArray:
         """Return the array as an xarray DataArray."""
         import xarray as xr
+        import xproj as _  # noqa: F401
         from rasterix import RasterIndex
 
         index = RasterIndex.from_transform(
@@ -133,7 +134,10 @@ class Array(TransformMixin):
             crs=self.crs,
         )
 
-        return xr.DataArray(
+        # TODO: figure out how to represent CRS, nodata, mask.
+        # We shouldn't depend on rioxarray because that requires rasterio
+        #
+        da = xr.DataArray(
             self.data,
             dims=["band", "y", "x"],
             coords={
@@ -141,3 +145,6 @@ class Array(TransformMixin):
                 **xr.Coordinates.from_xindex(index),
             },
         )
+
+        # Assign CRS with xproj?
+        return da.proj.assign_crs(self.crs)
