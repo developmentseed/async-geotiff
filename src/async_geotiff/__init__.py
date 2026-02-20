@@ -3,7 +3,7 @@
 [cogeo]: https://cogeo.org/
 """
 
-from . import exceptions
+from . import exceptions, versions
 from ._array import Array
 from ._geotiff import GeoTIFF
 from ._overview import Overview
@@ -19,4 +19,5 @@ __all__ = [
     "Window",
     "__version__",
     "exceptions",
+    "versions",
 ]
