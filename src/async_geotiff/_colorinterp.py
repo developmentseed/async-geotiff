@@ -18,6 +18,7 @@ def infer_color_interpretation(  # noqa: PLR0911
     # https://github.com/developmentseed/async-tiff/issues/252
     extra_samples: Sequence[int],
 ) -> tuple[ColorInterp, ...]:
+    """Infer colorinterp array based on GeoTIFF metadata."""
     match photometric:
         case None:
             return (ColorInterp.UNDEFINED,) * count
