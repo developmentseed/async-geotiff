@@ -12,7 +12,7 @@ from affine import Affine
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-RASTER_TYPE_PIXEL_IS_AREA = 2
+RASTER_TYPE_PIXEL_IS_POINT = 2
 
 
 def create_transform(
@@ -33,8 +33,11 @@ def create_transform(
     else:
         raise ValueError("The image does not have an affine transformation.")
 
-    if raster_type == RASTER_TYPE_PIXEL_IS_AREA:
-        offset = Affine.translation(-0.5, -0.5)
+    # Offset transform by half pixel for point-interpreted rasters.
+    if raster_type == RASTER_TYPE_PIXEL_IS_POINT:
+        x_resolution = affine.a
+        y_resolution = affine.e
+        offset = Affine.translation(-0.5 * x_resolution, -0.5 * y_resolution)
         affine = offset * affine
 
     return affine

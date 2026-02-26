@@ -35,7 +35,7 @@ async def test_fetch(
 
     window = Window(0, 0, geotiff.tile_width, geotiff.tile_height)
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
-        rasterio_data = rasterio_ds.read(window=window)
+        rasterio_data = rasterio_ds.read(window=window, boundless=True)
 
     np.testing.assert_array_equal(tile.array.data, rasterio_data)
     assert tile.array.crs == geotiff.crs
@@ -187,7 +187,7 @@ async def test_fetch_as_masked(
 
     window = Window(0, 0, geotiff.tile_width, geotiff.tile_height)
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
-        rasterio_data = rasterio_ds.read(window=window, masked=True)
+        rasterio_data = rasterio_ds.read(window=window, masked=True, boundless=True)
 
     np.testing.assert_array_equal(masked_array.mask, rasterio_data.mask)
     np.testing.assert_array_equal(masked_array.data, rasterio_data.data)
