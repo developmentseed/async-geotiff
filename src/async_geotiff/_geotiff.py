@@ -166,7 +166,11 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def colorinterp(self) -> tuple[ColorInterp, ...]:
         """The color interpretation of each band in index order."""
-        return infer_color_interpretation(self)
+        return infer_color_interpretation(
+            count=self.count,
+            photometric=self.photometric,
+            extra_samples=self._primary_ifd.extra_samples or [],
+        )
 
     @property
     def colormap(self) -> Colormap | None:

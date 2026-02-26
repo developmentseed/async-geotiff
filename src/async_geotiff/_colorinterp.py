@@ -7,36 +7,43 @@ from typing import TYPE_CHECKING
 from .enums import ColorInterp, PhotometricInterpretation
 
 if TYPE_CHECKING:
-    from async_geotiff import GeoTIFF
+    from collections.abc import Sequence
 
 
-def infer_color_interpretation(geotiff: GeoTIFF) -> tuple[ColorInterp, ...]:
-    primary_ifd = geotiff._primary_ifd  # noqa: SLF001
-
-    match geotiff.photometric:
+def infer_color_interpretation(  # noqa: PLR0911
+    *,
+    count: int,
+    photometric: PhotometricInterpretation | None,
+    # TODO: update to enum when available in async-tiff
+    # https://github.com/developmentseed/async-tiff/issues/252
+    extra_samples: Sequence[int],
+) -> tuple[ColorInterp, ...]:
+    match photometric:
+        case None:
+            return (ColorInterp.UNDEFINED,) * count
         case PhotometricInterpretation.BLACK_IS_ZERO:
-            return (ColorInterp.GRAY,) * geotiff.count
+            return (ColorInterp.GRAY,) * count
         case PhotometricInterpretation.RGB:
-            if geotiff.count <= 2:
+            if count <= 2:
                 raise NotImplementedError(
                     "RGB photometric interpretation with fewer than 3 bands "
                     "is not supported.",
                 )
 
-            if geotiff.count == 3:
+            if count == 3:
                 return (
                     ColorInterp.RED,
                     ColorInterp.GREEN,
                     ColorInterp.BLUE,
                 )
 
-            if geotiff.count >= 4:
+            if count >= 4:
                 # Color interpretations for any extra samples
                 # Sample = 2 means alpha, otherwise we mark it as undefined
                 # https://web.archive.org/web/20240329145321/https://www.awaresystems.be/imaging/tiff/tifftags/extrasamples.html
                 extra_colorinterps = [
                     ColorInterp.ALPHA if sample == 2 else ColorInterp.UNDEFINED
-                    for sample in primary_ifd.extra_samples or []
+                    for sample in extra_samples or []
                 ]
                 return (
                     ColorInterp.RED,
