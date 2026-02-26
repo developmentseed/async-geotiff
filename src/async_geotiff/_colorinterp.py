@@ -40,5 +40,18 @@ def infer_color_interpretation(geotiff: GeoTIFF) -> tuple[ColorInterp, ...]:
 
         case PhotometricInterpretation.RGBPALETTE:
             return (ColorInterp.PALETTE,)
+        case PhotometricInterpretation.CMYK:
+            return (
+                ColorInterp.CYAN,
+                ColorInterp.MAGENTA,
+                ColorInterp.YELLOW,
+                ColorInterp.BLACK,
+            )
+        case PhotometricInterpretation.YCBCR:
+            return (
+                ColorInterp.Y,
+                ColorInterp.Cb,
+                ColorInterp.Cr,
+            )
 
     raise NotImplementedError
