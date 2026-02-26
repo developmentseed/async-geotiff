@@ -49,7 +49,7 @@ class IsTiled(Protocol):
 class TiledMixin:
     @property
     def tile_count(self: IsTiled) -> tuple[int, int]:
-        """The number of tiles in the x and y directions, if the image is tiled."""
+        """The number of tiles in the x and y directions."""
         return (
             math.ceil(self.width / self.tile_width),
             math.ceil(self.height / self.tile_height),
