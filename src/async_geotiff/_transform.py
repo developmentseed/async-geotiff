@@ -35,10 +35,7 @@ def create_transform(
 
     # Offset transform by half pixel for point-interpreted rasters.
     if raster_type == RASTER_TYPE_PIXEL_IS_POINT:
-        x_resolution = affine.a
-        y_resolution = affine.e
-        offset = Affine.translation(-0.5 * x_resolution, -0.5 * y_resolution)
-        affine = offset * affine
+        affine = affine * Affine.translation(-0.5, -0.5)
 
     return affine
 
