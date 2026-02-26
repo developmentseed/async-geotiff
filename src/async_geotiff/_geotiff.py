@@ -91,7 +91,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         object.__setattr__(self, "_gkd", gkd)
 
         for ifd in tiff.ifds:
-            if ifd.tile_height is None or ifd.tile_width is None:
+            if ifd.strip_byte_counts is not None or ifd.strip_offsets is not None:
                 raise ValueError("Only tiled GeoTIFFs are supported.")
 
         # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
@@ -334,16 +334,14 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the image."""
-        tile_height = self._ifd.tile_height
-        assert tile_height is not None, "Constructor validated that images are tiled"  # noqa: S101
-        return tile_height
+        # A TIFF with a single tile can omit tile_height
+        return self._ifd.tile_height or self._ifd.image_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the image."""
-        tile_width = self._ifd.tile_width
-        assert tile_width is not None, "Constructor validated that images are tiled"  # noqa: S101
-        return tile_width
+        # A TIFF with a single tile can omit tile_width
+        return self._ifd.tile_width or self._ifd.image_width
 
     @property
     def transform(self) -> Affine:
