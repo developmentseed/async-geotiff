@@ -18,8 +18,12 @@ ALL_COG_IMAGES: list[tuple[str, str]] = [
 ALL_DATA_IMAGES: list[tuple[str, str]] = [
     *ALL_COG_IMAGES,
     ("eox", "eox_cloudless"),
+    ("rasterio", "pixel_as_point"),
 ]
-"""All fixtures where the data can be compared with rasterio."""
+"""All fixtures where the data can be compared with rasterio.
+
+If images have overviews, they should be included in `ALL_COG_IMAGES` instead.
+"""
 
 
 ALL_TEST_IMAGES: list[tuple[str, str]] = [
