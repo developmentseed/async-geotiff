@@ -14,15 +14,17 @@ def infer_color_interpretation(geotiff: GeoTIFF) -> tuple[ColorInterp, ...]:
     primary_ifd = geotiff._primary_ifd  # noqa: SLF001
 
     match geotiff.photometric:
+        case PhotometricInterpretation.BLACK_IS_ZERO:
+            return (ColorInterp.GRAY,) * geotiff.count
         case PhotometricInterpretation.RGB:
-            if len(primary_ifd.sample_format) == 3:
+            if geotiff.count == 3:
                 return (
                     ColorInterp.RED,
                     ColorInterp.GREEN,
                     ColorInterp.BLUE,
                 )
 
-            if len(primary_ifd.sample_format) == 4:
+            if geotiff.count == 4:
                 if primary_ifd.extra_samples == [2]:
                     return (
                         ColorInterp.RED,
