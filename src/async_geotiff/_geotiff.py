@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Self
 
 import numpy as np
-from affine import Affine
 from async_tiff import TIFF
 from async_tiff.enums import Compression as AsyncTiffCompression
 from async_tiff.enums import (
@@ -21,7 +20,7 @@ from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._overview import Overview
 from async_geotiff._read import ReadMixin
 from async_geotiff._tile import TiledMixin
-from async_geotiff._transform import TransformMixin
+from async_geotiff._transform import TransformMixin, create_transform
 from async_geotiff.colormap import Colormap
 from async_geotiff.enums import (
     ColorInterp,
@@ -31,6 +30,7 @@ from async_geotiff.enums import (
 )
 
 if TYPE_CHECKING:
+    from affine import Affine
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from pyproj.crs import CRS
 
@@ -352,43 +352,12 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         This transform maps pixel row/column coordinates to coordinates in the dataset's
         CRS.
         """
-        if (tie_points := self._primary_ifd.model_tiepoint) and (
-            model_scale := self._primary_ifd.model_pixel_scale
-        ):
-            x_origin = tie_points[3]
-            y_origin = tie_points[4]
-            x_resolution = model_scale[0]
-            y_resolution = -model_scale[1]
-
-            return Affine(x_resolution, 0, x_origin, 0, y_resolution, y_origin)
-
-        if model_transformation := self._primary_ifd.model_transformation:
-            # ModelTransformation is a 4x4 matrix in row-major order
-            # [0  1  2  3 ]   [a  b  0  c]
-            # [4  5  6  7 ] = [d  e  0  f]
-            # [8  9  10 11]   [0  0  1  0]
-            # [12 13 14 15]   [0  0  0  1]
-            x_origin = model_transformation[3]
-            y_origin = model_transformation[7]
-            row_rotation = model_transformation[1]
-            col_rotation = model_transformation[4]
-
-            # TODO: confirm these are correct
-            # Why does geotiff.js square and then square-root them?
-            # https://github.com/developmentseed/async-geotiff/issues/7
-            x_resolution = model_transformation[0]
-            y_resolution = -model_transformation[5]
-
-            return Affine(
-                model_transformation[0],
-                row_rotation,
-                x_origin,
-                col_rotation,
-                model_transformation[5],
-                y_origin,
-            )
-
-        raise ValueError("The image does not have an affine transformation.")
+        return create_transform(
+            model_tiepoint=self._primary_ifd.model_tiepoint,
+            model_pixel_scale=self._primary_ifd.model_pixel_scale,
+            model_transformation=self._primary_ifd.model_transformation,
+            raster_type=self._gkd.raster_type,
+        )
 
     @property
     def width(self) -> int:

@@ -7,11 +7,72 @@ from math import floor
 from typing import TYPE_CHECKING, Literal, Protocol
 
 import numpy as np
+from affine import Affine
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from affine import Affine
+RASTER_TYPE_PIXEL_IS_AREA = 2
+
+
+def create_transform(
+    *,
+    model_tiepoint: list[float] | None,
+    model_pixel_scale: list[float] | None,
+    model_transformation: list[float] | None,
+    raster_type: int | None,
+) -> Affine:
+    if model_tiepoint is not None and model_pixel_scale is not None:
+        affine = create_from_model_tiepoint_and_pixel_scale(
+            model_tiepoint,
+            model_pixel_scale,
+        )
+
+    elif model_transformation is not None:
+        affine = create_from_model_transformation(model_transformation)
+    else:
+        raise ValueError("The image does not have an affine transformation.")
+
+    if raster_type == RASTER_TYPE_PIXEL_IS_AREA:
+        offset = Affine.translation(-0.5, -0.5)
+        affine = offset * affine
+
+    return affine
+
+
+def create_from_model_tiepoint_and_pixel_scale(
+    model_tiepoint: list[float],
+    model_pixel_scale: list[float],
+) -> Affine:
+    x_origin = model_tiepoint[3]
+    y_origin = model_tiepoint[4]
+    x_resolution = model_pixel_scale[0]
+    y_resolution = -model_pixel_scale[1]
+
+    return Affine(x_resolution, 0, x_origin, 0, y_resolution, y_origin)
+
+
+def create_from_model_transformation(model_transformation: list[float]) -> Affine:
+    # ModelTransformation is a 4x4 matrix in row-major order
+    # [0  1  2  3 ]   [a  b  0  c]
+    # [4  5  6  7 ] = [d  e  0  f]
+    # [8  9  10 11]   [0  0  1  0]
+    # [12 13 14 15]   [0  0  0  1]
+    x_origin = model_transformation[3]
+    y_origin = model_transformation[7]
+    row_rotation = model_transformation[1]
+    col_rotation = model_transformation[4]
+    x_resolution = model_transformation[0]
+    y_resolution = model_transformation[5]
+
+    return Affine(
+        x_resolution,
+        row_rotation,
+        x_origin,
+        col_rotation,
+        y_resolution,
+        y_origin,
+    )
 
 
 class HasTransform(Protocol):
