@@ -15,6 +15,7 @@ from async_tiff.enums import (
     SampleFormat,
 )
 
+from async_geotiff._colorinterp import infer_color_interpretation
 from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
 from async_geotiff._overview import Overview
@@ -22,7 +23,12 @@ from async_geotiff._read import ReadMixin
 from async_geotiff._tile import TiledMixin
 from async_geotiff._transform import TransformMixin
 from async_geotiff.colormap import Colormap
-from async_geotiff.enums import Compression, Interleaving, PhotometricInterpretation
+from async_geotiff.enums import (
+    ColorInterp,
+    Compression,
+    Interleaving,
+    PhotometricInterpretation,
+)
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
@@ -158,8 +164,9 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return cls(tiff)
 
     @property
-    def colorinterp(self) -> list[str]:
+    def colorinterp(self) -> tuple[ColorInterp, ...]:
         """The color interpretation of each band in index order."""
+        return infer_color_interpretation(self)
 
     @property
     def colormap(self) -> Colormap | None:
