@@ -17,6 +17,12 @@ def infer_color_interpretation(geotiff: GeoTIFF) -> tuple[ColorInterp, ...]:
         case PhotometricInterpretation.BLACK_IS_ZERO:
             return (ColorInterp.GRAY,) * geotiff.count
         case PhotometricInterpretation.RGB:
+            if geotiff.count <= 2:
+                raise NotImplementedError(
+                    "RGB photometric interpretation with fewer than 3 bands "
+                    "is not supported.",
+                )
+
             if geotiff.count == 3:
                 return (
                     ColorInterp.RED,
@@ -24,18 +30,19 @@ def infer_color_interpretation(geotiff: GeoTIFF) -> tuple[ColorInterp, ...]:
                     ColorInterp.BLUE,
                 )
 
-            if geotiff.count == 4:
-                if primary_ifd.extra_samples == [2]:
-                    return (
-                        ColorInterp.RED,
-                        ColorInterp.GREEN,
-                        ColorInterp.BLUE,
-                        ColorInterp.ALPHA,
-                    )
-
-                raise NotImplementedError(
-                    "Only RGBA with associated alpha (extra_samples=2) "
-                    "is supported for RGB photometric interpretation.",
+            if geotiff.count >= 4:
+                # Color interpretations for any extra samples
+                # Sample = 2 means alpha, otherwise we mark it as undefined
+                # https://web.archive.org/web/20240329145321/https://www.awaresystems.be/imaging/tiff/tifftags/extrasamples.html
+                extra_colorinterps = [
+                    ColorInterp.ALPHA if sample == 2 else ColorInterp.UNDEFINED
+                    for sample in primary_ifd.extra_samples or []
+                ]
+                return (
+                    ColorInterp.RED,
+                    ColorInterp.GREEN,
+                    ColorInterp.BLUE,
+                    *extra_colorinterps,
                 )
 
         case PhotometricInterpretation.RGBPALETTE:

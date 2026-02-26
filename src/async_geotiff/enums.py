@@ -71,12 +71,3 @@ class ColorInterp(IntEnum):
     Y = 14
     Cb = 15
     Cr = 16
-    PAN = 17
-    COASTAL = 18
-    REDEDGE = 19
-    NIR = 20
-    SWIR = 21
-    MWIR = 22
-    LWIR = 23
-    TIR = 24
-    OTHER_IR = 25
