@@ -157,12 +157,9 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         )
         return cls(tiff)
 
-    # @property
-    # def colorinterp(self) -> list[str]:
-    #     """The color interpretation of each band in index order."""
-    # TODO: we should return an enum here. The enum should match rasterio.
-    # https://github.com/developmentseed/async-geotiff/issues/12
-    # raise NotImplementedError
+    @property
+    def colorinterp(self) -> list[str]:
+        """The color interpretation of each band in index order."""
 
     @property
     def colormap(self) -> Colormap | None:

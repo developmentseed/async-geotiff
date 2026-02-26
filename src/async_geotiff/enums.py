@@ -1,6 +1,6 @@
 """Enums used by async_geotiff."""
 
-from enum import Enum
+from enum import Enum, IntEnum
 
 # ruff: noqa: D101
 
@@ -47,3 +47,36 @@ class PhotometricInterpretation(Enum):
     CMYK = "CMYK"
     YCBCR = "YCbCr"
     CIELAB = "CIELAB"
+
+
+# https://github.com/rasterio/rasterio/blob/04a8620f710814459f2a8dfa2d3d302b66a5408e/rasterio/enums.py#L30-L72
+class ColorInterp(IntEnum):
+    """Raster band color interpretation."""
+
+    UNDEFINED = 0
+    GRAY = 1
+    GREY = 1
+    PALETTE = 2
+    RED = 3
+    GREEN = 4
+    BLUE = 5
+    ALPHA = 6
+    HUE = 7
+    SATURATION = 8
+    LIGHTNESS = 9
+    CYAN = 10
+    MAGENTA = 11
+    YELLOW = 12
+    BLACK = 13
+    Y = 14
+    Cb = 15
+    Cr = 16
+    PAN = 17
+    COASTAL = 18
+    REDEDGE = 19
+    NIR = 20
+    SWIR = 21
+    MWIR = 22
+    LWIR = 23
+    TIR = 24
+    OTHER_IR = 25
