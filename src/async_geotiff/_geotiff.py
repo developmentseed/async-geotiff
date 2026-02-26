@@ -92,7 +92,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
 
         for ifd in tiff.ifds:
             if ifd.strip_byte_counts is not None or ifd.strip_offsets is not None:
-                raise ValueError("Only tiled GeoTIFFs are supported.")
+                raise ValueError("Striped GeoTIFFs are not supported.")
 
         # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
         # Data IFDs are indexed by (width, height) for matching with masks
