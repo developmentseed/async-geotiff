@@ -22,7 +22,7 @@ class BandStatistics:
     """The percentage of valid pixels in the band."""
 
 
-@dataclass
+@dataclass(frozen=True)
 class GDALMetadata:
     """Metadata extracted from the GDALMetadata TIFF tag."""
 
@@ -67,3 +67,6 @@ def parse_gdal_metadata(gdal_metadata: str | None) -> GDALMetadata | None:
                 band_statistics[int(sample) + 1].valid_percent = float(text)
 
     return GDALMetadata(band_statistics=band_statistics)
+
+
+meta = parse_gdal_metadata(geotiff._primary_ifd.gdal_metadata)

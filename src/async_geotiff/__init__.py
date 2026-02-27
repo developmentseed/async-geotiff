@@ -5,6 +5,7 @@
 
 from . import exceptions
 from ._array import Array
+from ._gdal_metadata import BandStatistics
 from ._geotiff import GeoTIFF
 from ._overview import Overview
 from ._tile import Tile
@@ -13,6 +14,7 @@ from ._windows import Window
 
 __all__ = [
     "Array",
+    "BandStatistics",
     "GeoTIFF",
     "Overview",
     "Tile",

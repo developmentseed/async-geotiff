@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Self
 
 import numpy as np
@@ -17,7 +18,11 @@ from async_tiff.enums import (
 from async_geotiff._colorinterp import infer_color_interpretation
 from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
-from async_geotiff._gdal_metadata import GDALMetadata, parse_gdal_metadata
+from async_geotiff._gdal_metadata import (
+    BandStatistics,
+    GDALMetadata,
+    parse_gdal_metadata,
+)
 from async_geotiff._overview import Overview
 from async_geotiff._read import ReadMixin
 from async_geotiff._tile import TiledMixin
@@ -31,6 +36,8 @@ from async_geotiff.enums import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from affine import Affine
     from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
     from pyproj.crs import CRS
@@ -69,6 +76,9 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     """A list of overviews for the GeoTIFF.
     """
 
+    _gdal_metadata: GDALMetadata | None = None
+    """The metadata extracted from the GDALMetadata TIFF tag, if any."""
+
     @property
     def _ifd(self) -> ImageFileDirectory:
         """An alias for the primary IFD to satisfy _fetch protocol."""
@@ -90,6 +100,11 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         object.__setattr__(self, "_tiff", tiff)
         object.__setattr__(self, "_primary_ifd", first_ifd)
         object.__setattr__(self, "_gkd", gkd)
+        object.__setattr__(
+            self,
+            "_gdal_metadata",
+            parse_gdal_metadata(first_ifd.gdal_metadata),
+        )
 
         for ifd in tiff.ifds:
             if ifd.strip_byte_counts is not None or ifd.strip_offsets is not None:
@@ -266,11 +281,6 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return None
 
     @property
-    def gdal_metadata(self) -> GDALMetadata | None:
-        """The metadata extracted from the GDALMetadata TIFF tag, if any."""
-        return parse_gdal_metadata(self._primary_ifd.gdal_metadata)
-
-    @property
     def height(self) -> int:
         """The height (number of rows) of the full image."""
         return self._primary_ifd.image_height
@@ -336,6 +346,20 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     def shape(self) -> tuple[int, int]:
         """Get the shape (height, width) of the full image."""
         return (self.height, self.width)
+
+    @property
+    def statistics(self) -> Mapping[int, BandStatistics] | None:
+        """The pre-computed statistics for each GeoTIFF band, if available.
+
+        The keys of the mapping are **1-based** band indices to match GDAL's convention.
+        """
+        gdal_metadata = self._gdal_metadata
+
+        # For an empty band_statistics dict, return None
+        if gdal_metadata is not None and (stats := gdal_metadata.band_statistics):
+            return MappingProxyType(stats)
+
+        return None
 
     @property
     def tile_height(self) -> int:
