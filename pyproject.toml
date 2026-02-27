@@ -22,7 +22,8 @@ classifiers = [
 keywords = ["geotiff", "tiff", "async", "cog", "raster", "gis"]
 dependencies = [
     "affine>=2.4.0",
-    "async-tiff>=0.6.0-beta.2",
+    "async-tiff>=0.6.0",
+    "defusedxml>=0.7.1",
     "numpy>=2.0",
     "pyproj>=3.3.0",
 ]
