@@ -26,6 +26,7 @@ dependencies = [
     "defusedxml>=0.7.1",
     "numpy>=2.0",
     "pyproj>=3.3.0",
+    "types-defusedxml>=0.7.0.20250822",
 ]
 
 [project.urls]
