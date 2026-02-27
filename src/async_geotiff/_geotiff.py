@@ -17,6 +17,7 @@ from async_tiff.enums import (
 from async_geotiff._colorinterp import infer_color_interpretation
 from async_geotiff._crs import crs_from_geo_keys
 from async_geotiff._fetch import FetchTileMixin
+from async_geotiff._gdal_metadata import GDALMetadata, parse_gdal_metadata
 from async_geotiff._overview import Overview
 from async_geotiff._read import ReadMixin
 from async_geotiff._tile import TiledMixin
@@ -263,6 +264,11 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
                 return np.dtype(np.int64)
 
         return None
+
+    @property
+    def gdal_metadata(self) -> GDALMetadata | None:
+        """The metadata extracted from the GDALMetadata TIFF tag, if any."""
+        return parse_gdal_metadata(self._primary_ifd.gdal_metadata)
 
     @property
     def height(self) -> int:
