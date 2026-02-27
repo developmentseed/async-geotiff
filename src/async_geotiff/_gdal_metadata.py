@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import defusedxml.ElementTree as ET  # noqa: N817
 
@@ -26,14 +26,22 @@ class BandStatistics:
 class GDALMetadata:
     """Metadata extracted from the GDALMetadata TIFF tag."""
 
-    band_statistics: dict[int, BandStatistics] = field(default_factory=dict)
+    band_statistics: dict[int, BandStatistics]
     """A mapping of band index to statistics for that band.
 
     This band index is **1-based**.
     """
 
+    offsets: tuple[float, ...]
 
-def parse_gdal_metadata(gdal_metadata: str | None) -> GDALMetadata | None:
+    scales: tuple[float, ...]
+
+
+def parse_gdal_metadata(  # noqa: C901
+    gdal_metadata: str | None,
+    *,
+    count: int,
+) -> GDALMetadata | None:
     if gdal_metadata is None:
         return None
 
@@ -43,6 +51,8 @@ def parse_gdal_metadata(gdal_metadata: str | None) -> GDALMetadata | None:
         raise ValueError("Not a GDALMetadata XML block")
 
     band_statistics: defaultdict[int, BandStatistics] = defaultdict(BandStatistics)
+    offsets: list[float] = [0.0] * count
+    scales: list[float] = [1.0] * count
 
     for elem in root.findall("Item"):
         name = elem.attrib.get("name")
@@ -65,5 +75,15 @@ def parse_gdal_metadata(gdal_metadata: str | None) -> GDALMetadata | None:
             case "STATISTICS_VALID_PERCENT":
                 assert sample is not None  # noqa: S101
                 band_statistics[int(sample) + 1].valid_percent = float(text)
+            case "OFFSET":
+                assert sample is not None  # noqa: S101
+                offsets[int(sample)] = float(text)
+            case "SCALE":
+                assert sample is not None  # noqa: S101
+                scales[int(sample)] = float(text)
 
-    return GDALMetadata(band_statistics=dict(band_statistics))
+    return GDALMetadata(
+        band_statistics=dict(band_statistics),
+        offsets=tuple(offsets),
+        scales=tuple(scales),
+    )

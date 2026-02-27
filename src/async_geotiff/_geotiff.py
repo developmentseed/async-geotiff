@@ -103,7 +103,10 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         object.__setattr__(
             self,
             "_gdal_metadata",
-            parse_gdal_metadata(first_ifd.gdal_metadata),
+            parse_gdal_metadata(
+                first_ifd.gdal_metadata,
+                count=first_ifd.samples_per_pixel,
+            ),
         )
 
         for ifd in tiff.ifds:
@@ -305,6 +308,14 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return float(nodata)
 
     @property
+    def offsets(self) -> tuple[float, ...]:
+        """The offset for each band, if any."""
+        if gdal_metadata := self._gdal_metadata:
+            return gdal_metadata.offsets
+
+        return tuple([0.0] * self.count)
+
+    @property
     def overviews(self) -> list[Overview]:
         """A list of overview levels for the dataset.
 
@@ -341,6 +352,17 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
                 return PhotometricInterpretation.CIELAB
 
         return None
+
+    @property
+    def scales(self) -> tuple[float, ...]:
+        """The scale for each band, if any.
+
+        The keys of the mapping are **1-based** band indices to match GDAL's convention.
+        """
+        if gdal_metadata := self._gdal_metadata:
+            return gdal_metadata.scales
+
+        return tuple([1.0] * self.count)
 
     @property
     def shape(self) -> tuple[int, int]:

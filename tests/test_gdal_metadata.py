@@ -38,7 +38,6 @@ async def test_statistics(
         stats[0]
 
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
-        band_idx = 1
         for band_idx in range(1, rasterio_ds.count + 1):
             our_stats = stats[band_idx]
             rio_stats = rasterio_ds.tags(band_idx)
@@ -50,3 +49,21 @@ async def test_statistics(
             assert our_stats.valid_percent == float(
                 rio_stats["STATISTICS_VALID_PERCENT"],
             )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("variant", "file_name"),
+    ALL_TEST_IMAGES,
+)
+async def test_scale_offset(
+    load_geotiff: LoadGeoTIFF,
+    load_rasterio: LoadRasterio,
+    variant: str,
+    file_name: str,
+) -> None:
+    geotiff = await load_geotiff(file_name, variant=variant)
+
+    with load_rasterio(file_name, variant=variant) as rasterio_ds:
+        assert geotiff.scales == rasterio_ds.scales
+        assert geotiff.offsets == rasterio_ds.offsets
