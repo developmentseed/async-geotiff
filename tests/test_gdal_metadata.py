@@ -27,7 +27,8 @@ async def test_statistics(
     if stats is None:
         with load_rasterio(file_name, variant=variant) as rasterio_ds:
             # Assert that rasterio also does not have statistics for this dataset
-            rasterio_ds.statistics(1)
+            rio_stats = rasterio_ds.tags(1)
+            assert "STATISTICS_MINIMUM" not in rio_stats
 
         return
 
