@@ -348,8 +348,11 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return (self.height, self.width)
 
     @property
-    def statistics(self) -> Mapping[int, BandStatistics] | None:
-        """The pre-computed statistics for each GeoTIFF band, if available.
+    def stored_stats(self) -> Mapping[int, BandStatistics] | None:
+        """The **pre-existing** statistics for each GeoTIFF band, if available.
+
+        These statistics are extracted from the GDALMetadata TIFF tag and are never
+        computed on demand here.
 
         The keys of the mapping are **1-based** band indices to match GDAL's convention.
         """

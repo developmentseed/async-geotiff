@@ -10,13 +10,13 @@ import defusedxml.ElementTree as ET  # noqa: N817
 class BandStatistics:
     """Statistics for a single band in a GeoTIFF."""
 
-    maximum: float | None = None
+    max: float | None = None
     """The maximum pixel value in the band."""
-    minimum: float | None = None
+    min: float | None = None
     """The minimum pixel value in the band."""
     mean: float | None = None
     """The mean pixel value in the band."""
-    stddev: float | None = None
+    std: float | None = None
     """The standard deviation of the pixel values in the band."""
     valid_percent: float | None = None
     """The percentage of valid pixels in the band."""
@@ -42,7 +42,7 @@ def parse_gdal_metadata(gdal_metadata: str | None) -> GDALMetadata | None:
     if root.tag != "GDALMetadata":
         raise ValueError("Not a GDALMetadata XML block")
 
-    band_statistics: dict[int, BandStatistics] = defaultdict(BandStatistics)
+    band_statistics: defaultdict[int, BandStatistics] = defaultdict(BandStatistics)
 
     for elem in root.findall("Item"):
         name = elem.attrib.get("name")
@@ -52,21 +52,18 @@ def parse_gdal_metadata(gdal_metadata: str | None) -> GDALMetadata | None:
             # Add 1 to get a 1-based band index to match GDAL.
             case "STATISTICS_MAXIMUM":
                 assert sample is not None  # noqa: S101
-                band_statistics[int(sample) + 1].maximum = float(text)
+                band_statistics[int(sample) + 1].max = float(text)
             case "STATISTICS_MEAN":
                 assert sample is not None  # noqa: S101
                 band_statistics[int(sample) + 1].mean = float(text)
             case "STATISTICS_MINIMUM":
                 assert sample is not None  # noqa: S101
-                band_statistics[int(sample) + 1].minimum = float(text)
+                band_statistics[int(sample) + 1].min = float(text)
             case "STATISTICS_STDDEV":
                 assert sample is not None  # noqa: S101
-                band_statistics[int(sample) + 1].stddev = float(text)
+                band_statistics[int(sample) + 1].std = float(text)
             case "STATISTICS_VALID_PERCENT":
                 assert sample is not None  # noqa: S101
                 band_statistics[int(sample) + 1].valid_percent = float(text)
 
-    return GDALMetadata(band_statistics=band_statistics)
-
-
-meta = parse_gdal_metadata(geotiff._primary_ifd.gdal_metadata)
+    return GDALMetadata(band_statistics=dict(band_statistics))
