@@ -11,6 +11,7 @@ ALL_COG_IMAGES: list[tuple[str, str]] = [
     ("rasterio", "uint8_rgb_deflate_block64_cog"),
     ("rasterio", "uint8_rgb_webp_block64_cog"),
     ("rasterio", "uint8_rgba_webp_block64_cog"),
+    ("rasterio", "uint8_nonrgb_deflate_block64_cog"),
     ("umbra", "sydney_airport_GEC"),
 ]
 """All fixtures that have overviews where the data can be compared with rasterio."""
