@@ -113,7 +113,8 @@ class Array(TransformMixin):
 
         """
         if self.mask is not None:
-            return MaskedArray(self.data, mask=~self.mask)
+            mask = np.broadcast_to(~self.mask, self.data.shape)
+            return MaskedArray(self.data, mask=mask)
 
         if self.nodata is not None:
             return np.ma.masked_equal(self.data, self.nodata)
