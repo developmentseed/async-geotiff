@@ -84,6 +84,11 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         """An alias for the primary IFD to satisfy _fetch protocol."""
         return self._primary_ifd
 
+    @property
+    def _geotiff(self) -> GeoTIFF:
+        """An alias for self to satisfy _fetch protocol."""
+        return self
+
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""
         first_ifd = tiff.ifds[0]

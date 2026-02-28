@@ -8,12 +8,15 @@ from async_tiff.enums import PlanarConfiguration
 from numpy.ma import MaskedArray
 
 from async_geotiff._transform import TransformMixin
+from async_geotiff.enums import ColorInterp
 
 if TYPE_CHECKING:
     from affine import Affine
     from async_tiff import Array as AsyncTiffArray
     from numpy.typing import NDArray
     from pyproj.crs import CRS
+
+    from async_geotiff import GeoTIFF
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
@@ -41,22 +44,18 @@ class Array(TransformMixin):
     transform: Affine
     """The affine transform mapping pixel coordinates to geographic coordinates."""
 
-    crs: CRS
-    """The coordinate reference system of the array."""
-
-    nodata: float | None = None
-    """The nodata value for the array, if any."""
+    _geotiff: GeoTIFF
+    """A reference to the parent GeoTIFF."""
 
     @classmethod
-    def _create(  # noqa: PLR0913
+    def _create(
         cls,
         *,
         data: AsyncTiffArray,
         mask: AsyncTiffArray | None,
         planar_configuration: PlanarConfiguration,
         transform: Affine,
-        crs: CRS,
-        nodata: float | None,
+        geotiff: GeoTIFF,
     ) -> Self:
         """Create an Array from async_tiff data.
 
@@ -92,8 +91,7 @@ class Array(TransformMixin):
             height=height,
             count=count,
             transform=transform,
-            crs=crs,
-            nodata=nodata,
+            _geotiff=geotiff,
         )
 
     def as_masked(self) -> MaskedArray:
@@ -122,3 +120,13 @@ class Array(TransformMixin):
             return np.ma.masked_equal(self.data, self.nodata)
 
         return MaskedArray(self.data)
+
+    @property
+    def crs(self) -> CRS:
+        """The coordinate reference system of the array."""
+        return self._geotiff.crs
+
+    @property
+    def nodata(self) -> float | None:
+        """The nodata value for the array, if any."""
+        return self._geotiff.nodata

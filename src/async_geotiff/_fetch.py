@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 
     from async_tiff import Array as AsyncTiffArray
     from async_tiff import ImageFileDirectory
-    from pyproj import CRS
+
+    from async_geotiff import GeoTIFF
 
 
 class HasTiffReference(HasTransform, Protocol):
@@ -31,8 +32,8 @@ class HasTiffReference(HasTransform, Protocol):
         ...
 
     @property
-    def crs(self) -> CRS:
-        """The coordinate reference system."""
+    def _geotiff(self) -> GeoTIFF:
+        """The parent GeoTIFF object."""
         ...
 
     @property
@@ -43,11 +44,6 @@ class HasTiffReference(HasTransform, Protocol):
     @property
     def tile_width(self) -> int:
         """The width of tiles in pixels."""
-        ...
-
-    @property
-    def nodata(self) -> int | float | None:
-        """The nodata value for the image, if any."""
         ...
 
     @property
@@ -107,9 +103,8 @@ class FetchTileMixin:
             data=tile_data,
             mask=mask_data,
             planar_configuration=self._ifd.planar_configuration,
-            crs=self.crs,
             transform=tile_transform,
-            nodata=self.nodata,
+            geotiff=self._geotiff,
         )
 
         if not boundless:
@@ -166,9 +161,8 @@ class FetchTileMixin:
                 data=tile_data,
                 mask=mask_data,
                 planar_configuration=self._ifd.planar_configuration,
-                crs=self.crs,
                 transform=tile_transform,
-                nodata=self.nodata,
+                geotiff=self._geotiff,
             )
 
             if not boundless:
@@ -219,6 +213,5 @@ def _clip_to_image_bounds(
         height=clipped_height,
         count=array.count,
         transform=array.transform,
-        crs=array.crs,
-        nodata=array.nodata,
+        _geotiff=array._geotiff,  # noqa: SLF001
     )
