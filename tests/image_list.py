@@ -2,6 +2,8 @@ from __future__ import annotations
 
 ALL_COG_IMAGES: list[tuple[str, str]] = [
     ("nlcd", "nlcd_landcover"),
+    ("rasterio", "cog_uint8_rgb_mask"),
+    ("rasterio", "cog_uint8_rgb_nodata"),
     ("rasterio", "float32_1band_lerc_block32"),
     ("rasterio", "float32_1band_lerc_deflate_block32"),
     ("rasterio", "float32_1band_lerc_zstd_block32"),
