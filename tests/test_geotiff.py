@@ -25,6 +25,7 @@ async def test_ifd_info(
 
     with load_rasterio(file_name, variant=variant) as rasterio_ds:
         assert rasterio_ds.bounds == geotiff.bounds
+        assert geotiff.block_shapes == tuple(rasterio_ds.block_shapes)
         assert rasterio_ds.count == geotiff.count
         assert rasterio_ds.dtypes[0] == geotiff.dtype
         assert rasterio_ds.height == geotiff.height

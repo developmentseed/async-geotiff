@@ -55,6 +55,11 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return instance
 
     @property
+    def count(self) -> int:
+        """The number of bands in the overview."""
+        return self._geotiff.count
+
+    @property
     def crs(self) -> CRS:
         """The coordinate reference system of the overview."""
         return self._geotiff.crs
