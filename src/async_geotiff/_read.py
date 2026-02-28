@@ -121,8 +121,11 @@ async def read(
         height=win.height,
         count=num_bands,
         transform=window_transform,
-        crs=self.crs,
-        nodata=self.nodata,
+        _geotiff=self._geotiff,
+        # TODO: when we support fetching partial bands, we need to check if the
+        # alpha band is included in the bands we've fetched.
+        # https://github.com/developmentseed/async-geotiff/issues/113
+        _alpha_band_idx=self._geotiff._alpha_band_idx,  # noqa: SLF001
     )
 
 

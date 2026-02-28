@@ -4,6 +4,7 @@ ALL_COG_IMAGES: list[tuple[str, str]] = [
     ("nlcd", "nlcd_landcover"),
     ("rasterio", "cog_uint8_rgb_mask"),
     ("rasterio", "cog_uint8_rgb_nodata"),
+    ("rasterio", "cog_uint8_rgba"),
     ("rasterio", "float32_1band_lerc_block32"),
     ("rasterio", "float32_1band_lerc_deflate_block32"),
     ("rasterio", "float32_1band_lerc_zstd_block32"),
@@ -20,6 +21,7 @@ ALL_COG_IMAGES: list[tuple[str, str]] = [
 ALL_DATA_IMAGES: list[tuple[str, str]] = [
     *ALL_COG_IMAGES,
     ("eox", "eox_cloudless"),
+    ("rasterio", "antimeridian"),
     ("rasterio", "pixel_as_point"),
 ]
 """All fixtures where the data can be compared with rasterio.

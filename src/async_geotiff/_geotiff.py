@@ -80,9 +80,30 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     """The metadata extracted from the GDALMetadata TIFF tag, if any."""
 
     @property
+    def _alpha_band_idx(self) -> int | None:
+        """The index of the alpha band, if any."""
+        # TODO: when we support fetching partial bands, we need to check if the alpha
+        # band is included in the bands we've fetched.
+        # https://github.com/developmentseed/async-geotiff/issues/113
+        alpha_band_idxs = [
+            i
+            for i, colorinterp in enumerate(self._geotiff.colorinterp)
+            if colorinterp == ColorInterp.ALPHA
+        ]
+        if len(alpha_band_idxs) > 1:
+            raise ValueError("Multiple alpha bands are not supported")
+
+        return alpha_band_idxs[0] if alpha_band_idxs else None
+
+    @property
     def _ifd(self) -> ImageFileDirectory:
         """An alias for the primary IFD to satisfy _fetch protocol."""
         return self._primary_ifd
+
+    @property
+    def _geotiff(self) -> GeoTIFF:
+        """An alias for self to satisfy _fetch protocol."""
+        return self
 
     def __init__(self, tiff: TIFF) -> None:
         """Create a GeoTIFF from an existing TIFF instance."""

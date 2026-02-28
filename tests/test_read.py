@@ -167,3 +167,27 @@ async def test_read_full(
         rasterio_data = rasterio_ds.read()
 
     np.testing.assert_array_equal(array.data, rasterio_data)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("variant", "file_name"),
+    ALL_DATA_IMAGES,
+)
+async def test_read_full_as_masked(
+    load_geotiff: LoadGeoTIFF,
+    load_rasterio: LoadRasterio,
+    variant: str,
+    file_name: str,
+) -> None:
+    geotiff = await load_geotiff(file_name, variant=variant)
+    array = await geotiff.read()
+    masked_array = array.as_masked()
+
+    with load_rasterio(file_name, variant=variant) as rasterio_ds:
+        rasterio_data = rasterio_ds.read(masked=True)
+
+    np.testing.assert_array_equal(masked_array.mask, rasterio_data.mask)
+    np.testing.assert_array_equal(masked_array.data, rasterio_data.data)
+    assert masked_array.shape == rasterio_data.shape
+    assert masked_array.dtype == rasterio_data.dtype

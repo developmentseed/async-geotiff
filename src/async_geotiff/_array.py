@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from pyproj.crs import CRS
 
+    from async_geotiff import GeoTIFF
+
 
 @dataclass(frozen=True, kw_only=True, eq=False)
 class Array(TransformMixin):
@@ -41,11 +43,14 @@ class Array(TransformMixin):
     transform: Affine
     """The affine transform mapping pixel coordinates to geographic coordinates."""
 
-    crs: CRS
-    """The coordinate reference system of the array."""
+    _alpha_band_idx: int | None
+    """The index of the alpha band, if any.
 
-    nodata: float | None = None
-    """The nodata value for the array, if any."""
+    The alpha band lives in the `data` array but is checked in `as_masked`.
+    """
+
+    _geotiff: GeoTIFF
+    """A reference to the parent GeoTIFF."""
 
     @classmethod
     def _create(  # noqa: PLR0913
@@ -55,8 +60,8 @@ class Array(TransformMixin):
         mask: AsyncTiffArray | None,
         planar_configuration: PlanarConfiguration,
         transform: Affine,
-        crs: CRS,
-        nodata: float | None,
+        geotiff: GeoTIFF,
+        alpha_band_idx: int | None,
     ) -> Self:
         """Create an Array from async_tiff data.
 
@@ -92,8 +97,8 @@ class Array(TransformMixin):
             height=height,
             count=count,
             transform=transform,
-            crs=crs,
-            nodata=nodata,
+            _geotiff=geotiff,
+            _alpha_band_idx=alpha_band_idx,
         )
 
     def as_masked(self) -> MaskedArray:
@@ -121,4 +126,26 @@ class Array(TransformMixin):
         if self.nodata is not None:
             return np.ma.masked_equal(self.data, self.nodata)
 
+        if self._alpha_band_idx is not None:
+            alpha_band = self.data[self._alpha_band_idx]
+            single_band_mask = alpha_band == np.iinfo(alpha_band.dtype).min
+            mask = np.broadcast_to(
+                single_band_mask,
+                (self.count - 1, self.height, self.width),
+            )
+            # Rasterio semantics say that the alpha band itself in `data` should be
+            # considered valid data.
+            mask = np.insert(mask, self._alpha_band_idx, False, axis=0)
+            return MaskedArray(self.data, mask=mask)
+
         return MaskedArray(self.data)
+
+    @property
+    def crs(self) -> CRS:
+        """The coordinate reference system of the array."""
+        return self._geotiff.crs
+
+    @property
+    def nodata(self) -> float | None:
+        """The nodata value for the array, if any."""
+        return self._geotiff.nodata
