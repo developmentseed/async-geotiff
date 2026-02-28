@@ -11,7 +11,6 @@ from affine import Affine
 from async_geotiff._array import Array
 from async_geotiff._fetch import HasTiffReference
 from async_geotiff._windows import Window
-from async_geotiff.enums import ColorInterp
 from async_geotiff.exceptions import WindowError
 
 if TYPE_CHECKING:
@@ -115,19 +114,6 @@ async def read(
         win.row_off,
     )
 
-    # TODO: when we support fetching partial bands, we need to check if the alpha
-    # band is included in the bands we've fetched.
-    # https://github.com/developmentseed/async-geotiff/issues/113
-    alpha_band_idxs = [
-        i
-        for i, colorinterp in enumerate(self._geotiff.colorinterp)
-        if colorinterp == ColorInterp.ALPHA
-    ]
-    if len(alpha_band_idxs) > 1:
-        raise ValueError("Multiple alpha bands are not supported")
-
-    alpha_band_idx = alpha_band_idxs[0] if alpha_band_idxs else None
-
     return Array(
         data=output_data,
         mask=output_mask,
@@ -136,7 +122,10 @@ async def read(
         count=num_bands,
         transform=window_transform,
         _geotiff=self._geotiff,
-        _alpha_band_idx=alpha_band_idx,
+        # TODO: when we support fetching partial bands, we need to check if the
+        # alpha band is included in the bands we've fetched.
+        # https://github.com/developmentseed/async-geotiff/issues/113
+        _alpha_band_idx=self._geotiff._alpha_band_idx,  # noqa: SLF001
     )
 
 
