@@ -128,7 +128,7 @@ class Array(TransformMixin):
 
         if self._alpha_band_idx is not None:
             alpha_band = self.data[self._alpha_band_idx]
-            single_band_mask = alpha_band == 0
+            single_band_mask = alpha_band == np.iinfo(alpha_band.dtype).min
             mask = np.broadcast_to(
                 single_band_mask,
                 (self.count - 1, self.height, self.width),
