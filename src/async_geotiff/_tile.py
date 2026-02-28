@@ -45,8 +45,19 @@ class IsTiled(Protocol):
         """The width of the image in pixels."""
         ...
 
+    @property
+    def count(self) -> int:
+        """The number of bands."""
+        ...
+
 
 class TiledMixin:
+    @property
+    def block_shapes(self: IsTiled) -> tuple[tuple[int, int], ...]:
+        """Block shapes for each band. Each shape is (height, width)."""
+        shape = (self.tile_height, self.tile_width)
+        return (shape,) * self.count
+
     @property
     def tile_count(self: IsTiled) -> tuple[int, int]:
         """The number of tiles in the x and y directions."""
