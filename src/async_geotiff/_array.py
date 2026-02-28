@@ -113,6 +113,8 @@ class Array(TransformMixin):
 
         """
         if self.mask is not None:
+            # MaskedArray constructor does not automatically broadcast inputs.
+            # mask must have exactly the same shape as data.
             mask = np.broadcast_to(~self.mask, self.data.shape)
             return MaskedArray(self.data, mask=mask)
 
