@@ -128,8 +128,15 @@ class Array(TransformMixin):
 
         if self._alpha_band_idx is not None:
             alpha_band = self.data[self._alpha_band_idx]
-            mask = alpha_band == 0
-            return MaskedArray(self.data, mask=np.broadcast_to(mask, self.data.shape))
+            single_band_mask = alpha_band == 0
+            mask = np.broadcast_to(
+                single_band_mask,
+                (self.count - 1, self.height, self.width),
+            )
+            # Rasterio semantics say that the alpha band itself in `data` should be
+            # considered valid data.
+            mask = np.insert(mask, self._alpha_band_idx, False, axis=0)
+            return MaskedArray(self.data, mask=mask)
 
         return MaskedArray(self.data)
 
