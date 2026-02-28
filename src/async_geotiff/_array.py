@@ -8,7 +8,6 @@ from async_tiff.enums import PlanarConfiguration
 from numpy.ma import MaskedArray
 
 from async_geotiff._transform import TransformMixin
-from async_geotiff.enums import ColorInterp
 
 if TYPE_CHECKING:
     from affine import Affine
@@ -44,11 +43,17 @@ class Array(TransformMixin):
     transform: Affine
     """The affine transform mapping pixel coordinates to geographic coordinates."""
 
+    _alpha_band_idx: int | None
+    """The index of the alpha band, if any.
+
+    The alpha band lives in the `data` array but is checked in `as_masked`.
+    """
+
     _geotiff: GeoTIFF
     """A reference to the parent GeoTIFF."""
 
     @classmethod
-    def _create(
+    def _create(  # noqa: PLR0913
         cls,
         *,
         data: AsyncTiffArray,
@@ -56,6 +61,7 @@ class Array(TransformMixin):
         planar_configuration: PlanarConfiguration,
         transform: Affine,
         geotiff: GeoTIFF,
+        alpha_band_idx: int | None,
     ) -> Self:
         """Create an Array from async_tiff data.
 
@@ -92,6 +98,7 @@ class Array(TransformMixin):
             count=count,
             transform=transform,
             _geotiff=geotiff,
+            _alpha_band_idx=alpha_band_idx,
         )
 
     def as_masked(self) -> MaskedArray:
@@ -118,6 +125,11 @@ class Array(TransformMixin):
 
         if self.nodata is not None:
             return np.ma.masked_equal(self.data, self.nodata)
+
+        if self._alpha_band_idx is not None:
+            alpha_band = self.data[self._alpha_band_idx]
+            mask = alpha_band == 0
+            return MaskedArray(self.data, mask=np.broadcast_to(mask, self.data.shape))
 
         return MaskedArray(self.data)
 

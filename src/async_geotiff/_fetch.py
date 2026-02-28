@@ -8,6 +8,7 @@ from affine import Affine
 from async_geotiff._array import Array
 from async_geotiff._tile import Tile
 from async_geotiff._transform import HasTransform
+from async_geotiff.enums import ColorInterp
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -99,12 +100,24 @@ class FetchTileMixin:
             y * self.tile_height,
         )
 
+        # TODO: when we support fetching partial bands, we need to check if the alpha
+        # band is included in the bands we've fetched.
+        # https://github.com/developmentseed/async-geotiff/issues/113
+        alpha_band_idxs = [
+            i
+            for i, colorinterp in enumerate(self._geotiff.colorinterp)
+            if colorinterp == ColorInterp.ALPHA
+        ]
+        if len(alpha_band_idxs) > 1:
+            raise ValueError("Multiple alpha bands are not supported")
+
         array = Array._create(  # noqa: SLF001
             data=tile_data,
             mask=mask_data,
             planar_configuration=self._ifd.planar_configuration,
             transform=tile_transform,
             geotiff=self._geotiff,
+            alpha_band_idx=alpha_band_idxs[0] if alpha_band_idxs else None,
         )
 
         if not boundless:
@@ -146,6 +159,19 @@ class FetchTileMixin:
             tiles = await tiles_fut
             decoded_tiles = await asyncio.gather(*[tile.decode() for tile in tiles])
 
+        # TODO: when we support fetching partial bands, we need to check if the alpha
+        # band is included in the bands we've fetched.
+        # https://github.com/developmentseed/async-geotiff/issues/113
+        alpha_band_idxs = [
+            i
+            for i, colorinterp in enumerate(self._geotiff.colorinterp)
+            if colorinterp == ColorInterp.ALPHA
+        ]
+        if len(alpha_band_idxs) > 1:
+            raise ValueError("Multiple alpha bands are not supported")
+
+        alpha_band_idx = alpha_band_idxs[0] if alpha_band_idxs else None
+
         final_tiles: list[Tile] = []
         for (x, y), tile_data, mask_data in zip(
             xy,
@@ -163,6 +189,7 @@ class FetchTileMixin:
                 planar_configuration=self._ifd.planar_configuration,
                 transform=tile_transform,
                 geotiff=self._geotiff,
+                alpha_band_idx=alpha_band_idx,
             )
 
             if not boundless:
@@ -214,4 +241,5 @@ def _clip_to_image_bounds(
         count=array.count,
         transform=array.transform,
         _geotiff=array._geotiff,  # noqa: SLF001
+        _alpha_band_idx=array._alpha_band_idx,  # noqa: SLF001
     )
