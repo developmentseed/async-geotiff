@@ -149,3 +149,8 @@ class Array(TransformMixin):
     def nodata(self) -> float | None:
         """The nodata value for the array, if any."""
         return self._geotiff.nodata
+
+    @property
+    def shape(self) -> tuple[int, int, int]:
+        """The shape of the data array as (bands, height, width)."""
+        return self.data.shape
