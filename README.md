@@ -25,12 +25,12 @@ Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python
     - Rust core ensures compiled performance.
     - CPU-bound image decoding happens in a thread pool, without blocking the async executor.
     - Buffer protocol integration for zero-copy data sharing between Rust and Python.
+    - Request coalescing for adjacent tiles.
 - Lightweight with **no GDAL dependency**.
 - Access data from AWS S3, Google Cloud Storage, and Azure Storage via **integration with [obstore]**.
 - **Full type hinting** for all operations.
 - **Broad decompression support**: Deflate, JPEG, JPEG2000, LERC, LERC_DEFLATE, LERC_ZSTD, LZMA, LZW, WebP, ZSTD.
 - Support for **any arbitrary backend** via [obspec] protocols.
-- Request coalescing for adjacent tiles.
 
 [Affine]: https://affine.readthedocs.io/en/latest/
 [masked arrays]: https://numpy.org/doc/stable/reference/maskedarray.generic.html
