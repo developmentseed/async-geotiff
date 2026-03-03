@@ -30,6 +30,7 @@ Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python
 - **Full type hinting** for all operations.
 - **Broad decompression support**: Deflate, JPEG, JPEG2000, LERC, LERC_DEFLATE, LERC_ZSTD, LZMA, LZW, WebP, ZSTD.
 - Support for **any arbitrary backend** via [obspec] protocols.
+- Request coalescing for adjacent tiles.
 
 [Affine]: https://affine.readthedocs.io/en/latest/
 [masked arrays]: https://numpy.org/doc/stable/reference/maskedarray.generic.html

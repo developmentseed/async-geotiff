@@ -128,6 +128,13 @@ class FetchTileMixin:
     ) -> list[Tile]:
         """Fetch multiple tiles from this overview.
 
+        The benefit of using this method over multiple calls to `fetch_tile` is that
+        `fetch_tiles` will coalesce requests for tiles that are stored contiguously on
+        disk. The exact behavior depends on how the underlying
+        [`store`][async_tiff.ObspecInput] passed to
+        [`GeoTIFF.open`][async_geotiff.GeoTIFF.open] implements
+        [`get_ranges_async`][obspec.GetRangesAsync].
+
         Args:
             xy: The (x, y) coordinates of the tiles.
 
