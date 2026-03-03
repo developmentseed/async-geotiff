@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from async_tiff.enums import ExtraSamples
+
 from .enums import ColorInterp, PhotometricInterpretation
 
 if TYPE_CHECKING:
@@ -14,9 +16,7 @@ def infer_color_interpretation(  # noqa: PLR0911
     *,
     count: int,
     photometric: PhotometricInterpretation | None,
-    # TODO: update to enum when available in async-tiff
-    # https://github.com/developmentseed/async-tiff/issues/252
-    extra_samples: Sequence[int],
+    extra_samples: Sequence[ExtraSamples],
 ) -> tuple[ColorInterp, ...]:
     """Infer colorinterp array based on GeoTIFF metadata."""
     match photometric:
@@ -43,7 +43,9 @@ def infer_color_interpretation(  # noqa: PLR0911
                 # Sample = 2 means alpha, otherwise we mark it as undefined
                 # https://web.archive.org/web/20240329145321/https://www.awaresystems.be/imaging/tiff/tifftags/extrasamples.html
                 extra_colorinterps = [
-                    ColorInterp.ALPHA if sample == 2 else ColorInterp.UNDEFINED
+                    ColorInterp.ALPHA
+                    if sample == ExtraSamples.UnassociatedAlpha
+                    else ColorInterp.UNDEFINED
                     for sample in extra_samples or []
                 ]
                 return (
