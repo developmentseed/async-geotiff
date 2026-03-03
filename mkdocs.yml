@@ -117,6 +117,7 @@ plugins:
             - https://affine.readthedocs.io/en/latest/objects.inv
             - https://developmentseed.org/async-tiff/latest/objects.inv
             - https://developmentseed.org/morecantile/objects.inv
+            - https://developmentseed.org/obspec/latest/objects.inv
             - https://developmentseed.org/obstore/latest/objects.inv
             - https://docs.python.org/3/objects.inv
             - https://numpy.org/doc/stable/objects.inv
