@@ -34,6 +34,7 @@ ALL_TEST_IMAGES: list[tuple[str, str]] = [
     *ALL_DATA_IMAGES,
     # YCbCr is auto-decompressed by rasterio
     ("vantor", "maxar_opendata_yellowstone_visual"),
+    ("source-coop-alpha-earth", "xjejfvrbm1fbu1ecw-0000000000-0000008192"),
 ]
 """All fixtures where we test metadata parsing."""
 

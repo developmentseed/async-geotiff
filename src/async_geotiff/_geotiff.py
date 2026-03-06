@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Self
@@ -132,7 +133,15 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
 
         for ifd in tiff.ifds:
             if ifd.strip_byte_counts is not None or ifd.strip_offsets is not None:
-                raise ValueError("Striped GeoTIFFs are not supported.")
+                # This is not an error so that we can test metadata parsing for some
+                # striped tiffs against rasterio.
+                # Additionally some "single tile" tiffs are actually stored with strip
+                # tags instead of tile tags
+                warnings.warn(
+                    "Striped GeoTIFFs are not supported.",
+                    UserWarning,
+                    stacklevel=2,
+                )
 
         # Separate data IFDs and mask IFDs (skip the primary IFD at index 0)
         # Data IFDs are indexed by (width, height) for matching with masks
