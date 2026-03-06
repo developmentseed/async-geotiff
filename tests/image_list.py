@@ -9,8 +9,10 @@ ALL_COG_IMAGES: list[tuple[str, str]] = [
     ("rasterio", "float32_1band_lerc_deflate_block32"),
     ("rasterio", "float32_1band_lerc_zstd_block32"),
     ("rasterio", "uint16_1band_lzw_block128_predictor2"),
+    ("rasterio", "uint16_1band_scale_offset"),
     ("rasterio", "uint8_1band_deflate_block128_unaligned"),
     ("rasterio", "uint8_1band_lzma_block64"),
+    ("rasterio", "uint8_1band_lzw_block64_predictor2"),
     ("rasterio", "uint8_rgb_deflate_block64_cog"),
     ("rasterio", "uint8_rgb_webp_block64_cog"),
     ("rasterio", "uint8_rgba_webp_block64_cog"),
@@ -22,6 +24,7 @@ ALL_DATA_IMAGES: list[tuple[str, str]] = [
     *ALL_COG_IMAGES,
     ("eox", "eox_cloudless"),
     ("rasterio", "antimeridian"),
+    ("rasterio", "custom_crs"),
     ("rasterio", "pixel_as_point"),
 ]
 """All fixtures where the data can be compared with rasterio.
