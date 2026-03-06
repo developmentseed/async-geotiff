@@ -39,6 +39,7 @@ If images have overviews, they should be included in `ALL_COG_IMAGES` instead.
 
 ALL_TEST_IMAGES: list[tuple[str, str]] = [
     *ALL_DATA_IMAGES,
+    ("rio-tiler", "cog_rgb_with_stats"),
     # YCbCr is auto-decompressed by rasterio
     ("vantor", "maxar_opendata_yellowstone_visual"),
     ("source-coop-alpha-earth", "xjejfvrbm1fbu1ecw-0000000000-0000008192"),

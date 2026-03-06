@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from async_tiff.enums import ExtraSamples
 
-from .enums import ColorInterp, PhotometricInterpretation
+from async_geotiff.enums import ColorInterp, PhotometricInterpretation
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -23,7 +23,7 @@ def infer_color_interpretation(  # noqa: PLR0911
         case None:
             return (ColorInterp.UNDEFINED,) * count
         case PhotometricInterpretation.BLACK_IS_ZERO:
-            return (ColorInterp.GRAY,) * count
+            return (ColorInterp.GRAY,) + (ColorInterp.UNDEFINED,) * (count - 1)
         case PhotometricInterpretation.RGB:
             if count <= 2:
                 raise NotImplementedError(
