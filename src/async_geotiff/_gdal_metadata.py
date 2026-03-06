@@ -46,6 +46,11 @@ class GDALMetadata:
     """
 
 
+LOWER_CASE_COLORINTERP_MAPPING: dict[str, ColorInterp] = {}
+for color in ColorInterp:
+    LOWER_CASE_COLORINTERP_MAPPING[color.name.lower()] = color
+
+
 def parse_gdal_metadata(  # noqa: C901
     gdal_metadata: str | None,
     *,
@@ -86,11 +91,9 @@ def parse_gdal_metadata(  # noqa: C901
             case "SCALE" if sample is not None:
                 scales[int(sample)] = float(text)
             case "COLORINTERP" if role == "colorinterp" and sample is not None:
-                ignore_case_colorinterp = {
-                    name.lower(): interp
-                    for name, interp in ColorInterp._member_map_.items()
-                }
-                colorinterp[int(sample) + 1] = ignore_case_colorinterp[text.lower()]  # type: ignore enum typing
+                colorinterp[int(sample) + 1] = LOWER_CASE_COLORINTERP_MAPPING[
+                    text.lower()
+                ]
 
     return GDALMetadata(
         band_statistics=dict(band_statistics),
