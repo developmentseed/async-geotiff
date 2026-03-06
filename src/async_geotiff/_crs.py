@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyproj import CRS
+from pyproj.crs import CoordinateOperation  # type: ignore[import]
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory
@@ -111,6 +112,21 @@ def _projected_projection(gkd: GeoKeyDirectory) -> int | dict:
     return _build_user_defined_projected_projjson(gkd)
 
 
+def _parse_geog_citation(citation: str) -> dict[str, str]:
+    """Parse a GDAL-style geog_citation string into a dict of key/value pairs.
+
+    Example input:
+        "GCS Name = My CRS|Datum = My Datum|Primem = Greenwich|"
+    """
+    result: dict[str, str] = {}
+    for part in citation.split("|"):
+        part = part.strip()
+        if "=" in part:
+            k, v = part.split("=", 1)
+            result[k.strip()] = v.strip()
+    return result
+
+
 def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
     """Build a user-defined geographic CRS PROJJSON dict.
 
@@ -133,6 +149,15 @@ def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
         pm_longitude = gkd.geog_prime_meridian_long
         pm_name = "User-defined"
 
+    # Try to extract structured names from GDAL-style geog_citation
+    citation_parts = (
+        _parse_geog_citation(gkd.geog_citation) if gkd.geog_citation else {}
+    )
+    gcs_name = citation_parts.get("GCS Name") or gkd.geog_citation or "User-defined"
+    datum_name = citation_parts.get("Datum") or gkd.geog_citation or "User-defined"
+    if citation_parts.get("Primem"):
+        pm_name = citation_parts["Primem"]
+
     # Build datum
     datum_json: dict
     if (
@@ -146,7 +171,7 @@ def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
     else:
         datum_json = {
             "type": "GeodeticReferenceFrame",
-            "name": gkd.geog_citation or "User-defined",
+            "name": datum_name,
             "ellipsoid": ellipsoid,
             "prime_meridian": {
                 "name": pm_name,
@@ -157,7 +182,7 @@ def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
     return {
         "type": "GeographicCRS",
         "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
-        "name": gkd.geog_citation or "User-defined",
+        "name": gcs_name,
         "datum": datum_json,
         "coordinate_system": _geographic_cs(gkd),
     }
@@ -185,7 +210,7 @@ def _build_user_defined_projected_projjson(gkd: GeoKeyDirectory) -> dict:
     return {
         "type": "ProjectedCRS",
         "$schema": "https://proj.org/schemas/v0.7/projjson.schema.json",
-        "name": gkd.proj_citation or "User-defined",
+        "name": gkd.proj_citation or gkd.citation or "User-defined",
         "base_crs": base_crs_json,
         "conversion": conversion,
         "coordinate_system": cs,
@@ -195,8 +220,12 @@ def _build_user_defined_projected_projjson(gkd: GeoKeyDirectory) -> dict:
 def _build_ellipsoid_params(gkd: GeoKeyDirectory) -> dict:
     """Build ellipsoid JSON parameters from geo keys."""
     if gkd.geog_ellipsoid is not None and gkd.geog_ellipsoid != USER_DEFINED_CRS:
-        # Known ellipsoid by EPSG code — use parameters from geo keys if present
-        ellipsoid: dict = {"name": f"EPSG ellipsoid {gkd.geog_ellipsoid}"}
+        # Known ellipsoid by EPSG code — use parameters from geo keys if present,
+        # and include the EPSG id so pyproj resolves the canonical name.
+        ellipsoid: dict = {
+            "name": f"EPSG ellipsoid {gkd.geog_ellipsoid}",
+            "id": {"authority": "EPSG", "code": gkd.geog_ellipsoid},
+        }
 
         if gkd.geog_semi_major_axis is not None:
             ellipsoid["semi_major_axis"] = gkd.geog_semi_major_axis
@@ -259,6 +288,11 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
     """Build a PROJ JSON conversion (coordinate operation) from geo keys."""
     ct = gkd.proj_coord_trans
     if ct is None:
+        # Fall back to the named projection code (GeoKey 3074) if available
+        if gkd.projection is not None and gkd.projection != USER_DEFINED_CRS:
+            conv = CoordinateOperation.from_epsg(gkd.projection).to_json_dict()
+            conv.pop("$schema", None)
+            return conv
         raise ValueError("User-defined projected CRS requires proj_coord_trans")
 
     # Helper to build a projection parameter with unit
