@@ -222,12 +222,11 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
                 extra_samples=self._primary_ifd.extra_samples or [],
             ),
         )
-        if self._gdal_metadata and self._gdal_metadata.colorinterp:
-            for (
-                band_index,
-                color_interp,
-            ) in self._gdal_metadata.colorinterp.items():
+
+        if gdal_metadata := self._gdal_metadata:
+            for band_index, color_interp in gdal_metadata.colorinterp.items():
                 interps[band_index - 1] = color_interp
+
         return tuple(interps)
 
     @property
