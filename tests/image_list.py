@@ -10,9 +10,14 @@ ALL_COG_IMAGES: list[tuple[str, str]] = [
     ("rasterio", "float32_1band_lerc_zstd_block32"),
     ("rasterio", "uint16_1band_lzw_block128_predictor2"),
     ("rasterio", "uint16_1band_scale_offset"),
+    ("rasterio", "uint8_1band_and_alpha_deflate_block64_cog"),
+    ("rasterio", "uint8_1band_deflate_block128_unaligned_mask"),
+    ("rasterio", "uint8_1band_deflate_block128_unaligned_predictor2"),
     ("rasterio", "uint8_1band_deflate_block128_unaligned"),
     ("rasterio", "uint8_1band_lzma_block64"),
     ("rasterio", "uint8_1band_lzw_block64_predictor2"),
+    ("rasterio", "uint8_1band_zstd_level1_block64"),
+    ("rasterio", "uint8_nonrgb_deflate_block64_cog"),
     ("rasterio", "uint8_rgb_deflate_block64_cog"),
     ("rasterio", "uint8_rgb_webp_block64_cog"),
     ("rasterio", "uint8_rgba_webp_block64_cog"),
@@ -35,6 +40,7 @@ If images have overviews, they should be included in `ALL_COG_IMAGES` instead.
 
 ALL_TEST_IMAGES: list[tuple[str, str]] = [
     *ALL_DATA_IMAGES,
+    ("rio-tiler", "cog_rgb_with_stats"),
     # YCbCr is auto-decompressed by rasterio
     ("vantor", "maxar_opendata_yellowstone_visual"),
     ("source-coop-alpha-earth", "xjejfvrbm1fbu1ecw-0000000000-0000008192"),

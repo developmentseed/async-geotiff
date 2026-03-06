@@ -215,11 +215,19 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def colorinterp(self) -> tuple[ColorInterp, ...]:
         """The color interpretation of each band in index order."""
-        return infer_color_interpretation(
-            count=self.count,
-            photometric=self.photometric,
-            extra_samples=self._primary_ifd.extra_samples or [],
+        interps = list(
+            infer_color_interpretation(
+                count=self.count,
+                photometric=self.photometric,
+                extra_samples=self._primary_ifd.extra_samples or [],
+            ),
         )
+
+        if gdal_metadata := self._gdal_metadata:
+            for band_index, color_interp in gdal_metadata.colorinterp.items():
+                interps[band_index - 1] = color_interp
+
+        return tuple(interps)
 
     @property
     def colormap(self) -> Colormap | None:
