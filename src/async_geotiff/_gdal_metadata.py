@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import defusedxml.ElementTree as ET  # noqa: N817
+
+from async_geotiff.enums import ColorInterp
 
 
 @dataclass
@@ -36,6 +38,13 @@ class GDALMetadata:
 
     scales: tuple[float, ...]
 
+    colorinterp: dict[int, ColorInterp] = field(default_factory=dict)
+    """A mapping of 1-based band index to overridden ColorInterp.
+
+    When present, these values override what would otherwise be inferred
+    from the photometric interpretation tag.
+    """
+
 
 def parse_gdal_metadata(  # noqa: C901
     gdal_metadata: str | None,
@@ -53,37 +62,39 @@ def parse_gdal_metadata(  # noqa: C901
     band_statistics: defaultdict[int, BandStatistics] = defaultdict(BandStatistics)
     offsets: list[float] = [0.0] * count
     scales: list[float] = [1.0] * count
+    colorinterp: dict[int, ColorInterp] = {}
 
     for elem in root.findall("Item"):
         name = elem.attrib.get("name")
         sample = elem.attrib.get("sample")
+        role = elem.attrib.get("role")
         text = elem.text or ""
         match name:
             # Add 1 to get a 1-based band index to match GDAL.
-            case "STATISTICS_MAXIMUM":
-                assert sample is not None  # noqa: S101
+            case "STATISTICS_MAXIMUM" if sample is not None:
                 band_statistics[int(sample) + 1].max = float(text)
-            case "STATISTICS_MEAN":
-                assert sample is not None  # noqa: S101
+            case "STATISTICS_MEAN" if sample is not None:
                 band_statistics[int(sample) + 1].mean = float(text)
-            case "STATISTICS_MINIMUM":
-                assert sample is not None  # noqa: S101
+            case "STATISTICS_MINIMUM" if sample is not None:
                 band_statistics[int(sample) + 1].min = float(text)
-            case "STATISTICS_STDDEV":
-                assert sample is not None  # noqa: S101
+            case "STATISTICS_STDDEV" if sample is not None:
                 band_statistics[int(sample) + 1].std = float(text)
-            case "STATISTICS_VALID_PERCENT":
-                assert sample is not None  # noqa: S101
+            case "STATISTICS_VALID_PERCENT" if sample is not None:
                 band_statistics[int(sample) + 1].valid_percent = float(text)
-            case "OFFSET":
-                assert sample is not None  # noqa: S101
+            case "OFFSET" if sample is not None:
                 offsets[int(sample)] = float(text)
-            case "SCALE":
-                assert sample is not None  # noqa: S101
+            case "SCALE" if sample is not None:
                 scales[int(sample)] = float(text)
+            case "COLORINTERP" if role == "colorinterp" and sample is not None:
+                ignore_case_colorinterp = {
+                    name.lower(): interp
+                    for name, interp in ColorInterp._member_map_.items()
+                }
+                colorinterp[int(sample) + 1] = ignore_case_colorinterp[text.lower()]  # type: ignore enum typing
 
     return GDALMetadata(
         band_statistics=dict(band_statistics),
         offsets=tuple(offsets),
         scales=tuple(scales),
+        colorinterp=colorinterp,
     )
