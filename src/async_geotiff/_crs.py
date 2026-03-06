@@ -120,9 +120,9 @@ def _parse_geog_citation(citation: str) -> dict[str, str]:
     """
     result: dict[str, str] = {}
     for part in citation.split("|"):
-        part = part.strip()
-        if "=" in part:
-            k, v = part.split("=", 1)
+        stripped = part.strip()
+        if "=" in stripped:
+            k, v = stripped.split("=", 1)
             result[k.strip()] = v.strip()
     return result
 
