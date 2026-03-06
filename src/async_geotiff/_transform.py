@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import math
 from math import floor
-from typing import TYPE_CHECKING, Literal, Protocol
+from typing import TYPE_CHECKING, Literal, NamedTuple, Protocol, cast
 
-import numpy as np
 from affine import Affine
 
 if TYPE_CHECKING:
@@ -75,6 +74,23 @@ def create_from_model_transformation(model_transformation: list[float]) -> Affin
     )
 
 
+# https://github.com/rasterio/rasterio/blob/7689d9dc83a51b7cc12d1707ce6b011885f61560/rasterio/coords.py#L5-L17
+class BoundingBox(NamedTuple):
+    """Bounding box, defining extent in cartesian coordinates."""
+
+    left: float
+    """Left coordinate"""
+
+    bottom: float
+    """Bottom coordinate."""
+
+    right: float
+    """Right coordinate"""
+
+    top: float
+    """Top coordinate"""
+
+
 class HasTransform(Protocol):
     """Protocol for objects that have an affine transform."""
 
@@ -99,32 +115,34 @@ class TransformMixin:
     """
 
     @property
-    def bounds(self: HasTransform) -> tuple[float, float, float, float]:
+    def bounds(self: HasTransform) -> BoundingBox:
         """Return the bounds of the dataset in the units of its CRS.
 
         Returns:
-            lower left x, lower left y, upper right x, upper right y
+            BoundingBox: The bounding box of the dataset.
 
         """
-        # Transform all four corners to handle rotated images correctly
-        # Pixel coordinates of corners: (x, y, 1) for affine transform
-        corners_pixel = np.array(
-            [
-                [0, 0, 1],
-                [self.width, 0, 1],
-                [0, self.height, 1],
-                [self.width, self.height, 1],
-            ],
-        )
+        tr = self.transform
+        width = self.width
+        height = self.height
 
-        # Apply affine transform: transform @ corners_pixel.T
-        transform_matrix = np.array(self.transform).reshape(3, 3)
-        corners_geo = (transform_matrix @ corners_pixel.T)[:2].T
+        # TODO: remove explicit casts with affine v3
+        # https://github.com/developmentseed/async-geotiff/issues/123
 
-        min_x, min_y = corners_geo.min(axis=0)
-        max_x, max_y = corners_geo.max(axis=0)
+        # non-rotated transform
+        if tr.b == tr.d == 0:
+            c0x, c0y = cast("tuple[float, float]", tr * (0, 0))
+            c2x, c2y = cast("tuple[float, float]", tr * (width, height))
+            return BoundingBox(c0x, c2y, c2x, c0y)
 
-        return (float(min_x), float(min_y), float(max_x), float(max_y))
+        # Rotated transform
+        c0x, c0y = cast("tuple[float, float]", tr * (0, 0))
+        c1x, c1y = cast("tuple[float, float]", tr * (0, height))
+        c2x, c2y = cast("tuple[float, float]", tr * (width, height))
+        c3x, c3y = cast("tuple[float, float]", tr * (width, 0))
+        xs = (c0x, c1x, c2x, c3x)
+        ys = (c0y, c1y, c2y, c3y)
+        return BoundingBox(min(xs), min(ys), max(xs), max(ys))
 
     def index(
         self: HasTransform,
