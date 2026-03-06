@@ -10,6 +10,7 @@ ALL_COG_IMAGES: list[tuple[str, str]] = [
     ("rasterio", "float32_1band_lerc_zstd_block32"),
     ("rasterio", "uint16_1band_lzw_block128_predictor2"),
     ("rasterio", "uint16_1band_scale_offset"),
+    ("rasterio", "uint8_1band_and_alpha_deflate_block64_cog"),
     ("rasterio", "uint8_1band_deflate_block128_unaligned_mask"),
     ("rasterio", "uint8_1band_deflate_block128_unaligned_predictor2"),
     ("rasterio", "uint8_1band_deflate_block128_unaligned"),
