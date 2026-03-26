@@ -77,7 +77,7 @@ window = Window(col_off=0, row_off=0, width=512, height=512)
 array = await overview.read(window=window)
 ```
 
-The `read` method returns an [`Array`][async_geotiff.Array] instance, which has fields including `data`, `shape`, `mask`, `transform`, and `crs`.
+The `read` method returns a [`RasterArray`][async_geotiff.RasterArray] instance, which has fields including `data`, `shape`, `mask`, `transform`, and `crs`.
 
 ```py
 # The affine transform of the loaded array
@@ -399,7 +399,7 @@ The majority of these test files are [written using Rasterio](https://github.com
 
 ### Better API for handling photometric interpretations
 
-Currently Async-GeoTIFF doesn't decode data out of RGB color spaces like YCbCr, which doesn't match Rasterio's handling. We may add an API like `Array.to_rgb` to offer explicit conversion to an RGB color space.
+Currently Async-GeoTIFF doesn't decode data out of RGB color spaces like YCbCr, which doesn't match Rasterio's handling. We may add an API like `RasterArray.to_rgb` to offer explicit conversion to an RGB color space.
 
 ### More compression support
 
