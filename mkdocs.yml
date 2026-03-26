@@ -23,7 +23,7 @@ nav:
   - API Reference:
       - api/geotiff.md
       - api/overview.md
-      - api/array.md
+      - api/raster-array.md
       - api/tile.md
       - api/window.md
       - api/colormap.md

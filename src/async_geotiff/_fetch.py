@@ -5,15 +5,14 @@ from typing import TYPE_CHECKING, Protocol
 
 from affine import Affine
 
-from async_geotiff._array import Array
+from async_geotiff._array import RasterArray
 from async_geotiff._tile import Tile
 from async_geotiff._transform import HasTransform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from async_tiff import Array as AsyncTiffArray
-    from async_tiff import ImageFileDirectory
+    from async_tiff import Array, ImageFileDirectory
 
     from async_geotiff import GeoTIFF
 
@@ -85,7 +84,7 @@ class FetchTileMixin:
         """
         tile_fut = self._ifd.fetch_tile(x, y)
 
-        mask_data: AsyncTiffArray | None = None
+        mask_data: Array | None = None
         if self._mask_ifd is not None:
             mask_fut = self._mask_ifd.fetch_tile(x, y)
             tile, mask = await asyncio.gather(tile_fut, mask_fut)
@@ -99,7 +98,7 @@ class FetchTileMixin:
             y * self.tile_height,
         )
 
-        array = Array._create(  # noqa: SLF001
+        array = RasterArray._create(  # noqa: SLF001
             data=tile_data,
             mask=mask_data,
             planar_configuration=self._ifd.planar_configuration,
@@ -144,7 +143,7 @@ class FetchTileMixin:
         """
         tiles_fut = self._ifd.fetch_tiles(xy)
 
-        decoded_masks: list[AsyncTiffArray | None] = [None] * len(xy)
+        decoded_masks: list[Array | None] = [None] * len(xy)
         if self._mask_ifd is not None:
             masks_fut = self._mask_ifd.fetch_tiles(xy)
             tiles, masks = await asyncio.gather(tiles_fut, masks_fut)
@@ -168,7 +167,7 @@ class FetchTileMixin:
                 x * self.tile_width,
                 y * self.tile_height,
             )
-            array = Array._create(  # noqa: SLF001
+            array = RasterArray._create(  # noqa: SLF001
                 data=tile_data,
                 mask=mask_data,
                 planar_configuration=self._ifd.planar_configuration,
@@ -197,8 +196,8 @@ def _clip_to_image_bounds(
     self: HasTiffReference,
     x: int,
     y: int,
-    array: Array,
-) -> Array:
+    array: RasterArray,
+) -> RasterArray:
     """Clip a decoded tile array to the valid image bounds.
 
     Edge tiles in a COG are always encoded at the full tile size, with the
@@ -221,7 +220,7 @@ def _clip_to_image_bounds(
         array.mask[:clipped_height, :clipped_width] if array.mask is not None else None
     )
 
-    return Array(
+    return RasterArray(
         data=clipped_data,
         mask=clipped_mask,
         width=clipped_width,

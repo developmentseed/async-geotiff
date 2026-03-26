@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Protocol
 import numpy as np
 from affine import Affine
 
-from async_geotiff._array import Array
+from async_geotiff._array import RasterArray
 from async_geotiff._fetch import HasTiffReference
 from async_geotiff._windows import Window
 from async_geotiff.exceptions import WindowError
@@ -35,7 +35,7 @@ class ReadMixin:
         self: CanFetchTiles,
         *,
         window: Window | None = None,
-    ) -> Array:
+    ) -> RasterArray:
         """Read pixel data for a window region.
 
         This method fetches all tiles that intersect the given window and
@@ -46,7 +46,7 @@ class ReadMixin:
                 If None, the entire image is read.
 
         Returns:
-            An Array containing the pixel data for the requested window.
+            A RasterArray containing the pixel data for the requested window.
 
         Raises:
             WindowError: If the window extends outside the image bounds.
@@ -59,7 +59,7 @@ async def read(
     self: CanFetchTiles,
     *,
     window: Window | None = None,
-) -> Array:
+) -> RasterArray:
     if isinstance(window, Window):
         win = window
     else:
@@ -114,7 +114,7 @@ async def read(
         win.row_off,
     )
 
-    return Array(
+    return RasterArray(
         data=output_data,
         mask=output_mask,
         width=win.width,

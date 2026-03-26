@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from async_geotiff._array import Array
+    from async_geotiff._array import RasterArray
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
@@ -18,7 +18,7 @@ class Tile:
     y: int
     """The tile row index in the GeoTIFF or overview."""
 
-    array: Array
+    array: RasterArray
     """The array data for this tile."""
 
 

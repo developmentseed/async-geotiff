@@ -11,7 +11,7 @@ from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
     from affine import Affine
-    from async_tiff import Array as AsyncTiffArray
+    from async_tiff import Array
     from numpy.typing import NDArray
     from pyproj.crs import CRS
 
@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
-class Array(TransformMixin):
-    """An array representation of data from a GeoTIFF."""
+class RasterArray(TransformMixin):
+    """Georeferenced array data from a GeoTIFF."""
 
     data: NDArray
     """The array data with shape (bands, height, width)."""
@@ -56,14 +56,14 @@ class Array(TransformMixin):
     def _create(  # noqa: PLR0913
         cls,
         *,
-        data: AsyncTiffArray,
-        mask: AsyncTiffArray | None,
+        data: Array,
+        mask: Array | None,
         planar_configuration: PlanarConfiguration,
         transform: Affine,
         geotiff: GeoTIFF,
         alpha_band_idx: int | None,
     ) -> Self:
-        """Create an Array from async_tiff data.
+        """Create a RasterArray from async_tiff data.
 
         Handles axis reordering to ensure data is always in (bands, height, width)
         order, matching rasterio's convention.
@@ -102,15 +102,15 @@ class Array(TransformMixin):
         )
 
     def as_masked(self) -> MaskedArray:
-        """Return the data as a masked array using the Array mask or nodata value.
+        """Return the data as a masked array using the array mask or nodata value.
 
         !!! warning
             In a numpy [`MaskedArray`][numpy.ma.MaskedArray], `True`
             indicates invalid (masked) data and `False` indicates valid data.
 
             This is the inverse convention of a GeoTIFF's mask. The boolean array
-            [`Array.mask`][async_geotiff.Array.mask] uses `True` for valid data and
-            `False` for invalid data.
+            [`RasterArray.mask`][async_geotiff.RasterArray.mask] uses `True` for valid
+            data and `False` for invalid data.
 
         Returns:
             A masked array with the same shape as `data`, where invalid data
