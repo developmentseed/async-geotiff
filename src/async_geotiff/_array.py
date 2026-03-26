@@ -63,7 +63,7 @@ class RasterArray(TransformMixin):
         geotiff: GeoTIFF,
         alpha_band_idx: int | None,
     ) -> Self:
-        """Create an Array from async_tiff data.
+        """Create a RasterArray from async_tiff data.
 
         Handles axis reordering to ensure data is always in (bands, height, width)
         order, matching rasterio's convention.
