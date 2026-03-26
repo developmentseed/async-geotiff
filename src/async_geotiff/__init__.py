@@ -3,7 +3,7 @@
 [cogeo]: https://cogeo.org/
 """
 
-from . import exceptions
+from . import exceptions, utils
 from ._array import RasterArray
 from ._gdal_metadata import BandStatistics
 from ._geotiff import GeoTIFF
@@ -23,4 +23,5 @@ __all__ = [
     "Window",
     "__version__",
     "exceptions",
+    "utils",
 ]
