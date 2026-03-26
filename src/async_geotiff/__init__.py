@@ -4,7 +4,7 @@
 """
 
 from . import exceptions
-from ._array import Array
+from ._array import RasterArray
 from ._gdal_metadata import BandStatistics
 from ._geotiff import GeoTIFF
 from ._overview import Overview
@@ -14,11 +14,11 @@ from ._version import __version__
 from ._windows import Window
 
 __all__ = [
-    "Array",
     "BandStatistics",
     "BoundingBox",
     "GeoTIFF",
     "Overview",
+    "RasterArray",
     "Tile",
     "Window",
     "__version__",

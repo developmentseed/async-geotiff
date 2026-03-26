@@ -108,7 +108,7 @@ window = Window(col_off=0, row_off=0, width=512, height=512)
 array = await overview.read(window=window)
 ```
 
-This `Array` instance has `data`, `mask`, and some other metadata about the fetched array data.
+This `RasterArray` instance has `data`, `mask`, and some other metadata about the fetched array data.
 
 Plot, using [`rasterio.plot.show`](https://rasterio.readthedocs.io/en/stable/api/rasterio.plot.html#rasterio.plot.show) (requires `matplotlib`):
 

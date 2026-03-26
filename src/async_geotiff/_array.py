@@ -11,7 +11,7 @@ from async_geotiff._transform import TransformMixin
 
 if TYPE_CHECKING:
     from affine import Affine
-    from async_tiff import Array as AsyncTiffArray
+    from async_tiff import Array
     from numpy.typing import NDArray
     from pyproj.crs import CRS
 
@@ -19,8 +19,8 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, kw_only=True, eq=False)
-class Array(TransformMixin):
-    """An array representation of data from a GeoTIFF."""
+class RasterArray(TransformMixin):
+    """Georeferenced array data from a GeoTIFF."""
 
     data: NDArray
     """The array data with shape (bands, height, width)."""
@@ -56,8 +56,8 @@ class Array(TransformMixin):
     def _create(  # noqa: PLR0913
         cls,
         *,
-        data: AsyncTiffArray,
-        mask: AsyncTiffArray | None,
+        data: Array,
+        mask: Array | None,
         planar_configuration: PlanarConfiguration,
         transform: Affine,
         geotiff: GeoTIFF,
