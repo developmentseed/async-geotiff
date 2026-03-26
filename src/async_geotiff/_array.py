@@ -102,15 +102,15 @@ class RasterArray(TransformMixin):
         )
 
     def as_masked(self) -> MaskedArray:
-        """Return the data as a masked array using the Array mask or nodata value.
+        """Return the data as a masked array using the array mask or nodata value.
 
         !!! warning
             In a numpy [`MaskedArray`][numpy.ma.MaskedArray], `True`
             indicates invalid (masked) data and `False` indicates valid data.
 
             This is the inverse convention of a GeoTIFF's mask. The boolean array
-            [`Array.mask`][async_geotiff.Array.mask] uses `True` for valid data and
-            `False` for invalid data.
+            [`RasterArray.mask`][async_geotiff.RasterArray.mask] uses `True` for valid
+            data and `False` for invalid data.
 
         Returns:
             A masked array with the same shape as `data`, where invalid data
