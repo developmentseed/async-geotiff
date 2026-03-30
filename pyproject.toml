@@ -89,7 +89,7 @@ ignore_missing_imports = true
 select = ["ALL"]
 ignore = [
     "D203",   # incompatible with D211
-    "D212",   # incompatible with D213
+    "D213",   # incompatible with D212
     "EM101",  # raw string in exception
     "EM102",  # f-string in exception
     "FIX002", # todo statements
