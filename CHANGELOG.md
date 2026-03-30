@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.4.0 - 2026-03-30
+
+### Breaking Changes
+
+* refactor!: Rename `Array` to `RasterArray` by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/131
+
+### Features
+
+* feat: override color interpretation based on GDAL metadata by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/126
+* feat: Add utils.reshape_as_image by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/132
+
+### Fixes
+
+* fix: Match rasterio behavior with a flipped y coordinate by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/124
+* fix: Add new test with custom CRS by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/125
+
+
+### Other
+
+* ci: Set up trusted publishing by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/128
+* chore: put types-defusedxml in dev dependencies by @autra in https://github.com/developmentseed/async-geotiff/pull/133
+
+## New Contributors
+* @autra made their first contribution in https://github.com/developmentseed/async-geotiff/pull/133
+
+**Full Changelog**: https://github.com/developmentseed/async-geotiff/compare/v0.3.0...v0.4.0
+
 ## 0.3.0 - 2026-03-03
 
 ### What's Changed

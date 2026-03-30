@@ -1,6 +1,6 @@
 [project]
 name = "async-geotiff"
-version = "0.3.0"
+version = "0.4.0"
 description = "Async GeoTIFF reader for Python"
 readme = "README.md"
 authors = [{ name = "Kyle Barron", email = "kyle@developmentseed.org" }]
@@ -88,6 +88,8 @@ ignore_missing_imports = true
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "D203",   # incompatible with D211
+    "D212",   # incompatible with D213
     "EM101",  # raw string in exception
     "EM102",  # f-string in exception
     "FIX002", # todo statements
