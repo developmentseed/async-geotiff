@@ -27,6 +27,7 @@ nav:
       - api/tile.md
       - api/window.md
       - api/colormap.md
+      - api/utils.md
       - api/enums.md
       - api/exceptions.md
       - api/tms.md
