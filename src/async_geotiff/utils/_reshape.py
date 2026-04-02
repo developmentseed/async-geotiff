@@ -30,8 +30,7 @@ def reshape_as_image(
     For more information, read the [rasterio documentation on interoperability](https://rasterio.readthedocs.io/en/stable/topics/image_processing.html).
 
     Args:
-        arr : array-like of shape (bands, rows, columns)
-            image to reshape
+        arr: array-like of shape (bands, rows, columns)
 
     """
     # This is vendored from rasterio:
