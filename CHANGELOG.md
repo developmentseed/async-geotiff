@@ -22,7 +22,8 @@
 * ci: Set up trusted publishing by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/128
 * chore: put types-defusedxml in dev dependencies by @autra in https://github.com/developmentseed/async-geotiff/pull/133
 
-## New Contributors
+### New Contributors
+
 * @autra made their first contribution in https://github.com/developmentseed/async-geotiff/pull/133
 
 **Full Changelog**: https://github.com/developmentseed/async-geotiff/compare/v0.3.0...v0.4.0
