@@ -12,31 +12,31 @@
         <meta name="author" content="Development Seed">
       
       
-        <link rel="canonical" href="https://developmentseed.org/async-geotiff/latest/blog/category/release/">
+        <link rel="canonical" href="https://developmentseed.org/async-geotiff/latest/api/utils/">
       
       
-        <link rel="prev" href="../../">
+        <link rel="prev" href="../colormap/">
       
       
-        <link rel="next" href="../../archive/2026/">
+        <link rel="next" href="../enums/">
       
       
         
       
       
-      <link rel="icon" href="../../../assets/ds_favicon.png">
+      <link rel="icon" href="../../assets/ds_favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>Release - async-geotiff</title>
+        <title>GeoTIFF utilities - async-geotiff</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,11 +55,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../overrides/stylesheets/extra.css">
+      <link rel="stylesheet" href="../../overrides/stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -67,17 +67,17 @@
     
   
 <meta property="og:type" content="website" />
-<meta property="og:title" content="Release - async-geotiff" />
+<meta property="og:title" content="GeoTIFF utilities - async-geotiff" />
 <meta property="og:description" content="A fast, async GeoTIFF and Cloud-Optimized GeoTIFF (COG) reader for Python." />
-<meta property="og:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/blog/category/release.png" />
+<meta property="og:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/api/utils.png" />
 <meta property="og:image:type" content="image/png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:url" content="https://developmentseed.org/async-geotiff/latest/blog/category/release/" />
+<meta property="og:url" content="https://developmentseed.org/async-geotiff/latest/api/utils/" />
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content="Release - async-geotiff" />
+<meta property="twitter:title" content="GeoTIFF utilities - async-geotiff" />
 <meta property="twitter:description" content="A fast, async GeoTIFF and Cloud-Optimized GeoTIFF (COG) reader for Python." />
-<meta property="twitter:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/blog/category/release.png" />
+<meta property="twitter:image" content="https://developmentseed.org/async-geotiff/latest/assets/images/social/api/utils.png" />
 </head>
   
   
@@ -97,7 +97,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#release" class="md-skip">
+        <a href="#geotiff-utilities" class="md-skip">
           Skip to content
         </a>
       
@@ -112,12 +112,12 @@
             <div class="md-banner__inner md-grid md-typeset">
               
   You're not viewing the latest version.
-  <a href="../../../..">
+  <a href="../../..">
     <strong>Click here to go to latest.</strong>
   </a>
 
             </div>
-            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
+            <script>var el=document.querySelector("[data-md-component=outdated]"),base=new URL("../.."),outdated=__md_get("__outdated",sessionStorage,base);!0===outdated&&el&&(el.hidden=!1)</script>
           </aside>
         
       </div>
@@ -129,9 +129,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="async-geotiff" class="md-header__button md-logo" aria-label="async-geotiff" data-md-component="logo">
+    <a href="../.." title="async-geotiff" class="md-header__button md-logo" aria-label="async-geotiff" data-md-component="logo">
       
-  <img src="../../../assets/logo_no_text.png" alt="logo">
+  <img src="../../assets/logo_no_text.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -148,7 +148,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Release
+              GeoTIFF utilities
             
           </span>
         </div>
@@ -281,9 +281,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="async-geotiff" class="md-nav__button md-logo" aria-label="async-geotiff" data-md-component="logo">
+    <a href="../.." title="async-geotiff" class="md-nav__button md-logo" aria-label="async-geotiff" data-md-component="logo">
       
-  <img src="../../../assets/logo_no_text.png" alt="logo">
+  <img src="../../assets/logo_no_text.png" alt="logo">
 
     </a>
     async-geotiff
@@ -310,7 +310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -334,8 +334,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -363,11 +365,11 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -388,7 +390,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -406,7 +408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/geotiff/" class="md-nav__link">
+      <a href="../geotiff/" class="md-nav__link">
         
   
   
@@ -434,7 +436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/overview/" class="md-nav__link">
+      <a href="../overview/" class="md-nav__link">
         
   
   
@@ -462,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/raster-array/" class="md-nav__link">
+      <a href="../raster-array/" class="md-nav__link">
         
   
   
@@ -490,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/tile/" class="md-nav__link">
+      <a href="../tile/" class="md-nav__link">
         
   
   
@@ -518,7 +520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/window/" class="md-nav__link">
+      <a href="../window/" class="md-nav__link">
         
   
   
@@ -546,7 +548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/colormap/" class="md-nav__link">
+      <a href="../colormap/" class="md-nav__link">
         
   
   
@@ -571,10 +573,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../api/utils/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GeoTIFF utilities
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -590,6 +619,54 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#async_geotiff.utils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;utils
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" utils">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#async_geotiff.utils.reshape_as_image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;reshape_as_image
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -602,7 +679,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/enums/" class="md-nav__link">
+      <a href="../enums/" class="md-nav__link">
         
   
   
@@ -630,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/exceptions/" class="md-nav__link">
+      <a href="../exceptions/" class="md-nav__link">
         
   
   
@@ -658,7 +735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/tms/" class="md-nav__link">
+      <a href="../tms/" class="md-nav__link">
         
   
   
@@ -690,8 +767,6 @@
       
   
   
-    
-  
   
   
     
@@ -709,15 +784,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../blog/" class="md-nav__link ">
               
   
   
@@ -741,7 +816,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -814,7 +889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../archive/2026/" class="md-nav__link">
+      <a href="../../blog/archive/2026/" class="md-nav__link">
         
   
   
@@ -847,8 +922,6 @@
                 
   
   
-    
-  
   
   
     
@@ -860,11 +933,11 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
         
           
           <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
@@ -885,7 +958,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -900,23 +973,12 @@
                 
   
   
-    
-  
   
     
-      
-    
   
   
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../blog/category/release/" class="md-nav__link">
         
   
   
@@ -932,7 +994,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -960,7 +1021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../CHANGELOG/" class="md-nav__link">
+      <a href="../../CHANGELOG/" class="md-nav__link">
         
   
   
@@ -1000,6 +1061,42 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#async_geotiff.utils" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;utils
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" utils">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#async_geotiff.utils.reshape_as_image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;reshape_as_image
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1007,77 +1104,124 @@
             
           
           
-  <div class="md-content" data-md-component="content">
-    <div class="md-content__inner">
-      <header class="md-typeset">
-        <h1 id="release">Release<a class="headerlink" href="#release" title="Permanent link">&para;</a></h1>
-      </header>
-      
-        <article class="md-post md-post--excerpt">
-  <header class="md-post__header">
-    
-      <nav class="md-post__authors md-typeset">
-        
-          <span class="md-author">
-            <img src="https://github.com/kylebarron.png" alt="Kyle Barron">
-          </span>
-        
-      </nav>
-    
-    <div class="md-post__meta md-meta">
-      <ul class="md-meta__list">
-        <li class="md-meta__item">
-          <time datetime="2026-02-03 00:00:00+00:00">February 3, 2026</time></li>
-        
-          <li class="md-meta__item">
-            in
-            
-              <a href="./" class="md-meta__link">Release</a></li>
-        
-        
-          
-          <li class="md-meta__item">
-            
-              7 min read
-            
-          </li>
-        
-        
-      </ul>
-      
-    </div>
-  </header>
-  <div class="md-post__content md-typeset">
-    <h2 id="introducing-async-geotiff"><a class="toclink" href="../../2026/02/03/introducing-async-geotiff/">Introducing Async-GeoTIFF</a></h2>
-<p>We're introducing Async-GeoTIFF, a new high-level library for reading <a href="https://en.wikipedia.org/wiki/GeoTIFF">GeoTIFF</a> and <a href="https://cogeo.org/">Cloud-Optimized GeoTIFF</a> (COG) data. By leveraging <a href="https://realpython.com/async-io-python/">asynchronous I/O</a>, we can speed up concurrent GeoTIFF data fetching.</p>
-<p>According to the <a href="https://gdal.org/en/stable/community/user_survey_2025.html#raster-data-formats">2025 GDAL user survey</a>, almost 90% of respondents use GeoTIFFs and COGs as their primary raster data format. While <a href="https://gdal.org/en/stable/index.html">GDAL</a> and its Python bindings <a href="https://rasterio.readthedocs.io/">Rasterio</a> are fantastic, rock-solid tools, they don't support asynchronous I/O and are missing some modern Python usability features, like type hinting.</p>
-<p>We <a href="https://github.com/geospatial-jeff/pyasyncio-benchmark/blob/8809b62125ae75b3d216475e9964a6df4d96a91c/test_results/20250423_results/ec2_m5_300seconds/aggregated_results.csv">previously found</a> concurrent GeoTIFF metadata parsing at scale to be <strong>25x faster</strong> with the underlying Rust-based <a href="https://github.com/developmentseed/async-tiff">Async-TIFF</a> library than with Rasterio. We expect Async-GeoTIFF to bring similar performance improvements to concurrent server-side image reading, improving downstream applications such as <a href="https://github.com/developmentseed/titiler">Titiler</a>.</p>
-
-    
-      <nav class="md-post__action">
-        <a href="../../2026/02/03/introducing-async-geotiff/">
-          Continue reading
-        </a>
-      </nav>
-    
-    
-  </div>
-</article>
-      
-      
-        
-          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
 
 
 
-<nav class="md-pagination">
+                  
+
+
   
-</nav>
-        
-      
+  
+
+
+<h1 id="geotiff-utilities">GeoTIFF utilities<a class="headerlink" href="#geotiff-utilities" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="async_geotiff.utils" class="doc doc-heading">
+            <span class="doc doc-object-name doc-module-name">async_geotiff.utils</span>
+
+
+<a href="#async_geotiff.utils" class="headerlink" title="Permanent link">&para;</a></h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Public utilities for async-geotiff.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="async_geotiff.utils.reshape_as_image" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">reshape_as_image</span>
+
+
+<a href="#async_geotiff.utils.reshape_as_image" class="headerlink" title="Permanent link">&para;</a></h3>
+          <div class="doc-overloads">
+<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">reshape_as_image</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ma.MaskedArray" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray">MaskedArray</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ma.MaskedArray" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray">MaskedArray</a></span>
+</code></pre></div><div class="doc-signature codehilite"><pre><span></span><code><span class="nf">reshape_as_image</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><span title="async_geotiff.utils._reshape.T">T</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><span title="async_geotiff.utils._reshape.T">T</span></span><span class="p">]</span>
+</code></pre></div>          </div>
+<div class="doc-signature codehilite"><pre><span></span><code><span class="nf">reshape_as_image</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><span title="async_geotiff.utils._reshape.T">T</span></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ma.MaskedArray" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray">MaskedArray</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a></span><span class="p">[</span><span class="n"><span title="async_geotiff.utils._reshape.T">T</span></span><span class="p">]</span> <span class="o">|</span> <span class="n"><a class="autorefs autorefs-external" title="numpy.ma.MaskedArray" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray">MaskedArray</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return the source array reshaped into standard image axis ordering.</p>
+<p>Libraries like async-geotiff and rasterio return arrays in <code>(bands, rows, columns)</code>
+order, while image processing and visualization software like Lonboard require
+<code>(rows, columns, bands)</code> order.</p>
+<p>This function performs this reshaping by swapping the axes order from (bands, rows,
+columns) to (rows, columns, bands).</p>
+<p>For more information, read the <a href="https://rasterio.readthedocs.io/en/stable/topics/image_processing.html">rasterio documentation on interoperability</a>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+            <b><code>arr</code></b>
+              (<code><a class="autorefs autorefs-external" title="numpy.typing.NDArray" href="https://numpy.org/doc/stable/reference/typing.html#numpy.typing.NDArray">NDArray</a>[<span title="async_geotiff.utils._reshape.T">T</span>] | <a class="autorefs autorefs-external" title="numpy.ma.MaskedArray" href="https://numpy.org/doc/stable/reference/maskedarray.baseclass.html#numpy.ma.MaskedArray">MaskedArray</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>array-like of shape (bands, rows, columns)</p>
+          </div>
+        </li>
+    </ul>
+
+
     </div>
+
+</div>
+
+
+
   </div>
 
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+              </article>
+            </div>
+          
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
@@ -1138,10 +1282,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tracking", "search.suggest", "search.share"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.tracking", "search.suggest", "search.share"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
