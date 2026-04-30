@@ -65,8 +65,13 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     Some tags, like most geo tags, only exist on the primary IFD.
     """
 
-    _mask_ifd: ImageFileDirectory | None = None
-    """The mask IFD of the full-resolution GeoTIFF, if any.
+    mask_ifd: ImageFileDirectory | None = None
+    """Access to the underlying ImageFileDirectory for the mask associated with the
+    full-resolution image, if any.
+
+    !!! warning
+        This is for advanced users who need access to the underlying TIFF object.
+        Most users should only need to use async-geotiff's higher-level APIs.
     """
 
     _gkd: GeoKeyDirectory = field(init=False)
@@ -97,8 +102,13 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return alpha_band_idxs[0] if alpha_band_idxs else None
 
     @property
-    def _ifd(self) -> ImageFileDirectory:
-        """An alias for the primary IFD to satisfy _fetch protocol."""
+    def ifd(self) -> ImageFileDirectory:
+        """Access to the underlying ImageFileDirectory of the full-resolution image.
+
+        !!! warning
+            This is for advanced users who need access to the underlying TIFF object.
+            Most users should only need to use async-geotiff's higher-level APIs.
+        """
         return self._primary_ifd
 
     @property
@@ -159,7 +169,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         if primary_mask_ifd := mask_ifds.get(
             (first_ifd.image_width, first_ifd.image_height),
         ):
-            object.__setattr__(self, "_mask_ifd", primary_mask_ifd)
+            object.__setattr__(self, "mask_ifd", primary_mask_ifd)
 
         # Build overviews, sorted by resolution (highest to lowest, i.e., largest first)
         # Sort by width * height descending
@@ -428,13 +438,13 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     def tile_height(self) -> int:
         """The height in pixels per tile of the image."""
         # A TIFF with a single tile can omit tile_height
-        return self._ifd.tile_height or self._ifd.image_height
+        return self.ifd.tile_height or self.ifd.image_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the image."""
         # A TIFF with a single tile can omit tile_width
-        return self._ifd.tile_width or self._ifd.image_width
+        return self.ifd.tile_width or self.ifd.image_width
 
     @property
     def transform(self) -> Affine:
