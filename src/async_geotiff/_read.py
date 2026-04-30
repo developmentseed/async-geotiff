@@ -97,7 +97,7 @@ async def read(
     # Create output array and mask array
     output_data = np.empty((num_bands, win.height, win.width), dtype=dtype)
     output_mask: NDArray[np.bool_] | None = None
-    if self._mask_ifd is not None:
+    if self.mask_ifd is not None:
         output_mask = np.ones((win.height, win.width), dtype=np.bool_)
 
     assemble_tiles(
