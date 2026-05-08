@@ -29,11 +29,22 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     """The GeoKeyDirectory of the primary IFD.
     """
 
-    _ifd: ImageFileDirectory
-    """The IFD for this overview level."""
+    ifd: ImageFileDirectory
+    """Access to the underlying ImageFileDirectory of this overview level.
 
-    _mask_ifd: ImageFileDirectory | None
-    """The IFD for the mask associated with this overview level, if any."""
+    !!! warning
+        This is for advanced users who need access to the underlying TIFF object.
+        Most users should only need to use async-geotiff's higher-level APIs.
+    """
+
+    mask_ifd: ImageFileDirectory | None
+    """Access to the underlying ImageFileDirectory for the mask associated with this
+    overview level, if any.
+
+    !!! warning
+        This is for advanced users who need access to the underlying TIFF object.
+        Most users should only need to use async-geotiff's higher-level APIs.
+    """
 
     @classmethod
     def _create(
@@ -49,8 +60,8 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         # We use object.__setattr__ because the dataclass is frozen
         object.__setattr__(instance, "_geotiff", geotiff)
         object.__setattr__(instance, "_gkd", gkd)
-        object.__setattr__(instance, "_ifd", ifd)
-        object.__setattr__(instance, "_mask_ifd", mask_ifd)
+        object.__setattr__(instance, "ifd", ifd)
+        object.__setattr__(instance, "mask_ifd", mask_ifd)
 
         return instance
 
@@ -67,7 +78,7 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def height(self) -> int:
         """The height of the overview in pixels."""
-        return self._ifd.image_height
+        return self.ifd.image_height
 
     @property
     def nodata(self) -> int | float | None:
@@ -77,14 +88,14 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the overview."""
-        tile_height = self._ifd.tile_height
+        tile_height = self.ifd.tile_height
         assert tile_height is not None, "Constructor validated that images are tiled"  # noqa: S101
         return tile_height
 
     @property
     def tile_width(self) -> int:
         """The width in pixels per tile of the overview."""
-        tile_width = self._ifd.tile_width
+        tile_width = self.ifd.tile_width
         assert tile_width is not None, "Constructor validated that images are tiled"  # noqa: S101
         return tile_width
 
@@ -111,4 +122,4 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     @property
     def width(self) -> int:
         """The width of the overview in pixels."""
-        return self._ifd.image_width
+        return self.ifd.image_width
