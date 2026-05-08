@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.5.0 - 2026-05-08
+
+### New Features
+
+* feat!: Allow public access to underlying IFD by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/153
+* feat: Add `shape` property to overview by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/154
+
+### Other
+
+* chore: allow uv up to 0.12.0 by @autra in https://github.com/developmentseed/async-geotiff/pull/136
+* docs: Add `async_geotiff.utils` to docs website by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/140
+* ci: add Dependabot for GitHub Actions version updates by @lhoupert in https://github.com/developmentseed/async-geotiff/pull/143
+* ci: Use github app token for conventional commit labeling by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/150
+* test: fix fixture dir discovery by @autra in https://github.com/developmentseed/async-geotiff/pull/137
+* ci: Pin third party actions to SHA hashes by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/155
+* docs: Improve docstring of GeoTIFF.open by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/157
+
+### New Contributors
+
+* @lhoupert made their first contribution in https://github.com/developmentseed/async-geotiff/pull/143
+* @dependabot[bot] made their first contribution in https://github.com/developmentseed/async-geotiff/pull/145
+
+**Full Changelog**: https://github.com/developmentseed/async-geotiff/compare/v0.4.0...v0.5.0
+
 ## 0.4.0 - 2026-03-30
 
 ### Breaking Changes
