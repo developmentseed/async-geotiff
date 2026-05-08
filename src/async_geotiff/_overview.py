@@ -86,6 +86,11 @@ class Overview(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         return self._geotiff.nodata
 
     @property
+    def shape(self) -> tuple[int, int]:
+        """Get the shape (height, width) of the overview."""
+        return (self.height, self.width)
+
+    @property
     def tile_height(self) -> int:
         """The height in pixels per tile of the overview."""
         tile_height = self.ifd.tile_height
