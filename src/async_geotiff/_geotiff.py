@@ -207,7 +207,13 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
 
         Args:
             path: The path within the store to read from.
-            store: The backend to use for data fetching.
+            store: The backend to use for data fetching. Most of the time, you'll want
+                to use a store from [obstore](https://developmentseed.org/obstore), such
+                as its [`S3Store`][obstore.store.S3Store],
+                [`GCSStore`][obstore.store.GCSStore], or
+                [`AzureStore`][obstore.store.AzureStore]. However, this can be any
+                object that implements the interface required by
+                [`ObspecInput`][async_tiff.ObspecInput].
             prefetch: The number of initial bytes to read up front.
             multiplier: The multiplier to use for readahead size growth. Must be
                 greater than 1.0. For example, for a value of `2.0`, the first metadata
