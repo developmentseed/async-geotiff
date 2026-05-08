@@ -55,8 +55,12 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
     issues.
     """
 
-    _tiff: TIFF
-    """The underlying async-tiff TIFF instance that we wrap.
+    tiff: TIFF
+    """The underlying async-tiff [TIFF][async_tiff.TIFF] instance that we wrap.
+
+    !!! warning
+        This is for advanced users who need access to the underlying TIFF object.
+        Most users should only need to use async-geotiff's higher-level APIs.
     """
 
     _primary_ifd: ImageFileDirectory = field(init=False)
@@ -129,7 +133,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
             raise ValueError("TIFF does not contain any IFDs")
 
         # We use object.__setattr__ because the dataclass is frozen
-        object.__setattr__(self, "_tiff", tiff)
+        object.__setattr__(self, "tiff", tiff)
         object.__setattr__(self, "_primary_ifd", first_ifd)
         object.__setattr__(self, "_gkd", gkd)
         object.__setattr__(
