@@ -21,12 +21,12 @@ class HasTiffReference(HasTransform, Protocol):
     """Protocol for objects that hold a TIFF reference and can request tiles."""
 
     @property
-    def _ifd(self) -> ImageFileDirectory:
+    def ifd(self) -> ImageFileDirectory:
         """The data IFD for this image (index, IFD)."""
         ...
 
     @property
-    def _mask_ifd(self) -> ImageFileDirectory | None:
+    def mask_ifd(self) -> ImageFileDirectory | None:
         """The mask IFD for this image (index, IFD), if any."""
         ...
 
@@ -82,11 +82,11 @@ class FetchTileMixin:
             A Tile object containing the fetched tile data.
 
         """
-        tile_fut = self._ifd.fetch_tile(x, y)
+        tile_fut = self.ifd.fetch_tile(x, y)
 
         mask_data: Array | None = None
-        if self._mask_ifd is not None:
-            mask_fut = self._mask_ifd.fetch_tile(x, y)
+        if self.mask_ifd is not None:
+            mask_fut = self.mask_ifd.fetch_tile(x, y)
             tile, mask = await asyncio.gather(tile_fut, mask_fut)
             tile_data, mask_data = await asyncio.gather(tile.decode(), mask.decode())
         else:
@@ -101,7 +101,7 @@ class FetchTileMixin:
         array = RasterArray._create(  # noqa: SLF001
             data=tile_data,
             mask=mask_data,
-            planar_configuration=self._ifd.planar_configuration,
+            planar_configuration=self.ifd.planar_configuration,
             transform=tile_transform,
             geotiff=self._geotiff,
             # TODO: when we support fetching partial bands, we need to check if the
@@ -141,11 +141,11 @@ class FetchTileMixin:
             boundless: If False, clip edge tiles to the image bounds.
 
         """
-        tiles_fut = self._ifd.fetch_tiles(xy)
+        tiles_fut = self.ifd.fetch_tiles(xy)
 
         decoded_masks: list[Array | None] = [None] * len(xy)
-        if self._mask_ifd is not None:
-            masks_fut = self._mask_ifd.fetch_tiles(xy)
+        if self.mask_ifd is not None:
+            masks_fut = self.mask_ifd.fetch_tiles(xy)
             tiles, masks = await asyncio.gather(tiles_fut, masks_fut)
 
             decoded_tile_futs = [tile.decode() for tile in tiles]
@@ -170,7 +170,7 @@ class FetchTileMixin:
             array = RasterArray._create(  # noqa: SLF001
                 data=tile_data,
                 mask=mask_data,
-                planar_configuration=self._ifd.planar_configuration,
+                planar_configuration=self.ifd.planar_configuration,
                 transform=tile_transform,
                 geotiff=self._geotiff,
                 # TODO: when we support fetching partial bands, we need to check if the
