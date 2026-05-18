@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 from dataclasses import dataclass, field
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Protocol, Self
 
 import numpy as np
 from async_tiff import TIFF
@@ -15,6 +15,7 @@ from async_tiff.enums import (
     PlanarConfiguration,
     SampleFormat,
 )
+from obspec import GetRangeAsync, GetRangesAsync
 
 from async_geotiff._colorinterp import infer_color_interpretation
 from async_geotiff._crs import crs_from_geo_keys
@@ -40,8 +41,16 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from affine import Affine
-    from async_tiff import GeoKeyDirectory, ImageFileDirectory, ObspecInput
+    from async_tiff import GeoKeyDirectory, ImageFileDirectory
     from pyproj.crs import CRS
+
+
+class Store(GetRangeAsync, GetRangesAsync, Protocol):
+    """Supported input to `store` param of `GeoTIFF.open`.
+
+    Anything that implements [GetRangeAsync][obspec.GetRangeAsync] and
+    [GetRangesAsync][obspec.GetRangesAsync] can be used as an input to the TIFF reader.
+    """
 
 
 @dataclass(frozen=True, init=False, kw_only=True, repr=False)
@@ -199,7 +208,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
         cls,
         path: str,
         *,
-        store: ObspecInput,
+        store: Store,
         prefetch: int = 32768,
         multiplier: float = 2.0,
     ) -> Self:
@@ -213,7 +222,7 @@ class GeoTIFF(ReadMixin, FetchTileMixin, TiledMixin, TransformMixin):
                 [`GCSStore`][obstore.store.GCSStore], or
                 [`AzureStore`][obstore.store.AzureStore]. However, this can be any
                 object that implements the interface required by
-                [`ObspecInput`][async_tiff.ObspecInput].
+                [`Store`][async_geotiff.Store].
             prefetch: The number of initial bytes to read up front.
             multiplier: The multiplier to use for readahead size growth. Must be
                 greater than 1.0. For example, for a value of `2.0`, the first metadata
