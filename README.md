@@ -1,9 +1,21 @@
 # async-geotiff
 
+[![PyPI][pypi_badge]][pypi_link]
+[![Conda Version][conda_version_badge]][conda_version]
+<!-- Restore once our download count looks good ;) -->
+<!-- [![PyPI - Downloads][pypi-img]][pypi-link] -->
+
+[pypi_badge]: https://badge.fury.io/py/async-geotiff.svg
+[pypi_link]: https://pypi.org/project/async-geotiff/
+[conda_version_badge]: https://img.shields.io/conda/vn/conda-forge/async-geotiff.svg
+[conda_version]: https://anaconda.org/conda-forge/async-geotiff
+[pypi-img]: https://static.pepy.tech/badge/async-geotiff
+[pypi-link]: https://pypi.org/project/async-geotiff/
+
 Fast, async GeoTIFF and [Cloud-Optimized GeoTIFF][cogeo] (COG) reader for Python, wrapping the Rust-based [Async-TIFF][async-tiff] library.
 
 [**Documentation website.**][docs] </br>
-[Release post for v0.1][release_01_post]
+[Introduction blog post][release_01_post]
 
 [release_01_post]: https://developmentseed.org/async-geotiff/latest/blog/2026/02/03/introducing-async-geotiff/
 
