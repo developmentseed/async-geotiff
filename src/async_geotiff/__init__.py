@@ -6,7 +6,7 @@
 from . import exceptions, utils
 from ._array import RasterArray
 from ._gdal_metadata import BandStatistics
-from ._geotiff import GeoTIFF
+from ._geotiff import GeoTIFF, Store
 from ._overview import Overview
 from ._tile import Tile
 from ._transform import BoundingBox
@@ -19,6 +19,7 @@ __all__ = [
     "GeoTIFF",
     "Overview",
     "RasterArray",
+    "Store",
     "Tile",
     "Window",
     "__version__",
