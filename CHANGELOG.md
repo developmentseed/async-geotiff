@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1 - 2026-05-18
+
+* feat: Add new `Store` protocol defined in this package by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/161
+* docs: Don't document private base classes by @kylebarron in https://github.com/developmentseed/async-geotiff/pull/162
+
+**Full Changelog**: https://github.com/developmentseed/async-geotiff/compare/v0.5.0...v0.5.1
+
 ## 0.5.0 - 2026-05-08
 
 ### New Features
