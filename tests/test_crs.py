@@ -43,7 +43,7 @@ async def test_crs(
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("variant", "file_name"),
-    [("nlcd", "nlcd_landcover")],
+    [("nlcd", "nlcd_landcover"), ("source-coop-vizzuality", "hfp_2017_100m_v1-2_cog")],
 )
 async def test_crs_custom_projjson_schema(
     load_geotiff: LoadGeoTIFF,
