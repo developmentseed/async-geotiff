@@ -55,6 +55,11 @@ def crs_from_geo_keys(gkd: GeoKeyDirectory) -> CRS:
 
         return CRS.from_json_dict(crs)
 
+    if model_type == USER_DEFINED_CRS:
+        wkt = _esri_pe_string(gkd)
+        if wkt is not None:
+            return CRS.from_wkt(wkt)
+
     raise ValueError(f"Unsupported GeoTIFF model type: {model_type}")
 
 
@@ -83,7 +88,29 @@ def projjson_from_geo_keys(gkd: GeoKeyDirectory) -> dict:
 
         return crs
 
+    if model_type == USER_DEFINED_CRS:
+        wkt = _esri_pe_string(gkd)
+        if wkt is not None:
+            return CRS.from_wkt(wkt).to_json_dict()
+
     raise ValueError(f"Unsupported GeoTIFF model type: {model_type}")
+
+
+_ESRI_PE_STRING_PREFIX = "ESRI PE String ="
+
+
+def _esri_pe_string(gkd: GeoKeyDirectory) -> str | None:
+    """Extract a WKT string from an ``ESRI PE String = ...`` proj_citation.
+
+    GDAL stores the full ESRI WKT here when the GeoTIFF has no matching
+    EPSG code; pyproj parses it directly via :meth:`CRS.from_wkt`.
+    """
+    # The GeoTIFF spec defines no text-based CRS encoding; ``ESRI PE String =``
+    # is a de facto ArcGIS convention that GDAL/PROJ also read
+    citation = gkd.proj_citation
+    if citation is None or _ESRI_PE_STRING_PREFIX not in citation:
+        return None
+    return citation.split(_ESRI_PE_STRING_PREFIX, 1)[1].strip() or None
 
 
 def _geographic_projection(gkd: GeoKeyDirectory) -> int | dict:
