@@ -88,6 +88,7 @@ ignore_missing_imports = true
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "CPY001", # copyright header
     "D203",   # incompatible with D211
     "D213",   # incompatible with D212
     "EM101",  # raw string in exception
