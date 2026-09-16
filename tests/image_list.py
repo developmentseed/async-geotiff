@@ -31,6 +31,8 @@ ALL_DATA_IMAGES: list[tuple[str, str]] = [
     ("rasterio", "antimeridian"),
     ("rasterio", "custom_crs"),
     ("rasterio", "pixel_as_point"),
+    ("rasterio", "uint8_1band_sparse_nodata"),
+    ("rasterio", "uint8_1band_sparse_no_nodata"),
 ]
 """All fixtures where the data can be compared with rasterio.
 
