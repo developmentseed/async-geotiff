@@ -16,7 +16,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from pyproj import CRS
-from pyproj.crs import CoordinateOperation  # type: ignore[import]
+from pyproj.crs import CoordinateOperation, Datum  # type: ignore[import]
 
 if TYPE_CHECKING:
     from async_tiff import GeoKeyDirectory
@@ -191,10 +191,11 @@ def _build_user_defined_geographic_projjson(gkd: GeoKeyDirectory) -> dict:
         gkd.geog_geodetic_datum is not None
         and gkd.geog_geodetic_datum != USER_DEFINED_CRS
     ):
-        datum_json = {
-            "type": "GeodeticReferenceFrame",
-            "name": f"Unknown datum based upon EPSG {gkd.geog_geodetic_datum} ellipsoid",  # noqa: E501
-        }
+        # Known datum by EPSG code. Like libgeotiff, take its ellipsoid and prime
+        # meridian from the EPSG definition; a datum without an ellipsoid is not
+        # valid PROJJSON.
+        datum_json = Datum.from_epsg(gkd.geog_geodetic_datum).to_json_dict()
+        datum_json.pop("$schema", None)
     else:
         datum_json = {
             "type": "GeodeticReferenceFrame",
@@ -311,6 +312,11 @@ CT_NEW_ZEALAND_MAP_GRID = 26
 CT_TRANSVERSE_MERCATOR_SOUTH_ORIENTED = 27
 
 
+def _first_present(*values: float | None) -> float | None:
+    """Return the first value whose geo key is present in the file."""
+    return next((value for value in values if value is not None), None)
+
+
 def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR0915
     """Build a PROJ JSON conversion (coordinate operation) from geo keys."""
     ct = gkd.proj_coord_trans
@@ -344,6 +350,36 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
             "unit": "unity",
         }
 
+    # Writers disagree on which of several equivalent keys a method stores its
+    # origin in: GDAL writes ProjNatOrigin* for Oblique Stereographic but
+    # ProjCenter* for Stereographic, for example. Like libgeotiff, take each
+    # parameter from the first of its equivalent keys that is present.
+    # https://github.com/OSGeo/libgeotiff/blob/75cfca539667c6483e796b24b78ecef72e311a1a/libgeotiff/geo_normalize.c#L1649
+    origin_lat = _first_present(
+        gkd.proj_nat_origin_lat,
+        gkd.proj_false_origin_lat,
+        gkd.proj_center_lat,
+    )
+    origin_long = _first_present(
+        gkd.proj_nat_origin_long,
+        gkd.proj_false_origin_long,
+        gkd.proj_center_long,
+    )
+    origin_scale = _first_present(
+        gkd.proj_scale_at_nat_origin,
+        gkd.proj_scale_at_center,
+    )
+    false_easting = _first_present(
+        gkd.proj_false_easting,
+        gkd.proj_center_easting,
+        gkd.proj_false_origin_easting,
+    )
+    false_northing = _first_present(
+        gkd.proj_false_northing,
+        gkd.proj_center_northing,
+        gkd.proj_false_origin_northing,
+    )
+
     name = "User-defined"
     method: dict
     parameters: list[dict]
@@ -352,22 +388,22 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         name = "Transverse Mercator"
         method = {"name": "Transverse Mercator"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _scale("Scale factor at natural origin", gkd.proj_scale_at_nat_origin),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _scale("Scale factor at natural origin", origin_scale),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_TRANSVERSE_MERCATOR_SOUTH:
         name = "Transverse Mercator (South Orientated)"
         method = {"name": "Transverse Mercator (South Orientated)"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _scale("Scale factor at natural origin", gkd.proj_scale_at_nat_origin),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _scale("Scale factor at natural origin", origin_scale),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct in (
@@ -379,24 +415,24 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         name = "Hotine Oblique Mercator (variant B)"
         method = {"name": "Hotine Oblique Mercator (variant B)"}
         parameters = [
-            _angular("Latitude of projection centre", gkd.proj_center_lat),
-            _angular("Longitude of projection centre", gkd.proj_center_long),
+            _angular("Latitude of projection centre", origin_lat),
+            _angular("Longitude of projection centre", origin_long),
             _angular("Azimuth of initial line", gkd.proj_azimuth_angle),
             _angular("Angle from Rectified to Skew Grid", gkd.proj_azimuth_angle),
-            _scale("Scale factor on initial line", gkd.proj_scale_at_center),
-            _linear("Easting at projection centre", gkd.proj_center_easting),
-            _linear("Northing at projection centre", gkd.proj_center_northing),
+            _scale("Scale factor on initial line", origin_scale),
+            _linear("Easting at projection centre", false_easting),
+            _linear("Northing at projection centre", false_northing),
         ]
 
     elif ct == CT_MERCATOR:
         name = "Mercator (variant A)"
         method = {"name": "Mercator (variant A)"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _scale("Scale factor at natural origin", gkd.proj_scale_at_nat_origin),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _scale("Scale factor at natural origin", origin_scale),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_LAMBERT_CONFORMAL_CONIC_2SP:
@@ -405,21 +441,21 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         parameters = [
             _angular(
                 "Latitude of false origin",
-                gkd.proj_false_origin_lat or gkd.proj_nat_origin_lat,
+                _first_present(gkd.proj_false_origin_lat, origin_lat),
             ),
             _angular(
                 "Longitude of false origin",
-                gkd.proj_false_origin_long or gkd.proj_nat_origin_long,
+                _first_present(gkd.proj_false_origin_long, origin_long),
             ),
             _angular("Latitude of 1st standard parallel", gkd.proj_std_parallel1),
             _angular("Latitude of 2nd standard parallel", gkd.proj_std_parallel2),
             _linear(
                 "Easting at false origin",
-                gkd.proj_false_origin_easting or gkd.proj_false_easting,
+                _first_present(gkd.proj_false_origin_easting, false_easting),
             ),
             _linear(
                 "Northing at false origin",
-                gkd.proj_false_origin_northing or gkd.proj_false_northing,
+                _first_present(gkd.proj_false_origin_northing, false_northing),
             ),
         ]
 
@@ -427,21 +463,21 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         name = "Lambert Conic Conformal (1SP)"
         method = {"name": "Lambert Conic Conformal (1SP)"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _scale("Scale factor at natural origin", gkd.proj_scale_at_nat_origin),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _scale("Scale factor at natural origin", origin_scale),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_LAMBERT_AZIMUTHAL_EQUAL_AREA:
         name = "Lambert Azimuthal Equal Area"
         method = {"name": "Lambert Azimuthal Equal Area"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_center_lat),
-            _angular("Longitude of natural origin", gkd.proj_center_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_ALBERS_EQUAL_AREA:
@@ -450,21 +486,21 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         parameters = [
             _angular(
                 "Latitude of false origin",
-                gkd.proj_false_origin_lat or gkd.proj_nat_origin_lat,
+                _first_present(gkd.proj_false_origin_lat, origin_lat),
             ),
             _angular(
                 "Longitude of false origin",
-                gkd.proj_false_origin_long or gkd.proj_nat_origin_long,
+                _first_present(gkd.proj_false_origin_long, origin_long),
             ),
             _angular("Latitude of 1st standard parallel", gkd.proj_std_parallel1),
             _angular("Latitude of 2nd standard parallel", gkd.proj_std_parallel2),
             _linear(
                 "Easting at false origin",
-                gkd.proj_false_origin_easting or gkd.proj_false_easting,
+                _first_present(gkd.proj_false_origin_easting, false_easting),
             ),
             _linear(
                 "Northing at false origin",
-                gkd.proj_false_origin_northing or gkd.proj_false_northing,
+                _first_present(gkd.proj_false_origin_northing, false_northing),
             ),
         ]
 
@@ -472,21 +508,21 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         name = "Modified Azimuthal Equidistant"
         method = {"name": "Modified Azimuthal Equidistant"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_center_lat),
-            _angular("Longitude of natural origin", gkd.proj_center_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_STEREOGRAPHIC:
         name = "Stereographic"
         method = {"name": "Stereographic"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_center_lat),
-            _angular("Longitude of natural origin", gkd.proj_center_long),
-            _scale("Scale factor at natural origin", gkd.proj_scale_at_center),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _scale("Scale factor at natural origin", origin_scale),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_POLAR_STEREOGRAPHIC:
@@ -495,25 +531,25 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         parameters = [
             _angular(
                 "Latitude of standard parallel",
-                gkd.proj_nat_origin_lat or gkd.proj_std_parallel1,
+                _first_present(origin_lat, gkd.proj_std_parallel1),
             ),
             _angular(
                 "Longitude of origin",
-                gkd.proj_straight_vert_pole_long or gkd.proj_nat_origin_long,
+                _first_present(gkd.proj_straight_vert_pole_long, origin_long),
             ),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_OBLIQUE_STEREOGRAPHIC:
         name = "Oblique Stereographic"
         method = {"name": "Oblique Stereographic"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_center_lat),
-            _angular("Longitude of natural origin", gkd.proj_center_long),
-            _scale("Scale factor at natural origin", gkd.proj_scale_at_center),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _scale("Scale factor at natural origin", origin_scale),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_EQUIRECTANGULAR:
@@ -522,71 +558,71 @@ def _build_conversion(gkd: GeoKeyDirectory) -> dict:  # noqa: C901, PLR0912, PLR
         parameters = [
             _angular(
                 "Latitude of 1st standard parallel",
-                gkd.proj_std_parallel1 or gkd.proj_center_lat,
+                _first_present(gkd.proj_std_parallel1, origin_lat),
             ),
-            _angular("Longitude of natural origin", gkd.proj_center_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_CASSINI_SOLDNER:
         name = "Cassini-Soldner"
         method = {"name": "Cassini-Soldner"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_POLYCONIC:
         name = "American Polyconic"
         method = {"name": "American Polyconic"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_SINUSOIDAL:
         name = "Sinusoidal"
         method = {"name": "Sinusoidal"}
         parameters = [
-            _angular("Longitude of natural origin", gkd.proj_center_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_ORTHOGRAPHIC:
         name = "Orthographic"
         method = {"name": "Orthographic"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_center_lat),
-            _angular("Longitude of natural origin", gkd.proj_center_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_NEW_ZEALAND_MAP_GRID:
         name = "New Zealand Map Grid"
         method = {"name": "New Zealand Map Grid"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     elif ct == CT_TRANSVERSE_MERCATOR_SOUTH_ORIENTED:
         name = "Transverse Mercator (South Orientated)"
         method = {"name": "Transverse Mercator (South Orientated)"}
         parameters = [
-            _angular("Latitude of natural origin", gkd.proj_nat_origin_lat),
-            _angular("Longitude of natural origin", gkd.proj_nat_origin_long),
-            _scale("Scale factor at natural origin", gkd.proj_scale_at_nat_origin),
-            _linear("False easting", gkd.proj_false_easting),
-            _linear("False northing", gkd.proj_false_northing),
+            _angular("Latitude of natural origin", origin_lat),
+            _angular("Longitude of natural origin", origin_long),
+            _scale("Scale factor at natural origin", origin_scale),
+            _linear("False easting", false_easting),
+            _linear("False northing", false_northing),
         ]
 
     else:
