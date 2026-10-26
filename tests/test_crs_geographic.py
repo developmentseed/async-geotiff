@@ -46,6 +46,19 @@ def test_angular_unit_default_degree():
     assert angular_unit({}).to_degrees == 1.0
 
 
+def test_angular_unit_degree_code_is_exact():
+    """libgeotiff treats 9102 as exactly 1.0; pyproj's factor is a hair off."""
+    assert angular_unit({"geog_angular_units": 9102}) == DEGREE
+
+
+def test_angular_unit_zero_factor_raises():
+    with pytest.raises(ValueError, match="GeogAngularUnitSize"):
+        angular_unit({"geog_angular_units": 32767, "geog_angular_unit_size": 0.0})
+    # pyproj reports no conversion factor for some sexagesimal EPSG codes.
+    with pytest.raises(ValueError, match="9107"):
+        angular_unit({"geog_angular_units": 9107})
+
+
 def test_angular_unit_size():
     unit = angular_unit(
         {"geog_angular_units": 32767, "geog_angular_unit_size": 0.015707963267949},
@@ -103,6 +116,26 @@ def test_ellipsoid_sphere():
         {},
     )
     assert e.to_json_dict()["radius"] == 6371007.181
+
+
+def test_ellipsoid_code_with_only_semi_major_keeps_flattening():
+    """libgeotiff seeds the axes from the code and overrides only what keys give."""
+    e = ellipsoid({"geog_ellipsoid": 7030, "geog_semi_major_axis": 6378137.0}, {})
+    assert e.name == "WGS 84"
+    assert e.inverse_flattening == pytest.approx(298.257223563)
+
+
+def test_ellipsoid_without_shape_raises():
+    with pytest.raises(ValueError, match="GeogInvFlattening or GeogSemiMinorAxis"):
+        ellipsoid({"geog_semi_major_axis": 6378137.0}, {})
+
+
+def test_datum_from_code_without_ellipsoid_keys():
+    """A coded datum implies its ellipsoid; GDAL just happens to write the axes too."""
+    crs, _ = geographic_crs({"geographic_type": 32767, "geog_geodetic_datum": 6326})
+    assert crs.ellipsoid is not None
+    assert crs.ellipsoid.name == "WGS 84"
+    assert "World Geodetic System 1984" in crs.datum.name
 
 
 def test_ellipsoid_requires_semi_major():

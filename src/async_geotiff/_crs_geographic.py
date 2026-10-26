@@ -88,16 +88,26 @@ def _units(category: str) -> dict[str, Any]:
     return {unit.code: unit for unit in units}
 
 
+def _angular(name: str, factor: float, source: str) -> AngularUnit:
+    """Build an angular unit from its size in radians; degrees snap to exactly 1."""
+    if not factor:
+        raise ValueError(f"{source} gives an angular unit of size 0")
+    if math.isclose(factor, DEGREE.conversion_factor):
+        # libgeotiff's UOMAngleInDegrees is exactly 1.0 for the degree codes
+        # and skips the multiplication; pyproj's factor is a hair off.
+        return DEGREE
+    return AngularUnit(name, factor * DEGREES_PER_RADIAN, factor)
+
+
 def angular_unit(keys: Mapping[str, Any]) -> AngularUnit:
     """`GeogAngularUnits`, or `GeogAngularUnitSize` in radians, default degree."""
     code = keys.get("geog_angular_units")
     if _is_code(code):
         unit = _units("angular")[str(code)]
-        factor = float(unit.conv_factor)
-        return AngularUnit(unit.name, factor * DEGREES_PER_RADIAN, factor)
+        return _angular(unit.name, float(unit.conv_factor), f"GeogAngularUnits {code}")
     size = keys.get("geog_angular_unit_size")
     if size is not None:
-        return AngularUnit("unknown", float(size) * DEGREES_PER_RADIAN, float(size))
+        return _angular("unknown", float(size), "GeogAngularUnitSize")
     return DEGREE
 
 
@@ -130,16 +140,27 @@ def ellipsoid(keys: Mapping[str, Any], citation: Mapping[str, str]) -> Ellipsoid
     semi_minor = keys.get("geog_semi_minor_axis")
     inv_flattening = keys.get("geog_inv_flattening")
 
-    if _is_code(code) and semi_major is None:
-        return Ellipsoid.from_epsg(code)
     if semi_major is None:
+        if _is_code(code):
+            return Ellipsoid.from_epsg(code)
         raise ValueError(
             "A user-defined ellipsoid needs a semi-major axis (GeogSemiMajorAxis)",
         )
 
     name = citation.get("Ellipsoid")
-    if name is None:
-        name = Ellipsoid.from_epsg(code).name if _is_code(code) else "unknown"
+    if _is_code(code):
+        # libgeotiff loads the coded ellipsoid, then overrides only the axes
+        # the keys supply (GTIFGetDefn, geo_normalize.c L2580-L2600).
+        coded = Ellipsoid.from_epsg(code)
+        name = name or coded.name
+        if inv_flattening is None and semi_minor is None:
+            inv_flattening = coded.inverse_flattening or None
+            semi_minor = None if inv_flattening else coded.semi_minor_metre
+    elif inv_flattening is None and semi_minor is None:
+        raise ValueError(
+            "A user-defined ellipsoid needs GeogInvFlattening or GeogSemiMinorAxis",
+        )
+    name = name or "unknown"
 
     if inv_flattening:
         return CustomEllipsoid(
@@ -179,13 +200,18 @@ def prime_meridian(
 def datum(
     keys: Mapping[str, Any],
     citation: Mapping[str, str],
-    ellipsoid: Ellipsoid,
+    ellipsoid: Ellipsoid | None,
     prime_meridian: PrimeMeridian,
 ) -> Datum:
-    """Build the datum from its code (which brings its ellipsoid), or user-defined."""
+    """Build the datum from its code (which brings its ellipsoid), or user-defined.
+
+    `ellipsoid` is only needed, and only read, for a user-defined datum.
+    """
     code = keys.get("geog_geodetic_datum")
     if _is_code(code):
         return Datum.from_epsg(code)
+    if ellipsoid is None:
+        raise ValueError("A user-defined datum needs an ellipsoid")
     return CustomDatum(
         name=citation.get("Datum", "unknown"),
         ellipsoid=ellipsoid,
@@ -265,7 +291,10 @@ def geographic_crs(keys: Mapping[str, Any]) -> tuple[GeographicCRS, AngularUnit]
     citation = parse_citation(keys.get("geog_citation"))
     unit = angular_unit(keys)
     pm = prime_meridian(keys, citation, unit)
-    datum_ = datum(keys, citation, ellipsoid(keys, citation), pm)
+    # A coded datum implies its ellipsoid; the file need not carry axes at all.
+    coded_datum = _is_code(keys.get("geog_geodetic_datum"))
+    ellipsoid_ = None if coded_datum else ellipsoid(keys, citation)
+    datum_ = datum(keys, citation, ellipsoid_, pm)
     crs = GeographicCRS(
         name=citation.get("GCS Name", "unknown"),
         datum=datum_,
