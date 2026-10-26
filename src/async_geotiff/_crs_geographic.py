@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, TypeGuard
 
+from pyproj._crs import CoordinateSystem
 from pyproj.crs import GeographicCRS
 from pyproj.crs.coordinate_system import Cartesian2DCS, Ellipsoidal2DCS
 from pyproj.crs.datum import (
@@ -30,8 +31,6 @@ from pyproj.crs.datum import (
     PrimeMeridian,
 )
 from pyproj.database import get_units_map
-
-from pyproj._crs import CoordinateSystem  # noqa: PLC2701
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
