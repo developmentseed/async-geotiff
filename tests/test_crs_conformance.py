@@ -28,61 +28,20 @@ CRS_DIR = Path(__file__).parent.parent / "fixtures" / "geotiff-test-data" / "crs
 MANIFEST = json.loads((CRS_DIR / "manifest.json").read_text())
 ROWS = {row["name"]: row for row in MANIFEST["cases"]}
 
-_REJECTED_CT = "CT code rejected by _build_conversion"
-_INVALID_PROJJSON = "builder emits PROJJSON that PROJ rejects"
-_WRONG_VARIANT = "wrong method variant"
-_ORIGIN_KEYS = (
-    "origin or scale read from the wrong GeoKey, libgeotiff fallback order not applied"
-)
-_UNITS = "linear parameters labelled metres instead of the projected unit"
-_AXES = "projected axis directions not set (south/south, north/north, or west/south)"
 _ASYNC_TIFF = "needs an async-tiff release with keys 2062/3096 (async-tiff#368)"
 _PE_STRING = "ESRI PE String read by pyproj differs from GDAL's ESRI morphing"
 
 KNOWN_FAILURES: dict[str, str] = {
-    # Rejected CT codes (spec section 1).
-    "cea": _REJECTED_CT + " (28 Cylindrical Equal Area)",
-    "eqdc": _REJECTED_CT + " (13 Equidistant Conic)",
-    "gnom": _REJECTED_CT + " (19 Gnomonic)",
-    "mill": _REJECTED_CT + " (20 Miller)",
-    "robin": _REJECTED_CT + " (23 Robinson)",
-    "vandg": _REJECTED_CT + " (25 Van der Grinten)",
-    "omerc_variant_b": _REJECTED_CT + " (9815 Hotine Oblique Mercator azimuth centre)",
-    "somerc": _REJECTED_CT + " (9815 Hotine Oblique Mercator azimuth centre)",
-    # PROJJSON PROJ rejects outright.
-    "aea_nad27": _INVALID_PROJJSON + ": EPSG-coded datum without an ellipsoid",
-    "tmerc_datum_wgs84": _INVALID_PROJJSON + ": EPSG-coded datum without an ellipsoid",
-    "geog_grad_wkt": _INVALID_PROJJSON + ": angular unit grads",
-    "lcc_1sp_grad_wkt": _INVALID_PROJJSON + ": angular unit grads",
-    "lcc_1sp_paris_grad": _INVALID_PROJJSON
-    + ": angular unit grads (also GDAL PM bug, spec Q3)",
-    "tmerc_ft": _INVALID_PROJJSON + ": linear unit international foot",
-    # Wrong variant.
-    "merc_2sp": _WRONG_VARIANT + ": Mercator with ProjStdParallel1 is variant B",
-    "stere_polar_a": _WRONG_VARIANT
-    + ": polar stereographic at the pole with scale is variant A",
-    "stere_south_a": _WRONG_VARIANT
-    + ": polar stereographic at the pole with scale is variant A",
-    "omerc_variant_a": _WRONG_VARIANT
-    + ": CT 3 is variant A; grid angle read from the azimuth key",
-    "labrd": _WRONG_VARIANT
-    + ": CT 4 is Laborde Oblique Mercator, not Hotine variant B",
-    # Origin and scale keys.
-    "aeqd": _ORIGIN_KEYS + "; method name maps to Modified Azimuthal Equidistant",
-    "sterea": _ORIGIN_KEYS,
-    "stere_oblique": _ORIGIN_KEYS,
-    "eqc_lat0": _ORIGIN_KEYS + "; latitude of natural origin dropped",
-    # Units.
-    "lcc_2sp_usft": _UNITS,
-    # Axes.
-    "stere_polar_b": _AXES,
-    "stere_south_b": _AXES,
-    "stere_polar_k1_wkt": _AXES,
-    "tmso": _AXES,
-    # Datum, prime meridian, TOWGS84.
-    "lcc_1sp_pm_epsg_tifffile": "EPSG-coded prime meridian read as longitude 0",
-    "tmerc_towgs84": _ASYNC_TIFF + "; no BoundCRS",
-    # ESRI PE String citations.
+    # GeoKeys async-tiff 0.7 does not expose.
+    "tmerc_towgs84": _ASYNC_TIFF + "; GeogTOWGS84GeoKey, no BoundCRS",
+    "omerc_variant_a": _ASYNC_TIFF + "; ProjRectifiedGridAngleGeoKey",
+    "omerc_variant_b": _ASYNC_TIFF + "; ProjRectifiedGridAngleGeoKey",
+    "somerc": _ASYNC_TIFF + "; ProjRectifiedGridAngleGeoKey",
+    # GDAL's own writer and reader disagree on a prime meridian in grads
+    # (spec Q3); we follow libgeotiff's single unit conversion.
+    "lcc_1sp_paris_grad": "GDAL converts a grads prime meridian three times on read",
+    # ESRI PE String citations: GDAL also applies the Geog* keys and its ESRI
+    # name morphing on top of the WKT; pyproj parses the WKT alone.
     "krovak": _PE_STRING + ": Krovak read as North Orientated",
     "moll": _PE_STRING + ": datum keeps its ESRI name",
 }
