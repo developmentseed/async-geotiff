@@ -20,8 +20,9 @@ KNOWN_DECODE_FAILURES: dict[str, str] = {
     # geotiff-test-data b7158c4 made write_cog apply the predictor it was asked
     # for; this fixture now really carries predictor 2, and async-tiff 0.7.0
     # reverses it wrongly on the partial last tile column (300 wide, 128 tiles).
+    # https://github.com/developmentseed/async-tiff/issues/370
     "uint8_1band_deflate_block128_unaligned_predictor2": (
-        "async-tiff 0.7.0 decodes predictor 2 wrongly on partial tiles"
+        "async-tiff 0.7.0 decodes predictor 2 wrongly on partial tiles (async-tiff#370)"
     ),
 }
 
