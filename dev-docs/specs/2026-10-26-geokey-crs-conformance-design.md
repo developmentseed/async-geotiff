@@ -425,8 +425,9 @@ Every row's `keys` order comes from `GTIFFetchProjParms`; every method from the 
   an origin (including HOM, which GDAL writes with `ProjCenter*`).
 - Polar Stereographic longitude: `ProjStraightVertPoleLong` first, then the three above (L2066-L2074).
 - Scale: `ProjScaleAtNatOrigin`, `ProjScaleAtCenter`, default 1 (L1795-L1800, L1846-L1850,
-  L1939-L1943, L2084-L2088), except CT 14 Stereographic which reads `ProjScaleAtNatOrigin` only
-  (L1696-L1698).
+  L1939-L1943, L2084-L2088), except CT 14 Stereographic (L1696-L1698) and CT 7 Mercator
+  (L1739-L1741), which read `ProjScaleAtNatOrigin` only. (Corrected 2026-10-26 after the corpus
+  review; the first draft gave CT 7 the fallback.)
 - Standard parallels: `ProjStdParallel1` / `ProjStdParallel2` only, default 0.
 - Azimuth: `ProjAzimuthAngle`, default 0, kind `azimuth`. Rectified grid angle:
   `ProjRectifiedGridAngle`, default 90 (L1842-L1844), kind `angular`.
@@ -472,8 +473,13 @@ disagree, fix the table to the manifest and note it in the PR).
 - Unit normalization (one pass over resolved parameters, keyed by `kind`).
 - The geographic CRS (datum, ellipsoid, prime meridian, angular unit), the projected CS unit, the
   `ProjectionGeoKey` EPSG path, the ESRI PE String path. These are described in section 6 and are
-  the same for every method. The only per-method CS fact is axis direction (`axes`), because
-  CT 27 is the one method whose axes point west/south; the manifest `core` records `axes` too.
+  the same for every method. The only per-method CS facts are axis directions: CT 27's axes
+  point west/south (`axes` field), and CT 15's point both south for a positive latitude and both
+  north for a negative one (a sign rule the table states in a note and the README spells out; the
+  corpus pins it). The manifest `core` records `axes` for every row. (Corrected 2026-10-26: the
+  first draft said CT 27 was the only exception.) In the builder, use pyproj's
+  `Cartesian2DCS(axis="NORTH_POLE_EASTING_SOUTH_NORTHING_SOUTH")` and
+  `SOUTH_POLE_EASTING_NORTH_NORTHING_NORTH` presets for CT 15.
 
 ## 6. Equality and builder design (async-geotiff)
 
