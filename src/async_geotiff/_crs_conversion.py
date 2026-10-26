@@ -160,11 +160,6 @@ PROJ_STRING_EXTRAS: dict[int | None, str] = {
     9812: "+no_uoff",  # Hotine Oblique Mercator (variant A)
     9808: "+axis=wsu",  # Transverse Mercator (South Orientated)
 }
-PROJ_KEY_OVERRIDES: dict[int | None, dict[int | None, str]] = {
-    # Laborde spells its centre longitude +lon_0 and its azimuth +azi, unlike
-    # the Hotine Oblique Mercator keys (+lonc, +alpha) the table shares with it.
-    9813: {8812: "lon_0", 8813: "azi"},
-}
 _PLACEHOLDER_ELLIPSOID = "+ellps=WGS84"
 _POLAR_STEREOGRAPHIC = 15
 _TOLERANCE = 1e-9
@@ -242,11 +237,11 @@ def select_variant(
 
 
 def _proj_string(variant: Variant, values: Mapping[str, float]) -> str:
-    overrides = PROJ_KEY_OVERRIDES.get(variant.method_epsg, {})
     parts = [f"+proj={variant.proj}"]
-    for parameter in variant.parameters:
-        key = overrides.get(parameter.epsg, parameter.proj)
-        parts.append(f"+{key}={values[parameter.name]!r}")
+    parts.extend(
+        f"+{parameter.proj}={values[parameter.name]!r}"
+        for parameter in variant.parameters
+    )
     extra = PROJ_STRING_EXTRAS.get(variant.method_epsg)
     if extra:
         parts.append(extra)

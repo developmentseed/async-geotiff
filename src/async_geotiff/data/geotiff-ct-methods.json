@@ -233,7 +233,7 @@
             {
               "name": "Longitude of projection centre",
               "epsg": 8812,
-              "proj": "lonc",
+              "proj": "lon_0",
               "kind": "angular",
               "keys": [
                 "ProjNatOriginLong",
@@ -245,7 +245,7 @@
             {
               "name": "Azimuth at projection centre",
               "epsg": 8813,
-              "proj": "alpha",
+              "proj": "azi",
               "kind": "azimuth",
               "keys": [
                 "ProjAzimuthAngle"
@@ -289,7 +289,7 @@
             }
           ],
           "gdal": "gt_wkt_srs.cpp#L1500-L1503",
-          "note": "PROJ string key for the azimuth is +azi"
+          "note": "PROJ's labrd takes +lon_0 and +azi, unlike omerc's +lonc and +alpha; the proj keys here are the labrd ones"
         }
       ]
     },
