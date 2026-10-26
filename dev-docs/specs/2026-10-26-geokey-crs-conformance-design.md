@@ -1,7 +1,7 @@
 # GeoKey to CRS conformance: corpus, CT table, and table-driven builder
 
 - **Date:** 2026-10-26
-- **Status:** Draft, awaiting review
+- **Status:** Approved 2026-10-26 (answers to section 9 recorded there)
 - **Repos:** `developmentseed/geotiff-test-data` (corpus + table), `developmentseed/async-geotiff` (builder + tests)
 - **Out of scope:** `developmentseed/deck.gl-raster` (consumes the corpus and table later), anything upstream (pyproj, PROJ, GDAL, async-tiff) without explicit OK
 - **Oracle:** whatever GDAL/PROJ reads from a file's GeoKeys, as seen through `rasterio`
@@ -649,12 +649,18 @@ at the top and the "Written by Claude Code" footer; `Closes #N` where applicable
 4. **async-geotiff, builder**: `_crs_conversion.py`, `_crs_geographic.py`, interpreter unit tests
    first (red), then the rewrite; known-failures shrinks to the Q2 rows (`tmerc_towgs84`,
    `omerc_variant_a`, `omerc_variant_b`, `somerc`) and the Q3 row. Changelog entry.
-5. **Optional, needs Q2 answer**: async-tiff exposes keys 2062 and 3096; async-geotiff bumps its
-   `async-tiff>=` floor, reads them, and removes the four rows.
+5. **async-tiff** (approved, done first since it is small): issue + minimal PR exposing keys
+   2062 and 3096. Once released, async-geotiff bumps its `async-tiff>=` floor, reads them in
+   stage 4, and the four rows leave the known-failures list.
 
 Before stage 4, write an implementation plan via the writing-plans skill into `dev-docs/plans/`.
 
-## 9. Open questions for Kyle
+## 9. Open questions for Kyle (answered 2026-10-26)
+
+- Q1: approved, proceed with the PROJ-derived rule.
+- Q2: make an issue and a minimal PR in async-tiff (stage 5 above).
+- Q3: approved, follow libgeotiff's single conversion; the row stays a known failure.
+- Q4: keep all 46 (my call; they are cheap and document the coded-key form for the TS port).
 
 - **Q1. Polar Stereographic rule.** The brief's rule (`ProjScaleAtNatOrigin` present or
   `ProjStdParallel1` absent → variant A) does not match what GDAL writes and reads (section 3).
