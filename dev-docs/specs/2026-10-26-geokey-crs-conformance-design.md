@@ -249,11 +249,11 @@ the manifest row.
       "input": {"kind": "proj", "value": "+proj=lcc ... +units=us-ft"},
       "note": "",                                  // free text, e.g. why a row is lossy
       "tags": ["ct:8", "linear:9003"],             // free-form, for filtering
-      "geokeys": {                                 // exactly what GDAL wrote, by GeoTIFF key name
-        "GTModelTypeGeoKey": 1, "GTRasterTypeGeoKey": 1,
-        "GeographicTypeGeoKey": 32767, "GeogCitationGeoKey": "GCS Name = unknown|...",
-        "ProjCoordTransGeoKey": 8, "ProjLinearUnitsGeoKey": 9003,
-        "ProjFalseOriginEastingGeoKey": 984250.0, ...
+      "geokeys": {                                 // exactly what GDAL wrote, by GeoTIFF key name (no "GeoKey" suffix)
+        "GTModelType": 1, "GTRasterType": 1,
+        "GeographicType": 32767, "GeogCitation": "GCS Name = unknown|...",
+        "ProjCoordTrans": 8, "ProjLinearUnits": 9003,
+        "ProjFalseOriginEasting": 984250.0, ...
       },
       "gdal": {
         "projjson": { ... },                       // rasterio read-back, pyproj.CRS.to_json_dict(); null if none
@@ -271,8 +271,8 @@ the manifest row.
         "prime_meridian_deg": 0.0,
         "angular_unit_deg": 1.0,                   // size of the geographic CS unit in degrees
         "linear_unit_m": 0.3048006096012192,       // size of the projected CS unit in metres (null for geographic)
-        "axes": "easting_northing",                // or westing_southing (CT 27); null for geographic
-        "towgs84": null                            // 7 numbers for BoundCRS rows
+        "axes": ["east", "north"],                 // axis directions in order; ["west", "south"] for CT 27
+        "towgs84": null                            // 3 or 7 numbers for BoundCRS rows
       },
       "point": {"lon": -71.0, "lat": 48.16667, "x": 1722466.6689, "y": 2936519.5336},
       "epsg_json": null                            // "epsg/2953.json" for kind == "epsg"
@@ -343,7 +343,7 @@ Add `tests/test_crs_corpus.py`:
         {
           "when": { ... },                       // see 5.2; omitted on the default variant
           "method": {"name": "Transverse Mercator", "epsg": 9807, "proj": "tmerc"},
-          "axes": "easting_northing",             // optional; default easting_northing; CT 27 uses westing_southing
+          "axes": ["east", "north"],              // optional; default ["east", "north"]; CT 27 uses ["west", "south"]
           "parameters": [
             {
               "name": "Latitude of natural origin",   // EPSG/PROJ parameter name
@@ -459,7 +459,7 @@ Every row's `keys` order comes from `GTIFFetchProjParms`; every method from the 
 | 24 | Sinusoidal (PROJ), `sinu` | lon_0, FE, FN | L2039-L2061 | L1551 |
 | 25 | Van Der Grinten (PROJ), `vandg` | lon_0, FE, FN | L2039-L2061 | L1555 |
 | 26 | New Zealand Map Grid (9811), `nzmg` | lat_0, lon_0, FE, FN | L1962-L1997 | L1579 |
-| 27 | Transverse Mercator (South Orientated) (9808), `tmerc +axis=wsu`; `axes: westing_southing` | lat_0, lon_0, k, FE, FN | L1774-L1816 | L1445 |
+| 27 | Transverse Mercator (South Orientated) (9808), `tmerc +axis=wsu`; `axes: ["west", "south"]` | lat_0, lon_0, k, FE, FN | L1774-L1816 | L1445 |
 | 28 | Lambert Cylindrical Equal Area (9835), `cea` | lat_1 (`ProjStdParallel1`), lon_0, FE, FN | L2198-L2224 | L1584 |
 | 9815 | Hotine Oblique Mercator (variant B) (9815), `omerc` | lat_c, lon_c, azimuth, rectified grid angle, k_c, E_c, N_c | L1819-L1870 | L1494 |
 
@@ -571,7 +571,7 @@ Follows `GTIFGetDefn` (geo_normalize.c L2394-L2660) and the GeogCS block of `GTI
   `ProjLinearUnitSizeGeoKey`. Factor in metres `UOMLengthInMeters`. Use the `Cartesian2DCS`
   presets where one exists (`EASTING_NORTHING`, `EASTING_NORTHING_FT` for 9002,
   `EASTING_NORTHING_US_FT` for 9003, `WESTING_SOUTHING` for a table row with
-  `axes: westing_southing`), and `CoordinateSystem.from_json_dict` only for other units (name and
+  `axes: ["west", "south"]`), and `CoordinateSystem.from_json_dict` only for other units (name and
   factor from proj.db via pyproj for a code, the raw size for 32767). Do not hardcode unit factors.
 - **Ellipsoid**: if `GeogEllipsoidGeoKey` is a code and no axis keys: `Ellipsoid.from_epsg`.
   Otherwise `CustomEllipsoid(name, semi_major_axis, inverse_flattening | semi_minor_axis)`;
@@ -649,9 +649,10 @@ at the top and the "Written by Claude Code" footer; `Closes #N` where applicable
 4. **async-geotiff, builder**: `_crs_conversion.py`, `_crs_geographic.py`, interpreter unit tests
    first (red), then the rewrite; known-failures shrinks to the Q2 rows (`tmerc_towgs84`,
    `omerc_variant_a`, `omerc_variant_b`, `somerc`) and the Q3 row. Changelog entry.
-5. **async-tiff** (approved, done first since it is small): issue + minimal PR exposing keys
-   2062 and 3096. Once released, async-geotiff bumps its `async-tiff>=` floor, reads them in
-   stage 4, and the four rows leave the known-failures list.
+5. **async-tiff** (done 2026-10-26): issue developmentseed/async-tiff#367 and PR
+   developmentseed/async-tiff#368 expose keys 2062 and 3096. Once released, async-geotiff bumps
+   its `async-tiff>=` floor, reads them in stage 4, and the four rows leave the known-failures
+   list.
 
 Before stage 4, write an implementation plan via the writing-plans skill into `dev-docs/plans/`.
 
