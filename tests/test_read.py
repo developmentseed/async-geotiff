@@ -16,23 +16,6 @@ from .image_list import ALL_COG_IMAGES, ALL_DATA_IMAGES
 if TYPE_CHECKING:
     from .conftest import LoadGeoTIFF, LoadRasterio
 
-KNOWN_DECODE_FAILURES: dict[str, str] = {
-    # geotiff-test-data b7158c4 made write_cog apply the predictor it was asked
-    # for; this fixture now really carries predictor 2, and async-tiff 0.7.0
-    # reverses it wrongly on the partial last tile column (300 wide, 128 tiles).
-    # https://github.com/developmentseed/async-tiff/issues/370
-    "uint8_1band_deflate_block128_unaligned_predictor2": (
-        "async-tiff 0.7.0 decodes predictor 2 wrongly on partial tiles (async-tiff#370)"
-    ),
-}
-
-
-def _xfail_known_decode_failure(request: pytest.FixtureRequest, file_name: str) -> None:
-    if file_name in KNOWN_DECODE_FAILURES:
-        request.applymarker(
-            pytest.mark.xfail(strict=True, reason=KNOWN_DECODE_FAILURES[file_name]),
-        )
-
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
@@ -172,13 +155,11 @@ async def test_read_bounds_validation(
     ALL_DATA_IMAGES,
 )
 async def test_read_full(
-    request: pytest.FixtureRequest,
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     variant: str,
     file_name: str,
 ) -> None:
-    _xfail_known_decode_failure(request, file_name)
     geotiff = await load_geotiff(file_name, variant=variant)
     array = await geotiff.read()
 
@@ -194,13 +175,11 @@ async def test_read_full(
     ALL_DATA_IMAGES,
 )
 async def test_read_full_as_masked(
-    request: pytest.FixtureRequest,
     load_geotiff: LoadGeoTIFF,
     load_rasterio: LoadRasterio,
     variant: str,
     file_name: str,
 ) -> None:
-    _xfail_known_decode_failure(request, file_name)
     geotiff = await load_geotiff(file_name, variant=variant)
     array = await geotiff.read()
     masked_array = array.as_masked()
