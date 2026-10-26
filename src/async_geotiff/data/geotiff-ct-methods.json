@@ -1,0 +1,2041 @@
+{
+  "schema_version": 1,
+  "description": "How each GeoTIFF ProjCoordTransGeoKey code maps to a PROJ/EPSG method and how its parameters are read from GeoKeys, transcribed from libgeotiff GTIFFetchProjParms and GDAL GTIFGetOGISDefn. See crs/README.md for the schema and the rules.",
+  "sources": {
+    "libgeotiff": "https://github.com/OSGeo/libgeotiff/blob/75cfca539667c6483e796b24b78ecef72e311a1a/libgeotiff/geo_normalize.c",
+    "gdal": "https://github.com/OSGeo/gdal/blob/v3.12.1/frmts/gtiff/gt_wkt_srs.cpp",
+    "proj": "https://github.com/OSGeo/PROJ/blob/9.7.1/src/iso19111/io.cpp"
+  },
+  "units": {
+    "angular": "values of angular_keys are multiplied by the GeogAngularUnits (or GeogAngularUnitSize) factor to give degrees",
+    "linear": "values of linear_keys are multiplied by the ProjLinearUnits (or ProjLinearUnitSize) factor to give metres",
+    "angular_keys": [
+      "ProjStdParallel1",
+      "ProjStdParallel2",
+      "ProjNatOriginLong",
+      "ProjNatOriginLat",
+      "ProjFalseOriginLong",
+      "ProjFalseOriginLat",
+      "ProjCenterLong",
+      "ProjCenterLat",
+      "ProjStraightVertPoleLong",
+      "ProjRectifiedGridAngle"
+    ],
+    "linear_keys": [
+      "ProjFalseEasting",
+      "ProjFalseNorthing",
+      "ProjFalseOriginEasting",
+      "ProjFalseOriginNorthing",
+      "ProjCenterEasting",
+      "ProjCenterNorthing"
+    ],
+    "source": "geo_normalize.c#L2227-L2277"
+  },
+  "methods": {
+    "1": {
+      "ct_name": "CT_TransverseMercator",
+      "libgeotiff": "geo_normalize.c#L1774-L1816",
+      "variants": [
+        {
+          "method": {
+            "name": "Transverse Mercator",
+            "epsg": 9807,
+            "proj": "tmerc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at natural origin",
+              "epsg": 8805,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1440-L1443"
+        }
+      ]
+    },
+    "2": {
+      "ct_name": "CT_TransvMercator_Modified_Alaska",
+      "unsupported": "No case in GTIFGetOGISDefn's switch (gt_wkt_srs.cpp#L1587 falls through to SetLocalCS) and no GDAL writer emits it"
+    },
+    "3": {
+      "ct_name": "CT_ObliqueMercator",
+      "libgeotiff": "geo_normalize.c#L1819-L1870",
+      "variants": [
+        {
+          "method": {
+            "name": "Hotine Oblique Mercator (variant A)",
+            "epsg": 9812,
+            "proj": "omerc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of projection centre",
+              "epsg": 8811,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of projection centre",
+              "epsg": 8812,
+              "proj": "lonc",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Azimuth at projection centre",
+              "epsg": 8813,
+              "proj": "alpha",
+              "kind": "azimuth",
+              "keys": [
+                "ProjAzimuthAngle"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Angle from Rectified to Skew Grid",
+              "epsg": 8814,
+              "proj": "gamma",
+              "kind": "angular",
+              "keys": [
+                "ProjRectifiedGridAngle"
+              ],
+              "default": 90.0
+            },
+            {
+              "name": "Scale factor at projection centre",
+              "epsg": 8815,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1489-L1492",
+          "note": "PROJ string also needs +no_uoff"
+        }
+      ]
+    },
+    "4": {
+      "ct_name": "CT_ObliqueMercator_Laborde",
+      "libgeotiff": "geo_normalize.c#L1873-L1917",
+      "variants": [
+        {
+          "method": {
+            "name": "Laborde Oblique Mercator",
+            "epsg": 9813,
+            "proj": "labrd"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of projection centre",
+              "epsg": 8811,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of projection centre",
+              "epsg": 8812,
+              "proj": "lonc",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Azimuth at projection centre",
+              "epsg": 8813,
+              "proj": "alpha",
+              "kind": "azimuth",
+              "keys": [
+                "ProjAzimuthAngle"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at projection centre",
+              "epsg": 8815,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1500-L1503",
+          "note": "PROJ string key for the azimuth is +azi"
+        }
+      ]
+    },
+    "5": {
+      "ct_name": "CT_ObliqueMercator_Rosenmund",
+      "unsupported": "No case in GTIFGetOGISDefn's switch (gt_wkt_srs.cpp#L1587 falls through to SetLocalCS) and no GDAL writer emits it"
+    },
+    "6": {
+      "ct_name": "CT_ObliqueMercator_Spherical",
+      "unsupported": "No case in GTIFGetOGISDefn's switch (gt_wkt_srs.cpp#L1587 falls through to SetLocalCS) and no GDAL writer emits it"
+    },
+    "7": {
+      "ct_name": "CT_Mercator",
+      "libgeotiff": "geo_normalize.c#L1717-L1771",
+      "variants": [
+        {
+          "when": {
+            "present": "ProjStdParallel1"
+          },
+          "method": {
+            "name": "Mercator (variant B)",
+            "epsg": 9805,
+            "proj": "merc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of 1st standard parallel",
+              "epsg": 8823,
+              "proj": "lat_ts",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel1"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1450-L1462",
+          "note": "GDAL ignores ProjScaleAtNatOrigin when the parallel is present"
+        },
+        {
+          "method": {
+            "name": "Mercator (variant A)",
+            "epsg": 9804,
+            "proj": "merc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at natural origin",
+              "epsg": 8805,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1463-L1465",
+          "note": "libgeotiff reads ProjScaleAtNatOrigin only for this code (L1739-L1747), not ProjScaleAtCenter"
+        }
+      ]
+    },
+    "8": {
+      "ct_name": "CT_LambertConfConic_2SP",
+      "libgeotiff": "geo_normalize.c#L2107-L2149",
+      "variants": [
+        {
+          "method": {
+            "name": "Lambert Conic Conformal (2SP)",
+            "epsg": 9802,
+            "proj": "lcc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of false origin",
+              "epsg": 8821,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of false origin",
+              "epsg": 8822,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Latitude of 1st standard parallel",
+              "epsg": 8823,
+              "proj": "lat_1",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel1"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Latitude of 2nd standard parallel",
+              "epsg": 8824,
+              "proj": "lat_2",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel2"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Easting at false origin",
+              "epsg": 8826,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Northing at false origin",
+              "epsg": 8827,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1564-L1567"
+        }
+      ]
+    },
+    "9": {
+      "ct_name": "CT_LambertConfConic_1SP",
+      "libgeotiff": "geo_normalize.c#L1774-L1816",
+      "variants": [
+        {
+          "method": {
+            "name": "Lambert Conic Conformal (1SP)",
+            "epsg": 9801,
+            "proj": "lcc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at natural origin",
+              "epsg": 8805,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1569-L1572",
+          "note": "PROJ string also needs +lat_1 equal to +lat_0"
+        }
+      ]
+    },
+    "10": {
+      "ct_name": "CT_LambertAzimEqualArea",
+      "libgeotiff": "geo_normalize.c#L1962-L1997",
+      "variants": [
+        {
+          "method": {
+            "name": "Lambert Azimuthal Equal Area",
+            "epsg": 9820,
+            "proj": "laea"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1537-L1540"
+        }
+      ]
+    },
+    "11": {
+      "ct_name": "CT_AlbersEqualArea",
+      "libgeotiff": "geo_normalize.c#L2152-L2195",
+      "variants": [
+        {
+          "method": {
+            "name": "Albers Equal Area",
+            "epsg": 9822,
+            "proj": "aea"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of false origin",
+              "epsg": 8821,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of false origin",
+              "epsg": 8822,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Latitude of 1st standard parallel",
+              "epsg": 8823,
+              "proj": "lat_1",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel1"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Latitude of 2nd standard parallel",
+              "epsg": 8824,
+              "proj": "lat_2",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel2"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Easting at false origin",
+              "epsg": 8826,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Northing at false origin",
+              "epsg": 8827,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1574-L1577"
+        }
+      ]
+    },
+    "12": {
+      "ct_name": "CT_AzimuthalEquidistant",
+      "libgeotiff": "geo_normalize.c#L1962-L1997",
+      "variants": [
+        {
+          "method": {
+            "name": "Azimuthal Equidistant",
+            "epsg": 1125,
+            "proj": "aeqd"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1519-L1521"
+        }
+      ]
+    },
+    "13": {
+      "ct_name": "CT_EquidistantConic",
+      "libgeotiff": "geo_normalize.c#L2152-L2195",
+      "variants": [
+        {
+          "method": {
+            "name": "Equidistant Conic",
+            "epsg": 1119,
+            "proj": "eqdc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of false origin",
+              "epsg": 8821,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of false origin",
+              "epsg": 8822,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Latitude of 1st standard parallel",
+              "epsg": 8823,
+              "proj": "lat_1",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel1"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Latitude of 2nd standard parallel",
+              "epsg": 8824,
+              "proj": "lat_2",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel2"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Easting at false origin",
+              "epsg": 8826,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Northing at false origin",
+              "epsg": 8827,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1505-L1508"
+        }
+      ]
+    },
+    "14": {
+      "ct_name": "CT_Stereographic",
+      "libgeotiff": "geo_normalize.c#L1678-L1714",
+      "variants": [
+        {
+          "method": {
+            "name": "Stereographic",
+            "epsg": null,
+            "proj": "stere"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at natural origin",
+              "epsg": 8805,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1484-L1487",
+          "note": "libgeotiff reads ProjScaleAtNatOrigin only for this code (L1696-L1698)"
+        }
+      ]
+    },
+    "15": {
+      "ct_name": "CT_PolarStereographic",
+      "libgeotiff": "geo_normalize.c#L2064-L2104",
+      "variants": [
+        {
+          "when": {
+            "value": {
+              "param": "Scale factor at natural origin",
+              "equals": 1
+            }
+          },
+          "method": {
+            "name": "Polar Stereographic (variant B)",
+            "epsg": 9829,
+            "proj": "stere"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of standard parallel",
+              "epsg": 8832,
+              "proj": "lat_ts",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of origin",
+              "epsg": 8833,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjStraightVertPoleLong",
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1559-L1562 (SetPS); variant chosen by PROJ io.cpp#L4231-L4279",
+          "note": "Scale exactly 1 selects variant B even at the pole; PROJ string also needs +lat_0=+-90. Axes are ['south', 'south'] when the resolved latitude is positive and ['north', 'north'] when negative (PROJ's WKT1 Polar_Stereographic import); the axes field cannot express a sign rule"
+        },
+        {
+          "when": {
+            "abs_value": {
+              "param": "Latitude of natural origin",
+              "equals": 90
+            }
+          },
+          "method": {
+            "name": "Polar Stereographic (variant A)",
+            "epsg": 9810,
+            "proj": "stere"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjStraightVertPoleLong",
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at natural origin",
+              "epsg": 8805,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1559-L1562 (SetPS); variant chosen by PROJ io.cpp#L4231-L4279",
+          "note": "Axes are ['south', 'south'] when the resolved latitude is positive and ['north', 'north'] when negative (PROJ's WKT1 Polar_Stereographic import); the axes field cannot express a sign rule"
+        },
+        {
+          "unrepresentable": "Polar_Stereographic off the pole with scale != 1: PROJ keeps a non-EPSG WKT1 method it cannot operate on (io.cpp#L4231-L4279)"
+        }
+      ]
+    },
+    "16": {
+      "ct_name": "CT_ObliqueStereographic",
+      "libgeotiff": "geo_normalize.c#L1774-L1816",
+      "variants": [
+        {
+          "method": {
+            "name": "Oblique Stereographic",
+            "epsg": 9809,
+            "proj": "sterea"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at natural origin",
+              "epsg": 8805,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1479-L1482"
+        }
+      ]
+    },
+    "17": {
+      "ct_name": "CT_Equirectangular",
+      "libgeotiff": "geo_normalize.c#L2000-L2036",
+      "variants": [
+        {
+          "method": {
+            "name": "Equidistant Cylindrical",
+            "epsg": 1028,
+            "proj": "eqc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Latitude of 1st standard parallel",
+              "epsg": 8823,
+              "proj": "lat_ts",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel1"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1527-L1530",
+          "note": "PROJ omits Latitude of natural origin from its output when it is 0 (fixture eqc) and keeps it otherwise (fixture eqc_lat0)"
+        }
+      ]
+    },
+    "18": {
+      "ct_name": "CT_CassiniSoldner",
+      "libgeotiff": "geo_normalize.c#L1920-L1959",
+      "variants": [
+        {
+          "method": {
+            "name": "Cassini-Soldner",
+            "epsg": 9806,
+            "proj": "cass"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1510-L1511",
+          "note": "libgeotiff reads a scale factor (L1939-L1943) that GDAL ignores"
+        }
+      ]
+    },
+    "19": {
+      "ct_name": "CT_Gnomonic",
+      "libgeotiff": "geo_normalize.c#L1962-L1997",
+      "variants": [
+        {
+          "method": {
+            "name": "Gnomonic",
+            "epsg": null,
+            "proj": "gnom"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1532-L1535"
+        }
+      ]
+    },
+    "20": {
+      "ct_name": "CT_MillerCylindrical",
+      "libgeotiff": "geo_normalize.c#L1962-L1997",
+      "variants": [
+        {
+          "method": {
+            "name": "Miller Cylindrical",
+            "epsg": null,
+            "proj": "mill"
+          },
+          "parameters": [
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1523-L1525",
+          "note": "libgeotiff reads a latitude (L1977-L1983) that PROJ drops"
+        }
+      ]
+    },
+    "21": {
+      "ct_name": "CT_Orthographic",
+      "libgeotiff": "geo_normalize.c#L1962-L1997",
+      "variants": [
+        {
+          "method": {
+            "name": "Orthographic",
+            "epsg": 9840,
+            "proj": "ortho"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1542-L1545"
+        }
+      ]
+    },
+    "22": {
+      "ct_name": "CT_Polyconic",
+      "libgeotiff": "geo_normalize.c#L1920-L1959",
+      "variants": [
+        {
+          "method": {
+            "name": "American Polyconic",
+            "epsg": 9818,
+            "proj": "poly"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1514-L1516",
+          "note": "libgeotiff reads a scale factor (L1939-L1943) that GDAL ignores"
+        }
+      ]
+    },
+    "23": {
+      "ct_name": "CT_Robinson",
+      "libgeotiff": "geo_normalize.c#L2039-L2061",
+      "variants": [
+        {
+          "method": {
+            "name": "Robinson",
+            "epsg": null,
+            "proj": "robin"
+          },
+          "parameters": [
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1547-L1549"
+        }
+      ]
+    },
+    "24": {
+      "ct_name": "CT_Sinusoidal",
+      "libgeotiff": "geo_normalize.c#L2039-L2061",
+      "variants": [
+        {
+          "method": {
+            "name": "Sinusoidal",
+            "epsg": null,
+            "proj": "sinu"
+          },
+          "parameters": [
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1551-L1553"
+        }
+      ]
+    },
+    "25": {
+      "ct_name": "CT_VanDerGrinten",
+      "libgeotiff": "geo_normalize.c#L2039-L2061",
+      "variants": [
+        {
+          "method": {
+            "name": "Van Der Grinten",
+            "epsg": null,
+            "proj": "vandg"
+          },
+          "parameters": [
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1555-L1557"
+        }
+      ]
+    },
+    "26": {
+      "ct_name": "CT_NewZealandMapGrid",
+      "libgeotiff": "geo_normalize.c#L1962-L1997",
+      "variants": [
+        {
+          "method": {
+            "name": "New Zealand Map Grid",
+            "epsg": 9811,
+            "proj": "nzmg"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1579-L1582"
+        }
+      ]
+    },
+    "27": {
+      "ct_name": "CT_TransvMercator_SouthOrientated",
+      "libgeotiff": "geo_normalize.c#L1774-L1816",
+      "variants": [
+        {
+          "method": {
+            "name": "Transverse Mercator (South Orientated)",
+            "epsg": 9808,
+            "proj": "tmerc"
+          },
+          "axes": [
+            "west",
+            "south"
+          ],
+          "parameters": [
+            {
+              "name": "Latitude of natural origin",
+              "epsg": 8801,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Scale factor at natural origin",
+              "epsg": 8805,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1445-L1448",
+          "note": "PROJ string also needs +axis=wsu"
+        }
+      ]
+    },
+    "28": {
+      "ct_name": "CT_CylindricalEqualArea",
+      "libgeotiff": "geo_normalize.c#L2198-L2224",
+      "variants": [
+        {
+          "method": {
+            "name": "Lambert Cylindrical Equal Area",
+            "epsg": 9835,
+            "proj": "cea"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of 1st standard parallel",
+              "epsg": 8823,
+              "proj": "lat_ts",
+              "kind": "angular",
+              "keys": [
+                "ProjStdParallel1"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of natural origin",
+              "epsg": 8802,
+              "proj": "lon_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False easting",
+              "epsg": 8806,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "False northing",
+              "epsg": 8807,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1584-L1586"
+        }
+      ]
+    },
+    "9815": {
+      "ct_name": "CT_HotineObliqueMercatorAzimuthCenter",
+      "libgeotiff": "geo_normalize.c#L1819-L1870",
+      "variants": [
+        {
+          "method": {
+            "name": "Hotine Oblique Mercator (variant B)",
+            "epsg": 9815,
+            "proj": "omerc"
+          },
+          "parameters": [
+            {
+              "name": "Latitude of projection centre",
+              "epsg": 8811,
+              "proj": "lat_0",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLat",
+                "ProjFalseOriginLat",
+                "ProjCenterLat"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Longitude of projection centre",
+              "epsg": 8812,
+              "proj": "lonc",
+              "kind": "angular",
+              "keys": [
+                "ProjNatOriginLong",
+                "ProjFalseOriginLong",
+                "ProjCenterLong"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Azimuth at projection centre",
+              "epsg": 8813,
+              "proj": "alpha",
+              "kind": "azimuth",
+              "keys": [
+                "ProjAzimuthAngle"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Angle from Rectified to Skew Grid",
+              "epsg": 8814,
+              "proj": "gamma",
+              "kind": "angular",
+              "keys": [
+                "ProjRectifiedGridAngle"
+              ],
+              "default": 90.0
+            },
+            {
+              "name": "Scale factor at projection centre",
+              "epsg": 8815,
+              "proj": "k_0",
+              "kind": "scale",
+              "keys": [
+                "ProjScaleAtNatOrigin",
+                "ProjScaleAtCenter"
+              ],
+              "default": 1.0
+            },
+            {
+              "name": "Easting at projection centre",
+              "epsg": 8816,
+              "proj": "x_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseEasting",
+                "ProjCenterEasting",
+                "ProjFalseOriginEasting"
+              ],
+              "default": 0.0
+            },
+            {
+              "name": "Northing at projection centre",
+              "epsg": 8817,
+              "proj": "y_0",
+              "kind": "linear",
+              "keys": [
+                "ProjFalseNorthing",
+                "ProjCenterNorthing",
+                "ProjFalseOriginNorthing"
+              ],
+              "default": 0.0
+            }
+          ],
+          "gdal": "gt_wkt_srs.cpp#L1494-L1498"
+        }
+      ]
+    }
+  }
+}

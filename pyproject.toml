@@ -72,6 +72,10 @@ docs = [
 requires = ["uv_build>=0.8.8,<0.12.0"]
 build-backend = "uv_build"
 
+[tool.pytest.ini_options]
+# The geotiff-test-data submodule has its own test suite with its own dependencies.
+testpaths = ["tests"]
+
 [tool.ruff]
 extend-exclude = ["fixtures"]
 
