@@ -95,7 +95,7 @@ def _esri_pe_string(gkd: GeoKeyDirectory) -> str | None:
 
 
 def _geographic_crs(gkd: GeoKeyDirectory) -> CRS:
-    """The geographic CRS, by EPSG code or from the Geog* keys."""
+    """Build the geographic CRS, by EPSG code or from the Geog* keys."""
     code = gkd.geographic_type
     if code is not None and code != USER_DEFINED_CRS:
         return CRS.from_epsg(code)
@@ -104,7 +104,7 @@ def _geographic_crs(gkd: GeoKeyDirectory) -> CRS:
 
 
 def _projected_crs(gkd: GeoKeyDirectory) -> CRS:
-    """The projected CRS, by EPSG code or from the Geog* and Proj* keys."""
+    """Build the projected CRS, by EPSG code or from the Geog* and Proj* keys."""
     code = gkd.projected_type
     if code is not None and code != USER_DEFINED_CRS:
         return CRS.from_epsg(code)

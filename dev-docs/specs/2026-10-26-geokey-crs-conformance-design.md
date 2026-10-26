@@ -437,7 +437,7 @@ Every row's `keys` order comes from `GTIFFetchProjParms`; every method from the 
 | 1 | Transverse Mercator (9807), `tmerc` | lat_0, lon_0, k, FE, FN | L1774-L1816 | L1440 |
 | 2 | unsupported: no GDAL read case (falls to `SetLocalCS`) | | | L1587 |
 | 3 | Hotine Oblique Mercator (variant A) (9812), `omerc +no_uoff` | lat_c, lon_c, azimuth, rectified grid angle, k_c, FE, FN | L1819-L1870 | L1489 |
-| 4 | Laborde Oblique Mercator (9813), `labrd` | lat_c, lon_c, azimuth, k_c, FE, FN | L1873-L1917 | L1500 |
+| 4 | Laborde Oblique Mercator (9813), `labrd` (PROJ keys `+lon_0` and `+azi`, not the HOM `+lonc`/`+alpha` the table's shared parameters name; the builder overrides them, the table should be corrected) | lat_c, lon_c, azimuth, k_c, FE, FN | L1873-L1917 | L1500 |
 | 5 | unsupported (no GDAL read case) | | | L1587 |
 | 6 | unsupported (no GDAL read case) | | | L1587 |
 | 7 | Mercator A (9804) / B (9805), `merc` | see 5.2 | L1717-L1771 | L1450 |

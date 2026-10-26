@@ -124,7 +124,7 @@ def parse_citation(citation: str | None) -> dict[str, str]:
 
 
 def ellipsoid(keys: Mapping[str, Any], citation: Mapping[str, str]) -> Ellipsoid:
-    """The ellipsoid from its code, or from explicit axes."""
+    """Build the ellipsoid from its code, or from explicit axes."""
     code = keys.get("geog_ellipsoid")
     semi_major = keys.get("geog_semi_major_axis")
     semi_minor = keys.get("geog_semi_minor_axis")
@@ -134,7 +134,7 @@ def ellipsoid(keys: Mapping[str, Any], citation: Mapping[str, str]) -> Ellipsoid
         return Ellipsoid.from_epsg(code)
     if semi_major is None:
         raise ValueError(
-            "A user-defined ellipsoid needs a semi-major axis (GeogSemiMajorAxisGeoKey)",
+            "A user-defined ellipsoid needs a semi-major axis (GeogSemiMajorAxis)",
         )
 
     name = citation.get("Ellipsoid")
@@ -165,7 +165,7 @@ def prime_meridian(
     citation: Mapping[str, str],
     unit: AngularUnit,
 ) -> PrimeMeridian:
-    """The prime meridian from its code, or from its longitude in the file's unit."""
+    """Build the prime meridian from its code, or from its longitude and unit."""
     code = keys.get("geog_prime_meridian")
     if _is_code(code):
         return PrimeMeridian.from_epsg(code)
@@ -182,7 +182,7 @@ def datum(
     ellipsoid: Ellipsoid,
     prime_meridian: PrimeMeridian,
 ) -> Datum:
-    """The datum from its code (which brings its own ellipsoid), or user-defined."""
+    """Build the datum from its code (which brings its ellipsoid), or user-defined."""
     code = keys.get("geog_geodetic_datum")
     if _is_code(code):
         return Datum.from_epsg(code)
@@ -194,7 +194,7 @@ def datum(
 
 
 def ellipsoidal_cs(unit: AngularUnit) -> CoordinateSystem:
-    """A lon/lat coordinate system in the given angular unit."""
+    """Build a lon/lat coordinate system in the given angular unit."""
     if unit == DEGREE:
         return Ellipsoidal2DCS()
     json_unit = {
@@ -225,7 +225,7 @@ def ellipsoidal_cs(unit: AngularUnit) -> CoordinateSystem:
 
 
 def cartesian_cs(unit: LinearUnit, axes: tuple[str, str]) -> CoordinateSystem:
-    """A projected coordinate system in the given unit with the given axis directions."""
+    """Build a projected coordinate system in the given unit and axis directions."""
     if axes == ("east", "north"):
         if unit == METRE:
             return Cartesian2DCS()
@@ -261,7 +261,7 @@ def cartesian_cs(unit: LinearUnit, axes: tuple[str, str]) -> CoordinateSystem:
 
 
 def geographic_crs(keys: Mapping[str, Any]) -> tuple[GeographicCRS, AngularUnit]:
-    """A user-defined geographic CRS and its angular unit."""
+    """Build a user-defined geographic CRS and return it with its angular unit."""
     citation = parse_citation(keys.get("geog_citation"))
     unit = angular_unit(keys)
     pm = prime_meridian(keys, citation, unit)
