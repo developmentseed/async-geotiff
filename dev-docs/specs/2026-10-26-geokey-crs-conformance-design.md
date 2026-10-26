@@ -489,12 +489,16 @@ The conformance assertion is
 
 ```python
 expected = pyproj.CRS.from_json_dict(row["gdal"]["projjson"])
-assert expected.equals(geotiff.crs)        # ignore_axis_order=False
+assert expected.equals(geotiff.crs, ignore_axis_order=True)
 ```
 
-This is PROJ's `EQUIVALENT` comparison: unit-converting on parameters, strict on datum and prime
-meridian names (with the `unknown` wildcard), strict on coordinate-system units, indifferent to
-CRS/conversion/ellipsoid names and ids. It is stronger than the normalized core and is what the
+This is PROJ's `EQUIVALENT_EXCEPT_AXIS_ORDER_GEOGCRS` comparison, the same one rasterio uses:
+unit-converting on parameters, strict on datum and prime meridian names (with the `unknown`
+wildcard), strict on coordinate-system units and on projected axis directions, indifferent to
+the geographic CRS's axis order and to CRS/conversion/ellipsoid names and ids. (Changed
+2026-10-26 from strict axis order: a GeoTIFF's raster axes are x/y whatever the CRS declares,
+the current builder writes latitude-first bases that rasterio accepts, and strict order would
+have doubled the known-failures list for no information.) It is stronger than the normalized core and is what the
 Python side uses. The `core` object in the manifest is the TS side's comparison target and the
 documented meaning of "equal" for implementations without PROJ.
 
@@ -613,14 +617,15 @@ if projected:
 - Load `fixtures/geotiff-test-data/crs/manifest.json` once (session fixture).
 - Parametrize over case names. Rows with `gdal.projjson == null` or `gdal.proj4 == null` are
   `pytest.skip`ped with the row's note.
-- For each case: `GeoTIFF.open` the fixture, `expected.equals(geotiff.crs)` (6.1), then the point
-  check, built exactly as the generator builds it (4.4): a degree, Greenwich-PM longlat CRS on
-  `geotiff.crs.ellipsoid`'s axes (`+proj=longlat +a=... +rf=...` or `+b=...`), then
-  `Transformer.from_crs(that, geotiff.crs, always_xy=True)` on `(lon, lat)`, compared to `(x, y)`
-  with `pytest.approx(abs=1e-3)`. Using `geotiff.crs.geodetic_crs` instead would move the point
-  for grads and non-Greenwich rows. For geographic rows the manifest's `(x, y)` is `(lon, lat)`
-  and the test transforms the same way (identity for degree/Greenwich bases, a real conversion
-  otherwise). Both assertions in the same test so a known-failure row covers both.
+- For each case: `GeoTIFF.open` the fixture, `expected.equals(geotiff.crs, ignore_axis_order=True)`
+  (6.1), then the point check: a degree, Greenwich-PM longlat CRS on the expected CRS's ellipsoid
+  (`+proj=longlat +a=... +rf=...` or `+R=...`), then `(lon, lat)` projected with *both* the expected
+  and the built CRS in this environment's PROJ, compared with `pytest.approx(abs=1e-3)`. The
+  manifest's own `(x, y)` is not used by the Python test: it was produced by the generator's PROJ,
+  and PROJ versions differ in formulas (Equidistant Cylindrical moved 5.9 km between 9.5 and 9.8).
+  It remains the TS side's reference, with that caveat. Using `geodetic_crs` as the base instead
+  would move the point for grads and non-Greenwich rows. Both assertions in the same test so a
+  known-failure row covers both.
 - **Known failures**: `KNOWN_FAILURES: dict[str, str]` mapping case name to reason, applied as
   `pytest.param(name, marks=pytest.mark.xfail(strict=True, reason=...))`. `strict=True` makes an
   unexpected pass fail the run, so the list can only shrink. Stage 3 seeds the list with every
