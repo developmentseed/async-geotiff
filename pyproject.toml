@@ -22,7 +22,7 @@ classifiers = [
 keywords = ["geotiff", "tiff", "async", "cog", "raster", "gis"]
 dependencies = [
     "affine>=2.4.0",
-    "async-tiff>=0.7.0",
+    "async-tiff>=0.7.2",
     "defusedxml>=0.7.1",
     "numpy>=2.0",
     "pyproj>=3.3.0",
@@ -71,6 +71,10 @@ docs = [
 [build-system]
 requires = ["uv_build>=0.8.8,<0.12.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+# The geotiff-test-data submodule has its own test suite with its own dependencies.
+testpaths = ["tests"]
 
 [tool.ruff]
 extend-exclude = ["fixtures"]
