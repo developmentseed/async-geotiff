@@ -52,6 +52,13 @@ class RasterArray(TransformMixin):
     _geotiff: GeoTIFF
     """A reference to the parent GeoTIFF."""
 
+    def __repr__(self) -> str:
+        """Summarize metadata without formatting pixel or mask values."""
+        return (
+            f"async_geotiff.RasterArray(shape={self.shape}, dtype={self.data.dtype}, "
+            f"has_mask={self.mask is not None})"
+        )
+
     @classmethod
     def _create(  # noqa: PLR0913
         cls,
