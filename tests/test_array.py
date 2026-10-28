@@ -19,15 +19,18 @@ if TYPE_CHECKING:
     [
         (
             "uint8_rgb_deflate_block64_cog",
-            "async_geotiff.RasterArray(shape=(3, 3, 4), dtype=uint8, has_mask=False)",
+            "async_geotiff.RasterArray(shape=(3, 3, 4), dtype='uint8', has_mask=False)",
         ),
         (
             "cog_uint8_rgb_mask",
-            "async_geotiff.RasterArray(shape=(3, 3, 4), dtype=uint8, has_mask=True)",
+            "async_geotiff.RasterArray(shape=(3, 3, 4), dtype='uint8', has_mask=True)",
         ),
         (
             "float32_1band_lerc_block32",
-            "async_geotiff.RasterArray(shape=(1, 3, 4), dtype=float32, has_mask=False)",
+            (
+                "async_geotiff.RasterArray(shape=(1, 3, 4), dtype='float32', "
+                "has_mask=False)"
+            ),
         ),
     ],
 )
